@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block table %}
+
+{#Django-bootstrap3#}
+{#{% load bootstrap3 %}#}
+{% comment %}<div class="container-fluid">
+    <div class="well">
+        <form action="/grid/" method="post" class="form">
+          {% csrf_token %}
+          {% bootstrap_form form layout='inline'%}
+          {% buttons %}
+              <button type="submit" class="btn btn-default">
+                  {% bootstrap_icon "search" %} Filter
+              </button>
+          {% endbuttons %}
+        </form>
+    </div>
+</div>{% endcomment %}
+
+{#Crispy form with |#}
+{% comment %}{% load crispy_forms_tags %}
+<div class="container-fluid">
+    <div class="well">
+        <form id="id_datetime" class="form-inline" role="form" action="/grid/" method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {{ form|crispy }}
+
+            <button type="submit" class="btn btn-primary">
+                <span class="glyphicon glyphicon-search"></span> Filter
+            </button>
+            <a type="button" class="btn btn-default" href="{% url "grid" %}"> Clear filter </a>
+        </form>
+    </div>
+</div>{% endcomment %}
+
+
+{#Crispy form with crispy tag#}
+{% comment %}{% load crispy_forms_tags %}
+<div class="container-fluid">
+    <div class="well">
+{#        <form id="id_datetime" class="form-inline" role="form" action="/grid/" method="post">#}
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% crispy form %}
+
+{#            <button type="submit" class="btn btn-primary">#}
+{#                <span class="glyphicon glyphicon-search"></span> Filter#}
+{#            </button>#}
+            <a type="button" class="btn btn-default" href="{% url "grid" %}"> Clear filter </a>
+        </form>
+    </div>
+</div>{% endcomment %}
+
+
+<div class="container-fluid">
+<div class="well">
+    {% if form %}
+        {{ form.media }}
+    {% endif %}
+
+    {% if form.errors %}
+        <p style="color: red;">
+            Please correct the error{{ form.errors|pluralize }} below.
+            {{ form.errors }}
+        </p>
+    {% endif %}
+
+    <form id="id_datetime" class="form-inline" role="form" action="/grid/" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% comment %}
+        <div class="form-group">
+            {{ form.from_date.errors }}
+            {{ form.from_date }}
+        </div>
+        <div class="form-group">
+            {{ form.to_date.errors }}
+            {{ form.to_date }}
+        </div>
+        <div class="form-group">
+            {{ form.contractor.errors }}
+            {{ form.contractor }}
+        </div>
+        <div class="form-group">
+            {{ form.machine.errors }}
+            {{ form.machine }}
+        </div>{% endcomment %}
+
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.errors }}
+                {#{{ field.label_tag }}#}
+                {{ field }}
+            </div>
+        {% endfor %}
+
+
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-search"></span> Filter
+        </button>
+        <a type="button" class="btn btn-default" href="{% url "grid" %}"> Clear filter </a>
+    </form>
+</div>
+</div>
+
+{% comment %}<div class="container-fluid">
+<div class="well">
+    System info.
+    {% if user.is_authenticated %}
+        User '{{ user.username }}' is authenticated.
+    {% else %}
+        User is not authenticated.
+    {% endif %}
+</div>
+</div>{% endcomment %}
+
+
+<div class="container-fluid">
+    <table class="table table-striped table-hover table-bordered">
+            <tr>
+              <th>Дата</th>
+              <th>Имя файла</th>
+              <th>Машина</th>
+              <th>Комплекты</th>
+              <th>Формы</th>
+              <th>Вывод</th>
+              <th>залито вывод</th>
+              <th>залито кинап</th>
+              <th></th>
+            </tr>
+        {% for row in table %}
+           <tr class={{ row.bg }}>
+               <td>{{ row.datetime|date:"d M Y, D H.i" }}</td>
+               <td>{{ row.pdfname }}</td>
+               <td>{{ row.machine.name }}</td>
+               <td>{{ row.total_pages }} компл.</td>
+               <td>
+                   <span data-toggle="tooltip" data-placement="right" title="{{ row.colors }}">
+                       <button type="button" class="btn btn-default btn-xs">{{ row.total_plates }} плит</button> </span>
+                   <span data-toggle="tooltip" data-placement="right" title="{{ row.inks }}">
+                       <button type="button" class="btn btn-default btn-xs">inks</button> </span>
+               </td>
+               <td>{{ row.contractor }}</td>
+               <td>{{ row.contractor_error }}</td>
+               <td>{{ row.preview_error }}</td>
+                   <td><a type="button" class="btn-sm btn-danger" href="{% url "delete" row.pk %}">
+                       <span class="glyphicon glyphicon-trash"></span></a>
+                   </td>
+           </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+<div class="col-md-4 col-md-offset-4">
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <i class="icon-calendar"></i>
+            <h3 class="panel-title">Total</h3>
+        </div>
+
+        <div class="panel-body">
+            <ul class="nav nav-pills nav-justified">
+                {% for m, y in sum_plate.items %}
+                    <span class="label label-success">{{ m }}</span>
+                    <span class="badge">{{ y }}</span>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

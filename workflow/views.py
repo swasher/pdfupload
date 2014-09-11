@@ -10,26 +10,22 @@
 
 import sys
 import os
-import socket
+#import socket
 import shutil
 import tempfile
 import logging
 import datetime
 
-from django.contrib.auth import login as django_login, authenticate, logout as django_logout
-
-# options must be in: ~/.config/smsru.conf /etc/smsru.conf
-# если запускется от рута, то соответственно ~ = /root
-import smsru
-import smsc_api
-
 from os.path import dirname, splitext
 from django.shortcuts import render_to_response, RequestContext,  HttpResponseRedirect, Http404, redirect
+from django.contrib.auth import login as django_login, authenticate, logout as django_logout
 from django.db.models import Sum
 from django.contrib import messages
 from django_rq import job
 from django.contrib.auth.decorators import login_required
 from subprocess import Popen, PIPE
+
+import smsc_api
 
 from forms import *
 from django.db.models import Q

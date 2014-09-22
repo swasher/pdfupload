@@ -6,6 +6,8 @@
 #TODO перевести supervisor в low-priv юзера
 #TODO переделать даты, чтобы работали без range, и сделать дефолтную дату 'от', например, -60 от now() или текущий пнд.
 #TODO если незалогиненный юзер жмет "удалить", редиректить его не на login, а на grid, и выводить красный warning
+#TODO логирование действий пользователя
+#TODO Проверить на пригодность использования The tiffsep device also prints the names of any spot colors detected within a document to stderr. (stderr is also used for the output from the bbox device.) For each spot color, the name of the color is printed preceded by '%%SeparationName: '. This provides a simple mechanism for users and external applications to be informed about the names of spot colors within a document.
 #####
 
 import sys
@@ -17,9 +19,9 @@ import logging
 import datetime
 
 from os.path import dirname, splitext
+from django.conf import settings
 from django.shortcuts import render_to_response, RequestContext,  HttpResponseRedirect, Http404, redirect
 from django.contrib.auth import login as django_login, authenticate, logout as django_logout
-from django.db.models import Sum
 from django.contrib import messages
 from django_rq import job
 from django.contrib.auth.decorators import login_required
@@ -27,10 +29,11 @@ from subprocess import Popen, PIPE
 
 import smsc_api
 
-from forms import *
+from forms import FilterForm
 from django.db.models import Q
+from django.db.models import Sum
 from pdfupload.settings import BASE_DIR
-from models import Grid
+from models import Grid, PrintingPress
 
 from analyze import analyze, analyze_colorant, analyze_papersize, detect_outputter, \
     analyze_inkcoverage, detect_preview_ftp, analyze_colorant_korol
@@ -43,7 +46,7 @@ def log(request):
 
 
 def login_redirect(request):
-    messages.add_message(request, messages.INFO, 'Вы должны быть зарегестрированны для выполнения этой операции.')
+    messages.add_message(request, messages.INFO, 'Вы должны быть зарегистрированны для выполнения этой операции.')
     return redirect('grid')
 
 
@@ -75,13 +78,18 @@ def logout(request):
 
 def grid(request):
     context = RequestContext(request)
+    # по умолчанию таблица фильтруется за последние days дней
+    # table = Grid.objects\
+    #     .filter(datetime__gte=(datetime.datetime.now()-datetime.timedelta(days=1)))\
+    #     .order_by('datetime')\
+    #     .reverse()
     table = Grid.objects.all().order_by('datetime').reverse()
+
 
     TTY = '/dev/tty1'
     sys.stdout = open(TTY, 'w')
     sys.stderr = open(TTY, 'w')
     #sys.stdout.write('filename'+'\n')
-    print 'Page refreshing.'
 
     if request.method == 'POST':  # If the form has been submitted...
         form = FilterForm(request.POST)  # A form bound to the POST data
@@ -95,7 +103,8 @@ def grid(request):
                 myquery &= Q(contractor__exact=form.cleaned_data['contractor'])
             if form.cleaned_data['machine']:
                 myquery &= Q(machine__exact=form.cleaned_data['machine'])
-            print myquery
+            if form.cleaned_data['filename']:
+                myquery &= Q(pdfname__icontains=form.cleaned_data['filename'])
             #table = Grid.objects.filter(Q(contractor=contractor), Q(machine=machine), myquery)
             table = Grid.objects.filter(myquery).order_by('datetime').reverse()
     else:
@@ -112,6 +121,8 @@ def grid(request):
 
 @login_required
 def delete(request, rowid):
+    #TODO сделать, чтобы после удаления не сбрасывался фильтр
+    context = RequestContext(request)
 
     try:
         row = Grid.objects.get(pk=rowid)
@@ -124,7 +135,7 @@ def delete(request, rowid):
     # table = Grid.objects.all().order_by('datetime').reverse()
     # form = FilterForm()
     # return render_to_response('grid.html', {'table': table, 'form': form}, context)
-    return HttpResponseRedirect('/grid/')
+    return redirect('grid', context)
 
 
 @job
@@ -232,13 +243,46 @@ def processing(pdfName):
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} | grep 'Page'" \
                   .format(input=croppedtempname, output=preview_abs_path)
 
-    print '\n-->Staring preview compression...'
+    print '\n-->Staring PDF preview compression...'
     os.system(gs_compress)
-    print 'Compression finished'
+    print 'Compression finished.'
+
+
+    # Make JPEG preview for Grid (only first page)
+    # #----------------------------------------------------------------
+    #  Для этой операции используется созданный на предыдущем шаге кропленый документ
+    jpeg = os.path.join(settings.STATIC_ROOT, 'jpg', pdfName + '.jpg')
+    thumb = os.path.join(settings.STATIC_ROOT, 'jpg', pdfName + '_thumb' + '.jpg')
+    gs_compress = "gs -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -dJPEGQ=80 -r{resolution}"\
+                  "-dNOPAUSE -dBATCH -sOutputFile={output} {input} " \
+                  .format(resolution='200', input=croppedtempname, output=jpeg)
+
+    make_thumb = "convert {input} -resize 175 {output}".format(input=jpeg, output=thumb)
+    make_jpeg = "convert {input} -resize 2500 {output}".format(input=jpeg, output=jpeg)
+
+    print '\n-->Staring Jpeg preview compression...'
+
+    import time
+
+    class Profiler(object):
+        def __enter__(self):
+            self._startTime = time.time()
+
+        def __exit__(self, type, value, traceback):
+            print "Elapsed time: {:.3f} sec".format(time.time() - self._startTime)
+
+    with Profiler() as p:
+        os.system(gs_compress)
+    with Profiler() as p:
+        os.system(make_thumb)
+    with Profiler() as p:
+        os.system(make_jpeg)
+    print 'Compression finished.'
+
 
     # Сalculating ink coverage
     # #----------------------------------------------------------------
-    #  Для этой операции используется созданный на предыдущем шаге кропленый документ, здесь он уничтожается.
+    #  Снова используется созданный на предыдущем шаге кропленый документ, здесь он уничтожается.
     inks = analyze_inkcoverage(croppedtempname)
     os.unlink(croppedtempname)
 
@@ -285,15 +329,6 @@ def processing(pdfName):
     status_outputter, e_outputter = sendfile(pdf_abs_path, outputter_ftp)
 
 
-    # Send SMS via sms.ru
-    ##----------------------------------------------------------------
-    # if status_outputter:
-    #     cli = smsru.Client()
-    #     phone = outputter.sms_receiver.phone
-    #     message = u'{} {} вывод {}'.format(pdfName, machine.name, outputter.name)
-    #     status = 'FAKE SMS'  #cli.send(phone, message)
-    # print '--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)    # Send SMS
-
     # Send SMS via http://smsc.ua/
     ##----------------------------------------------------------------
     try:
@@ -304,21 +339,9 @@ def processing(pdfName):
             status = smsc.send_sms(phone, message)
             print '--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)
     except Exception, e:
-        logging.error('Error send sms {0}'.format(e))
-        print 'Error send sms {0}'.format(e)
+        logging.error('Send sms exception: {0}'.format(e))
+        print 'Send sms exception: {0}'.format(e)
 
-    # # TEMPORALY SEND TO SWASHER HARDCODED Send SMS via http://smsc.ua/
-    # ##----------------------------------------------------------------
-    # try:
-    #     if status_outputter:
-    #         smsc = smsc_api.SMSC()
-    #         phone = '+380985803239'
-    #         message = '{} {} вывод {} пл.{}'.format(pdfName, machine.name, outputter.name, str(total_plates))
-    #         status = smsc.send_sms(phone, message)
-    #         print '--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)
-    # except Exception, e:
-    #     logging.error('Error send sms {0}'.format(e))
-    #     print 'Error send sms {0}'.format(e)
 
     # Запись в БД
     ##----------------------------------------------------------------

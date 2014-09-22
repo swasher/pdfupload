@@ -37,7 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_rq',
-    'datetimewidget',
+    #'datetimewidget',
+    'bootstrap3_datetime',
     # 'bootstrap3',
     # 'crispy_forms',
     'workflow',
@@ -99,6 +100,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = '/home/swasher/pdfupload/static_root/'
 LOGIN_URL = '/login_redirect'
+
+STATICFILES_DIRS = (
+    "/home/swasher/pdfupload/static_root/jpg",
+)
 
 import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',

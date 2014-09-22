@@ -2,7 +2,9 @@ django
 PyPDF2
 rq
 django_rq
-django-datetime-widget
 django-bootstrap3
 django-crispy-forms
 fabric
+
+django-bootstrap3-datetimepicker
+django-datetime-widget

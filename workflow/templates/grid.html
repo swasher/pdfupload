@@ -54,22 +54,26 @@
 </div>{% endcomment %}
 
 
+
 <div class="container-fluid">
 <div class="well">
+{% load static %}
+
     {% if form %}
         {{ form.media }}
     {% endif %}
 
     {% if form.errors %}
-        <p style="color: red;">
-            Please correct the error{{ form.errors|pluralize }} below.
-            {{ form.errors }}
-        </p>
+        <div class="container-fluid">
+            <ul class="messages">
+                <div class="alert alert-danger" role="alert">Пожалуйста, исправьте ошибки в форме: {{ form.errors }} </div>
+            </ul>
+        </div>
     {% endif %}
 
     <form id="id_datetime" class="form-inline" role="form" action="/grid/" method="post">
         {% csrf_token %}
-        {{ form.non_field_errors }}
+{#        {{ form.non_field_errors }}#}
 
         {% comment %}
         <div class="form-group">
@@ -89,7 +93,7 @@
             {{ form.machine }}
         </div>{% endcomment %}
 
-        {% for field in form %}
+        {% for field in form.visible_fields %}
             <div class="form-group">
                 {{ field.errors }}
                 {#{{ field.label_tag }}#}
@@ -103,19 +107,9 @@
         </button>
         <a type="button" class="btn btn-default" href="{% url "grid" %}"> Clear filter </a>
     </form>
-</div>
-</div>
 
-{% comment %}<div class="container-fluid">
-<div class="well">
-    System info.
-    {% if user.is_authenticated %}
-        User '{{ user.username }}' is authenticated.
-    {% else %}
-        User is not authenticated.
-    {% endif %}
 </div>
-</div>{% endcomment %}
+</div>
 
 
 <div class="container-fluid">
@@ -127,9 +121,9 @@
               <th>Комплекты</th>
               <th>Формы</th>
               <th>Вывод</th>
-              <th>залито вывод</th>
-              <th>залито кинап</th>
-              <th></th>
+              <th>Залито вывод</th>
+              <th>Залито кинап</th>
+              <th>Action</th>
             </tr>
         {% for row in table %}
            <tr class={{ row.bg }}>
@@ -146,9 +140,21 @@
                <td>{{ row.contractor }}</td>
                <td>{{ row.contractor_error }}</td>
                <td>{{ row.preview_error }}</td>
-                   <td><a type="button" class="btn-sm btn-danger" href="{% url "delete" row.pk %}">
-                       <span class="glyphicon glyphicon-trash"></span></a>
-                   </td>
+               <td>{% with "jpg/"|add:row.pdfname|add:".jpg" as jpg_link %}
+                   {% with "jpg/"|add:row.pdfname|add:"_thumb.jpg" as thumb_link %}
+                        <a type="button"
+                           class="btn-sm btn-default"
+                           title="<img src='{% static thumb_link %}' width='175'>"
+                           data-html="true"
+                           data-toggle="tooltip"
+                           data-placement="left"
+                           href='{% static jpg_link %}'>
+                        <span class="glyphicon glyphicon-eye-open"></span></a>
+                   {% endwith %}
+                   {% endwith %}
+                   <a type="button" class="btn-sm btn-danger" href="{% url "delete" row.pk %}">
+                        <span class="glyphicon glyphicon-trash"></span></a>
+               </td>
            </tr>
         {% endfor %}
     </table>

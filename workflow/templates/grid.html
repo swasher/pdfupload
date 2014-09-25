@@ -138,8 +138,18 @@
                        <button type="button" class="btn btn-default btn-xs">inks</button> </span>
                </td>
                <td>{{ row.contractor }}</td>
-               <td>{{ row.contractor_error }}</td>
-               <td>{{ row.preview_error }}</td>
+               <td>{% if row.contractor_error == "OK" %}
+                        <span class="glyphicon glyphicon-ok-circle text-success big-icon"></span>
+                   {% else %}
+                        <span class="glyphicon glyphicon-remove-circle text-danger big-icon"></span> {{ row.contractor_error }}
+                   {% endif %}
+               </td>
+               <td>{% if row.preview_error == "OK" %}
+                        <span class="glyphicon glyphicon-ok-circle text-success big-icon"></span>
+                   {% else %}
+                        <span class="glyphicon glyphicon-remove-circle text-danger big-icon"></span> {{ row.preview_error }}
+                   {% endif %}
+               </td>
                <td>{% with "jpg/"|add:row.pdfname|add:".jpg" as jpg_link %}
                    {% with "jpg/"|add:row.pdfname|add:"_thumb.jpg" as thumb_link %}
                         <a type="button"

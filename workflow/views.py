@@ -1,18 +1,19 @@
 # coding: utf-8
 
 # ####### TO-DO ###############################
-#TODO превьюхи
 #TODO кнопка run
 #TODO перевести supervisor в low-priv юзера
-#TODO переделать даты, чтобы работали без range, и сделать дефолтную дату 'от', например, -60 от now() или текущий пнд.
-#TODO если незалогиненный юзер жмет "удалить", редиректить его не на login, а на grid, и выводить красный warning
+#TODO переделать даты, чтобы работали без range
 #TODO логирование действий пользователя
 #TODO Проверить на пригодность использования The tiffsep device also prints the names of any spot colors detected within a document to stderr. (stderr is also used for the output from the bbox device.) For each spot color, the name of the color is printed preceded by '%%SeparationName: '. This provides a simple mechanism for users and external applications to be informed about the names of spot colors within a document.
+#TODO Что должно происходить, если форма не валидна?
+#TODO Посмотреть систему Callas PDF Toolbox
 #####
 
+#import socket
+from datetime import datetime
 import sys
 import os
-#import socket
 import shutil
 import tempfile
 import logging
@@ -76,38 +77,67 @@ def logout(request):
     return redirect('/')
 
 
-def grid(request):
-    context = RequestContext(request)
-    # по умолчанию таблица фильтруется за последние days дней
-    # table = Grid.objects\
-    #     .filter(datetime__gte=(datetime.datetime.now()-datetime.timedelta(days=1)))\
-    #     .order_by('datetime')\
-    #     .reverse()
-    table = Grid.objects.all().order_by('datetime').reverse()
+def printing(request):
+    pass
 
+
+def grid(request, mode=''):
+    context = RequestContext(request)
+    #table = Grid.objects.all().order_by('datetime').reverse()
 
     TTY = '/dev/tty1'
     sys.stdout = open(TTY, 'w')
     sys.stderr = open(TTY, 'w')
     #sys.stdout.write('filename'+'\n')
 
-    if request.method == 'POST':  # If the form has been submitted...
-        form = FilterForm(request.POST)  # A form bound to the POST data
-        if form.is_valid():  # All validation rules pass
-            myquery = Q()
+    # Фильтр по умолчанию - за последние n дней.
+    myquery = Q()
+    n = 7
+    start = datetime.datetime.now() - datetime.timedelta(days=n)
+    end = datetime.datetime.now()
+    defaultfilter = Q(datetime__range=(start, end))
+
+    # Если не указано иное, то по умолчанию используется темплайт grid
+    shablon = 'grid.html'
+
+    if request.method == 'POST':
+        # В эту ветку мы можем попасть, если нажато Filter или Print или Clear
+        form = FilterForm(request.POST)
+        if form.is_valid():
+            # Логика по датам - первый if - от даты до даты, elif - если введена только начальная дата -
+            # с нее по сегодня, иначе - за последние семь дней.
             if form.cleaned_data['from_date'] and form.cleaned_data['to_date']:
                 start = form.cleaned_data['from_date']
                 end = form.cleaned_data['to_date'] + datetime.timedelta(days=1)
                 myquery &= Q(datetime__range=(start, end))
+            elif form.cleaned_data['from_date']:
+                start = form.cleaned_data['from_date']
+                end = datetime.datetime.now() + datetime.timedelta(days=1)
+                myquery &= Q(datetime__range=(start, end))
+            else:
+                myquery &= defaultfilter
             if form.cleaned_data['contractor']:
                 myquery &= Q(contractor__exact=form.cleaned_data['contractor'])
             if form.cleaned_data['machine']:
                 myquery &= Q(machine__exact=form.cleaned_data['machine'])
             if form.cleaned_data['filename']:
                 myquery &= Q(pdfname__icontains=form.cleaned_data['filename'])
-            #table = Grid.objects.filter(Q(contractor=contractor), Q(machine=machine), myquery)
+
+            if mode == 'clear':
+                myquery = defaultfilter
+                form = FilterForm()
+
             table = Grid.objects.filter(myquery).order_by('datetime').reverse()
+
+            if mode == 'printing':
+                table = table.reverse()
+                shablon = 'printing.html'
+            if mode == 'filter':
+                pass
     else:
+        # В эту ветку попадаем, если пользователем перед этим не был применен фильтр.
+        # Например, после Delete или первый заход на страницу
+        table = Grid.objects.filter(defaultfilter).order_by('datetime').reverse()
         form = FilterForm()
 
     sum_plates = {}
@@ -116,12 +146,13 @@ def grid(request):
         if total['total_plates__sum']:
             sum_plates[m.name] = total['total_plates__sum']
 
-    return render_to_response('grid.html', {'table': table, 'form': form, 'sum_plate': sum_plates}, context)
+    return render_to_response(shablon, {'table': table, 'form': form, 'sum_plate': sum_plates}, context)
 
 
 @login_required
 def delete(request, rowid):
     #TODO сделать, чтобы после удаления не сбрасывался фильтр
+    #TODO при удалении возникает exception, хотя запись удаляется. Думаю, это в return redirect
     context = RequestContext(request)
 
     try:
@@ -318,7 +349,7 @@ def processing(pdfName):
         if preview_ftp:
             status_kinap, e_kinap = sendfile(preview_abs_path, preview_ftp)
         else:
-            status_kinap, e_kinap = False, "Machine can't be detected or don't have ftp"
+            status_kinap, e_kinap = False, "Unknown press or no ftp"
     else:
         print 'Preview not found and not upload'
         status_kinap, e_kinap = False, 'Preview not found'
@@ -338,6 +369,7 @@ def processing(pdfName):
             message = '{} {} вывод {} пл.{}'.format(pdfName, machine.name, outputter.name, str(total_plates))
             status = smsc.send_sms(phone, message)
             print '--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)
+            print 'SMS text: {}'.format(message)
     except Exception, e:
         logging.error('Send sms exception: {0}'.format(e))
         print 'Send sms exception: {0}'.format(e)

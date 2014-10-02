@@ -57,11 +57,9 @@
 
 <div class="container-fluid">
 <div class="well">
-{% load static %}
 
-    {% if form %}
-        {{ form.media }}
-    {% endif %}
+    {% load static %}
+    {{ form.media }}
 
     {% if form.errors %}
         <div class="container-fluid">
@@ -71,7 +69,7 @@
         </div>
     {% endif %}
 
-    <form id="id_datetime" class="form-inline" role="form" action="/grid/" method="post">
+    <form id="id_datetime" class="form-inline" role="form" method="post">
         {% csrf_token %}
 {#        {{ form.non_field_errors }}#}
 
@@ -101,11 +99,21 @@
             </div>
         {% endfor %}
 
+        <div class="btn-group">
+            <button formaction="{% url "grid" mode='filter' %}" type="submit" class="btn btn-success">
+                <span class="glyphicon glyphicon-search"></span> Filter
+            </button>
+            <button formaction="{% url "grid" mode='printing' %}" type="submit" class="btn btn-info">
+                <span class="glyphicon glyphicon-print"></span> Print
+            </button>
+            <button formaction="{% url "grid" mode='clear' %}" type="submit" class="btn btn-default">
+                <span class="glyphicon glyphicon-refresh"></span> Clear
+            </button>
+        </div>
 
-        <button type="submit" class="btn btn-primary">
-            <span class="glyphicon glyphicon-search"></span> Filter
-        </button>
-        <a type="button" class="btn btn-default" href="{% url "grid" %}"> Clear filter </a>
+
+        {% comment %}<a type="button" class="btn btn-default" href="{% url "grid" %}">
+            <span class="glyphicon glyphicon-refresh"></span> Clear </a>{% endcomment %}
     </form>
 
 </div>
@@ -141,13 +149,13 @@
                <td>{% if row.contractor_error == "OK" %}
                         <span class="glyphicon glyphicon-ok-circle text-success big-icon"></span>
                    {% else %}
-                        <span class="glyphicon glyphicon-remove-circle text-danger big-icon"></span> {{ row.contractor_error }}
+                        <span class="glyphicon glyphicon-remove-circle text-danger big-icon" data-toggle='tooltip' title='{{ row.contractor_error }}'></span>
                    {% endif %}
                </td>
                <td>{% if row.preview_error == "OK" %}
                         <span class="glyphicon glyphicon-ok-circle text-success big-icon"></span>
                    {% else %}
-                        <span class="glyphicon glyphicon-remove-circle text-danger big-icon"></span> {{ row.preview_error }}
+                        <span class="glyphicon glyphicon-remove-circle text-danger big-icon" data-toggle='tooltip' title='{{ row.preview_error }}'></span>
                    {% endif %}
                </td>
                <td>{% with "jpg/"|add:row.pdfname|add:".jpg" as jpg_link %}

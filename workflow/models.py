@@ -45,6 +45,7 @@ class Outputter(models.Model):
 
 
 class Grid(models.Model):
+        # Закомментировать auto_now_add=True для редактирования времени в админке
     datetime = models.DateTimeField(auto_now_add=True)
     pdfname = models.CharField(max_length=100)
     machine = models.ForeignKey(PrintingPress, null=True)

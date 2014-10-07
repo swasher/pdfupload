@@ -105,10 +105,43 @@ STATICFILES_DIRS = (
     "/home/swasher/pdfupload/static_root/jpg",
 )
 
-import logging
-logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
-                    datefmt='%d/%m/%Y %H:%M',
-                    filename=BASE_DIR + '/workflow/templates/log.html',
-                    level=logging.DEBUG)
+#import logging
+# logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
+#                     datefmt='%d/%m/%Y %H:%M',
+#                     filename=BASE_DIR + '/workflow/templates/debug.html',
+#                     level=logging.DEBUG)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR + '/workflow/templates/debug.html',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'pdfupload': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+    }
+}
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'

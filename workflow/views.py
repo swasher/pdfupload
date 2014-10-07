@@ -1,17 +1,18 @@
 # coding: utf-8
 
-# ####### TO-DO ###############################
-#TODO кнопка run
+# ---------- TO-DO -----------
 #TODO перевести supervisor в low-priv юзера
-#TODO переделать даты, чтобы работали без range
 #TODO логирование действий пользователя
 #TODO Проверить на пригодность использования The tiffsep device also prints the names of any spot colors detected within a document to stderr. (stderr is also used for the output from the bbox device.) For each spot color, the name of the color is printed preceded by '%%SeparationName: '. This provides a simple mechanism for users and external applications to be informed about the names of spot colors within a document.
-#TODO Что должно происходить, если форма не валидна?
+#TODO Что должно происходить, если форма не валидна? line 108
 #TODO Посмотреть систему Callas PDF Toolbox
-#####
+#TODO Сделать отчеты по годам и месяцам
+#TODO Сделать кнопку 'перезалить на кинап'
+#TODO Аналогично кнопка run
+#
 
 #import socket
-from datetime import datetime
+#from datetime import datetime
 import sys
 import os
 import shutil
@@ -41,6 +42,7 @@ from analyze import analyze, analyze_colorant, analyze_papersize, detect_outputt
 from util import inks_to_multiline, dict_to_multiline, remove_outputter_title, crop, \
     sendfile, error_text
 
+logger = logging.getLogger(__name__)
 
 def log(request):
     return render_to_response('log.html')
@@ -90,9 +92,13 @@ def grid(request, mode=''):
     sys.stderr = open(TTY, 'w')
     #sys.stdout.write('filename'+'\n')
 
+    logger.debug("this is a debug message!")
+    logger.error("this is an error message!!")
+    print '1111'
+
     # Фильтр по умолчанию - за последние n дней.
     myquery = Q()
-    n = 7
+    n = 60
     start = datetime.datetime.now() - datetime.timedelta(days=n)
     end = datetime.datetime.now()
     defaultfilter = Q(datetime__range=(start, end))
@@ -104,8 +110,8 @@ def grid(request, mode=''):
         # В эту ветку мы можем попасть, если нажато Filter или Print или Clear
         form = FilterForm(request.POST)
         if form.is_valid():
-            # Логика по датам - первый if - от даты до даты, elif - если введена только начальная дата -
-            # с нее по сегодня, иначе - за последние семь дней.
+            # Логика по датам: первый if - введены обе даты, elif - если введена только начальная дата -
+            # с нее по сегодня, иначе - за последние n дней.
             if form.cleaned_data['from_date'] and form.cleaned_data['to_date']:
                 start = form.cleaned_data['from_date']
                 end = form.cleaned_data['to_date'] + datetime.timedelta(days=1)
@@ -162,11 +168,13 @@ def delete(request, rowid):
 
     Grid.objects.get(pk=rowid).delete()
 
+    '''
     # context = RequestContext(request)
     # table = Grid.objects.all().order_by('datetime').reverse()
     # form = FilterForm()
     # return render_to_response('grid.html', {'table': table, 'form': form}, context)
-    return redirect('grid', context)
+    '''
+    return redirect('grid')
 
 
 @job

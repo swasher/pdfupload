@@ -124,11 +124,17 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
+        'filedebug': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': BASE_DIR + '/workflow/templates/debug.html',
             'formatter': 'verbose'
+        },
+        'fileinfo': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR + '/workflow/templates/info.html',
+            'formatter': 'simple'
         },
     },
     'loggers': {

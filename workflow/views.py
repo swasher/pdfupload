@@ -3,16 +3,24 @@
 # ---------- TO-DO -----------
 #TODO перевести supervisor в low-priv юзера
 #TODO логирование действий пользователя
-#TODO Проверить на пригодность использования The tiffsep device also prints the names of any spot colors detected within a document to stderr. (stderr is also used for the output from the bbox device.) For each spot color, the name of the color is printed preceded by '%%SeparationName: '. This provides a simple mechanism for users and external applications to be informed about the names of spot colors within a document.
+#TODO Проверить на пригодность использования The tiffsep device also prints the names of any spot colors
+#       detected within a document to stderr. (stderr is also used for the output from the bbox device.)
+#       For each spot color, the name of the color is printed preceded by '%%SeparationName: '. This provides a simple
+#       mechanism for users and external applications to be informed about the names of spot colors within a document.
 #TODO Что должно происходить, если форма не валидна? line 108
 #TODO Посмотреть систему Callas PDF Toolbox
 #TODO Сделать отчеты по годам и месяцам
 #TODO Сделать кнопку 'перезалить на кинап'
-#TODO Аналогично кнопка run
-#
+#TODO Аналогично кнопка run3
+#TODO Ротация логов nginx
+#TODO Разобраться с джипегами при выполнении collectstatic. Они должны находится в $BASE_DIR/pdfupload/static_root/jpg
+#TODO Регулярный бекап базы кроном. Продумать куда, возможно мылом на dropbox: https://sendtodropbox.com
+#TODO Перенести продакшн на webserver, последний на nginx, настроить выдачу на запрос без указания хоста:
+#       поиск по словам "Как предотвратить обработку запросов без имени сервера"
 
 #import socket
 #from datetime import datetime
+
 import sys
 import os
 import shutil
@@ -43,6 +51,7 @@ from util import inks_to_multiline, dict_to_multiline, remove_outputter_title, c
     sendfile, error_text
 
 logger = logging.getLogger(__name__)
+
 
 def log(request):
     return render_to_response('log.html')

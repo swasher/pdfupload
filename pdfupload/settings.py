@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     # 'bootstrap3',
     # 'crispy_forms',
     'workflow',
+    'django_rq_dashboard',
 )
 
 
@@ -98,56 +99,59 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/swasher/pdfupload/static_root/'
+STATIC_ROOT = BASE_DIR + '/static_root/'
 LOGIN_URL = '/login_redirect'
 
 STATICFILES_DIRS = (
-    "/home/swasher/pdfupload/static_root/jpg",
+    BASE_DIR + '/static_root/jpg',
 )
 
-#import logging
-# logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
-#                     datefmt='%d/%m/%Y %H:%M',
-#                     filename=BASE_DIR + '/workflow/templates/debug.html',
-#                     level=logging.DEBUG)
+INPUT_PATH = BASE_DIR + '/input/'
+TEMP_PATH = BASE_DIR + '/tmp/'
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-    },
-    'handlers': {
-        'filedebug': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR + '/workflow/templates/debug.html',
-            'formatter': 'verbose'
-        },
-        'fileinfo': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR + '/workflow/templates/info.html',
-            'formatter': 'simple'
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'propagate': True,
-            'level': 'DEBUG',
-        },
-        'pdfupload': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-        },
-    }
-}
+import logging
+logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
+                    datefmt='%d/%m/%Y %H:%M',
+                    filename=BASE_DIR + '/workflow/templates/debug.html',
+                    level=logging.DEBUG)
 
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+#             'datefmt' : "%d/%b/%Y %H:%M:%S"
+#         },
+#         'simple': {
+#             'format': '%(levelname)s %(message)s'
+#         },
+#     },
+#     'handlers': {
+#         'filedebug': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': BASE_DIR + '/workflow/templates/debug.html',
+#             'formatter': 'verbose'
+#         },
+#         'fileinfo': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': BASE_DIR + '/workflow/templates/info.html',
+#             'formatter': 'simple'
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'propagate': True,
+#             'level': 'DEBUG',
+#         },
+#         'pdfupload': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#         },
+#     }
+# }
+
+#CRISPY_TEMPLATE_PACK = 'bootstrap3'

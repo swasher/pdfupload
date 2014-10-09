@@ -1,7 +1,6 @@
 # coding: utf-8
 
 # ---------- TO-DO -----------
-#TODO перевести supervisor в low-priv юзера
 #TODO логирование действий пользователя
 #TODO Проверить на пригодность использования The tiffsep device also prints the names of any spot colors
 #       detected within a document to stderr. (stderr is also used for the output from the bbox device.)
@@ -93,6 +92,8 @@ def printing(request):
 
 
 def grid(request, mode=''):
+
+
     context = RequestContext(request)
     #table = Grid.objects.all().order_by('datetime').reverse()
 
@@ -188,15 +189,14 @@ def delete(request, rowid):
 
 @job
 def processing(pdfName):
+    from pdfupload.settings import INPUT_PATH as inputpath
+    from pdfupload.settings import TEMP_PATH as tmppath
 
     # socket.setdefaulttimeout(10.0)
 
     TTY = '/dev/tty1'
     sys.stdout = open(TTY, 'w')
     sys.stderr = open(TTY, 'w')  # Теперь print пишет в назначенный TTY
-
-    tmppath = BASE_DIR + '/tmp/'
-    inputpath = BASE_DIR + '/input_django/'
 
     print '\n\n'
     print 'START PROCESSING {}'.format(pdfName)
@@ -232,6 +232,7 @@ def processing(pdfName):
 
     #Check if file created with Signa
     #-----------------------------------------------------------------
+    #TODO Если файл пересохранить в акробате, то он остается типа Сигновский, но инфа о красочности уже не вытаскивается
     pdfinfo_command = "pdfinfo {} | grep Creator | tr -s ' ' | cut -f 2 -d ' '".format(pdf_abs_path)
     result_strings = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().strip()
     if result_strings == 'PrinectSignaStation':

@@ -188,9 +188,9 @@
 
         <div class="panel-body">
             <ul class="nav nav-pills nav-justified">
-                {% for m, y in sum_plate.items %}
-                    <span class="label label-success">{{ m }}</span>
-                    <span class="badge">{{ y }}</span>
+                {% for machine, quantity in sum_plate.items %}
+                    <span class="label label-success">{{ machine }}</span>
+                    <span class="badge">{{ quantity }}</span>
                 {% endfor %}
             </ul>
         </div>

@@ -20,30 +20,25 @@ Deploy
 
 В домашней директории создаем окружение:
 
-    ::console
     $ virtualenv uploadsite
     $ cd uploadsite
     $ source bin/active
 
 ##### Забираем репозиторий
 
-    ::console
     $ git clone https://github.com/swasher/pdfupload.git
     
 Создаем директорию-хотфолдер. Она должна находится в корне проекта и иметь название `input`. Изменяется в `settings.py`.
 
-    ::console
     $ cd pdfupload
     $ mkdir input
     
 Директория для логов
     
-    ::console
     $ mkdir logs
 
 ##### Устанавливаем зависимости
     
-    ::console
     $ sudo apt-get install redis-server
     $ pip install -r requirements.txt
     $ deactivate
@@ -58,7 +53,6 @@ Deploy
 
 В `settings.py` проверяем настройки базы, менеджера очередей rq, а также наличие SECRET_KEY
 
-    ::python
     from settings_secret import *
 
     INSTALLED_APPS = (
@@ -87,7 +81,6 @@ Deploy
 Файл putting_job_in_the_queue.py создает запись в очереди. В нем должны быть настройки, чтобы интерпретатор питон
 понял, что это код джанго. В последней строке вызывается вьюха джанго, и в нее передается параметр.
 
-    ::python
     import os
     import sys
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pdfupload.settings")
@@ -122,29 +115,24 @@ Deploy
 
 Во вьюхе мы запускаем обработчик файла - функцию testing, переданного через параметр:
 
-    ::python
     @job
     def processing(pdfName):
         # do something with pdfname
 
 Чтобы запустить обработчик очереди в консоли, используется команда
 
-    ::console
     $ python manage.py rqworker default
 
 Для автоматического запуска менеджера очередей в uwsgi.ini добавляется строка
 
-    ::bash
     attach-daemon = python /home/swasher/pdfupload/manage.py rqworker default
     
 Так же можно поставить rq-dashboard, и наблюдать за происходящим в консоли
 
-    ::console
     $ rqinfo
      
 или в браузере на порту 9181, запустив 
 
-    ::console
     $ rq-dashboard
 
 Настраиваем uwsgi, supervisor и nginx
@@ -156,7 +144,6 @@ Deploy
 
 Примерный конфиг для nginx. Не забываем создать нужные пути, для логов например.
 
-    ::nginx
     server {
         server_name pdf.site.ua;
         access_log  /home/swasher/pdfupload/logs/nginx-access.log  compression;
@@ -183,7 +170,6 @@ Deploy
 В корне проекта лежит файл настроек uWSGI. Так же проверяем пути. Последней строкой автоматически запускается 
 менеджер очередей rq. `/home/swasher/pdfupload/uwsgi.ini`:
 
-    ::python
     [uwsgi]
     # set PYTHONHOME/virtualenv. Comment if no virtual environment
     #home=/home/swasher/production/blacklist
@@ -207,7 +193,6 @@ Deploy
 Поле 'touch-reload' указывает на файл, запись в который приводит к перезапуску клиента супервизора. В данном случае,
 команда
 
-    ::console
     $ touch /tmp/pdfupload.reload
     
 приведет к перезапуску uWSGI сервера.
@@ -217,7 +202,6 @@ Deploy
 В конфиг `supervisord.conf` изменения вносить не нужно. Создаем только файл конфигурации для нашего 
 питон-приложения `/etc/supervisor/conf.d/pdfupload.conf`:
 
-    ::ini
     [program:pdfupload]
     command=uwsgi /home/swasher/pdfupload/uwsgi.ini
     stdout_logfile=/home/swasher/pdfupload/logs/uwsgi.ini

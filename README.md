@@ -12,6 +12,8 @@ Deploy
 
 Желательно использование virtualenv, в данном тексте для упрощения используется system-wide.
 
+
+
 Забираем репозиторий
 ---------------------
 
@@ -99,24 +101,117 @@ Deploy
 Обработчик события
 ------------------
 
+Используется библиотека очередей rq. Это более простой аналог Celery.
+
 Во вьюхе мы запускаем обработчик файла - функцию testing, переданного через параметр:
 
+    ::python
     @job
     def processing(pdfName):
         # do something with pdfname
 
 Чтобы запустить обработчик очереди в консоли, используется команда
 
+    ::console
     $ python manage.py rqworker default
 
-Для атоматического запуска в uwsgi.ini добавляется строка
+Для автоматического запуска менеджера очередей в uwsgi.ini добавляется строка
 
+    ::bash
+    attach-daemon = python /home/swasher/pdfupload/manage.py rqworker default
+    
+Так же можно поставить rq-dashboard, и наблюдать за происходящим в консоли
+
+    ::console
+    $ rqinfo
+     
+или в браузере на порту 9181, запустив 
+
+    ::console
+    $ rq-dashboard
+
+Настраиваем uwsgi, supervisor и nginx
+-------------------------------------
+
+##### nginx
+
+Связку wsgi+вебсервер можно использовать любую, я использую uWSGI+nginx. 
+
+Примерный конфиг для nginx. Не забываем создать нужные пути, для логов например.
+
+    ::nginx
+    server {
+        server_name pdf.site.ua;
+        access_log  /home/swasher/pdfupload/logs/nginx-access.log  compression;
+        error_log   /home/swasher/pdfupload/logs/nginx-error.log info;
+    
+        location / {
+            uwsgi_pass 127.0.0.1:49001;
+            include uwsgi_params;
+        }
+    
+        location /media/ {
+            alias /home/swasher/pdfupload/media/;
+            expires 30d;
+        }
+    
+        location /static/ {
+            alias /home/swasher/pdfupload/static_root/;
+            expires 30d;
+        }
+    }
+
+###### uWSGI
+
+В корне проекта лежит файл настроек uWSGI. Так же проверяем пути. Последней строкой автоматически запускается 
+менеджер очередей rq. `/home/swasher/pdfupload/uwsgi.ini`:
+
+    ::python
+    [uwsgi]
+    # set PYTHONHOME/virtualenv. Comment if no virtual environment
+    #home=/home/swasher/production/blacklist
+    chdir=/home/swasher/pdfupload
+    master=True
+    disable-logging=True
+    vacuum=True
+    pidfile=/tmp/pdfupload.pid
+    max-requests=5000
+    socket=127.0.0.1:49001
+    processes=2
+    
+    # Path to python interpreter if using virt. envir., otherwise '..'
+    pythonpath=..
+    env=DJANGO_SETTINGS_MODULE=pdfupload.settings
+    #module = django.core.handlers.wsgi:WSGIHandler()
+    module = django.core.wsgi:get_wsgi_application()
+    touch-reload=/tmp/pdfupload.reload
     attach-daemon = python /home/swasher/pdfupload/manage.py rqworker default
 
-Или с помощью супервизора http://python-rq.org/patterns/supervisor/
+Поле 'touch-reload' указывает на файл, запись в который приводит к перезапуску клиента супервизора. В данном случае,
+команда
 
-Так же можно поставить pip install rq-dashboard, и наблюдать за происходящим в консоли
-($rqinfo), или в браузере на порту 9181 ($rq-dashboard)
+    ::console
+    $ touch /tmp/pdfupload.reload
+    
+приведет к перезапуску uWSGI сервера.
+
+###### Supervisor
+
+В конфиг `supervisord.conf` изменения вносить не нужно. Создаем файл конфигурации для нашего 
+питон-приложения `/etc/supervisor/conf.d/pdfupload.conf`:
+
+    ::ini
+    [program:pdfupload]
+    command=uwsgi /home/swasher/pdfupload/uwsgi.ini
+    stdout_logfile=/home/swasher/pdfupload/logs/uwsgi.ini
+    stderr_logfile=/home/swasher/pdfupload/logs/uwsgi_err.ini
+    autostart=true
+    autorestart=true
+    redirect_stderr=true
+    stopwaitsecs = 60
+    stopsignal=INT
+    user=swasher
+
 
 TROUBLESHOOTING
 -----------------------
@@ -136,3 +231,5 @@ module = django.core.handlers.wsgi:WSGIHandler()
 to
 module = django.core.wsgi:get_wsgi_application()
 in the vassal.ini
+
+  [мануал]: http://python-rq.org/patterns/supervisor/

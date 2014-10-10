@@ -4,7 +4,9 @@ rq
 django_rq
 django-rq-dashboard
 django-bootstrap3
-#django-crispy-forms
 fabric
 django-bootstrap3-datetimepicker
-django-datetime-widget
+
+#deprecated
+#django-crispy-forms
+#django-datetime-widget

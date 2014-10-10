@@ -3,6 +3,7 @@ Deploy
 
 Установка требует следующих шагов:
 
+- Установка
 - забираем репозиторий
 - устанавливаем зависимости
 - настройка конфигов
@@ -12,10 +13,19 @@ Deploy
 
 Желательно использование virtualenv, в данном тексте для упрощения используется system-wide.
 
+Установка
+--------------------
 
+##### virtualenv
 
-Забираем репозиторий
----------------------
+В домашней директории создаем окружение:
+
+    ::console
+    $ virtualenv uploadsite
+    $ cd uploadsite
+    $ source bin/active
+
+##### Забираем репозиторий
 
     ::console
     $ git clone https://github.com/swasher/pdfupload.git
@@ -23,16 +33,23 @@ Deploy
 Создаем директорию-хотфолдер. Она должна находится в корне проекта и иметь название `input`. Изменяется в `settings.py`.
 
     ::console
-    $ cd ~/pdfupload
+    $ cd pdfupload
     $ mkdir input
-
-Устанавливаем зависимости
---------------------------
+    
+Директория для логов
     
     ::console
-    $ sudo apt-get install reddis-server
-    $ sudo pip install -r requirements.txt
+    $ mkdir logs
+
+##### Устанавливаем зависимости
     
+    ::console
+    $ sudo apt-get install redis-server
+    $ pip install -r requirements.txt
+    $ deactivate
+
+Ставим incrontab, и разрешаем пользователю управлять им:    
+
     $ sudo apt-get install incron
     $ sudo echo <username> >> /etc/incron.allow
 
@@ -161,7 +178,7 @@ Deploy
         }
     }
 
-###### uWSGI
+##### uWSGI
 
 В корне проекта лежит файл настроек uWSGI. Так же проверяем пути. Последней строкой автоматически запускается 
 менеджер очередей rq. `/home/swasher/pdfupload/uwsgi.ini`:
@@ -195,9 +212,9 @@ Deploy
     
 приведет к перезапуску uWSGI сервера.
 
-###### Supervisor
+##### Supervisor
 
-В конфиг `supervisord.conf` изменения вносить не нужно. Создаем файл конфигурации для нашего 
+В конфиг `supervisord.conf` изменения вносить не нужно. Создаем только файл конфигурации для нашего 
 питон-приложения `/etc/supervisor/conf.d/pdfupload.conf`:
 
     ::ini

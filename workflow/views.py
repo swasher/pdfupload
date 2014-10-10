@@ -405,7 +405,7 @@ def processing(pdfName):
         bg = 'default'
 
     row = Grid()
-    #row.datetime = now
+    row.datetime = datetime.datetime.now()
     row.pdfname = pdfName
     row.machine = machine
     row.total_pages = complects

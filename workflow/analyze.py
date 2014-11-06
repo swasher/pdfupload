@@ -90,28 +90,48 @@ def analyze_colorant(pdfname):
     total_plates(int) - общее количество плит
     pdf_colors(dict) - словарь, где ключ - номер страницы, значение - список сепараций
     """
+    import re
+
     cmd = r"cat {} | grep --binary-files=text 'HDAG_ColorantNames'".format(pdfname)
-    result_strings = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
+    result_strings = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE).stdout.read()
 
     total_plates = 0
-    #total_pages = len(result_strings)
     pdf_colors = {}
-    for index, color in enumerate(result_strings):
-        # Убираем из строки HDAG_ColorantNames занки '/[]', разделяем
-        # строку на список, убираем первый элемент (HDAG_ColorantNames)
-        separations = color.translate(None, '/[]').split()[1:]
-        total_plates += len(separations)
 
-        #fix pantone names
-        separations = [s.replace('#20', '_') for s in separations]
+    # если pdf пересохранить в акробате, в нем нарушается структура. Проверяем:
+    if result_strings.split()[0] == '/HDAG_ColorantNames':
+        # ПДФ не изменялся после Сигны
+        result_strings = result_strings.splitlines()
+        for index, color in enumerate(result_strings):
+            # Убираем из строки HDAG_ColorantNames,  знаки '/[]', разделяем
+            # строку на список, убираем первый элемент (HDAG_ColorantNames)
+            separations = color.translate(None, '/[]').split()[1:]
 
-        #Создаем словарь, где ключ - номер страницы, значение - список сепараций
-        pdf_colors[index+1] = separations
+            #fix pantone names
+            separations = [s.replace('#20', '_') for s in separations]
+
+            #Создаем словарь, где ключ - номер страницы, значение - список сепараций
+            pdf_colors[index+1] = separations
+
+            total_plates += len(separations)
+    else:
+        # ПДФ был пересохранен в акробате
+        print '===But was rewrite via Acrobat==='
+        hd_pattern = re.compile(r'HDAG_ColorantNames\[(.+)\]\/HDAG_ColorantOrder')
+        result_strings = hd_pattern.findall(result_strings)
+
+        for index, color in enumerate(result_strings):
+            separations = color.split('/')[1:]
+            separations = [s.replace('#20', '_') for s in separations]
+            pdf_colors[index+1] = separations
+            total_plates += len(separations)
+
     return total_plates, pdf_colors
 
 
-def analyze_colorant_korol(pdfname):
+def analyze_colorant_korol_old(pdfname):
     """
+    DEPRECATED since analize via pdf_colors implemented
     Генерирует строку для Короля, с краткими именами красок на первой странице пдф'а
     :param pdfname: path to pdf file
     :return:
@@ -136,6 +156,49 @@ def analyze_colorant_korol(pdfname):
         short_colors = ''
     else:
         short_colors = '_'+short_colors
+
+    return short_colors
+
+
+def analyze_colorant_korol(pdf_colors):
+    """
+    :param pdf_colors: Это словарь, ключ - номер страницы, значение - список из строк-названий красок
+    :return: short_colors: строка, краткий список красок на первом пейдже
+    """
+    cmyk = ['Cyan', 'Magenta', 'Yellow', 'Black']
+
+    # colors == ['PANTONE_Reflex_Blue_C', 'Cyan', 'Magenta', 'PANTONE_246_C']
+    colors = pdf_colors[1]
+
+    #убираем из пантонов слово Pantone и знаки подчеркивания
+    inks = []
+    for separations in colors:
+        parts = separations.split("_")
+        if 'PANTONE' in parts:
+            parts.remove('PANTONE')
+        newcolor = ''.join(parts)
+        inks.append(newcolor)
+
+    # inks == ['ReflexBlueC', 'Cyan', 'Magenta', '246C']
+
+    replaced_colors = ''
+    #если краски - только CMYK
+    if set(inks) == set(cmyk):
+        #то возвращаем пустую строку - в название файла никакая инфа не добавится
+        print 'only cmyk'
+        short_colors = ''
+    else:
+        #иначе заменяем краски Cyan Magenta Yellow Black на их заглавные буквы и ставим их в начало строки
+        for ink in cmyk:
+            if ink in inks:
+                inks.remove(ink)
+                replaced_colors += ink[0]
+        inks.insert(0, replaced_colors)
+
+        # inks == ['CM', 'ReflexBlueC', '246C']
+
+        # объеденяем список в строку через дефис и добавляем спереди подчеркивание
+        short_colors = '_' + '-'.join(inks)
 
     return short_colors
 

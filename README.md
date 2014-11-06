@@ -4,12 +4,10 @@ Deploy
 Установка требует следующих шагов:
 
 - Установка
-- забираем репозиторий
-- устанавливаем зависимости
-- настройка конфигов
-- создаем обработчик incrontab
-- доступ по samba
-- настраиваем uwsgi, supervisor и nginx
+- Настройка конфигов
+- Обработчик incrontab
+- Доступ по samba
+- uWSGI, supervisor и nginx
 
 Желательно использование virtualenv, в данном тексте для упрощения используется system-wide.
 
@@ -48,6 +46,13 @@ Deploy
     $ sudo apt-get install incron
     $ sudo echo <username> >> /etc/incron.allow
 
+##### Запись в tty
+
+Чтобы скрипт мог выводить служебную информацию в терминал, нужно, чтобы пользователь, от имени которого запускается
+скрипт, имел право записи в /dev/tty1. В дебиан/убунту tty1 имеет владельца root:tty, нужно добавить юзера в группу tty:
+    
+    $ sudo adduser $USER dialout  
+
 Настройка конфигов
 --------------------
 
@@ -70,29 +75,6 @@ Deploy
          },
     }
 
-Создаем обработчик incrontab
-----------------------------
-
-Создаем событие inotify через incrontab (`incrontab -e`), из-под непривелигированного пользователя, который
-был добавлен в `incron.allow`:
-
-    /home/swasher/pdfupload/input IN_CLOSE_WRITE python /home/swasher/pdfupload/putting_job_in_the_queue.py $#
-
-Файл putting_job_in_the_queue.py создает запись в очереди. В нем должны быть настройки, чтобы интерпретатор питон
-понял, что это код джанго. В последней строке вызывается вьюха джанго, и в нее передается параметр.
-
-    import os
-    import sys
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pdfupload.settings")
-    from django.conf import settings
-
-    import django_rq
-    import workflow.views
-
-    pdfName = sys.argv[1]
-
-    django_rq.enqueue(workflow.views.testing, filename=pdfName)
-
 Доступ по Samba
 ---------------------------------
 
@@ -106,14 +88,39 @@ Deploy
     guest ok = yes
     read only = no
     
-Когда в эту директорию падает файл, запускается обработчик incrontab, событие ставится в очередь rq и обрабатывается - 
+Когда в эту директорию падает файл, запускается обработчик incrontab, и событие ставится в очередь rq.
+
+
+Создаем обработчик incrontab
+----------------------------
+
+Создаем событие inotify через incrontab (`incrontab -e`), из-под непривелигированного пользователя, который
+был добавлен в `incron.allow`:
+
+    /home/swasher/pdfupload/input IN_CLOSE_WRITE python /home/swasher/pdfupload/putting_job_in_the_queue.py $#
+
+Файл putting_job_in_the_queue.py создает запись в очереди. В нем должны быть настройки, чтобы интерпретатор питон
+понял, что это код джанго. В последней строке вызывается вьюха джанго, и в нее передается параметр - имя файла.
+
+    import os
+    import sys
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pdfupload.settings")
+    from django.conf import settings
+
+    import django_rq
+    import workflow.views
+
+    pdfName = sys.argv[1]
+
+    django_rq.enqueue(workflow.views.processing, filename=pdfName)
+
 
 Обработчик события
 ------------------
 
-Используется библиотека очередей rq. Это более простой аналог Celery.
+Используется библиотека очередей rq. Это более простой аналог Celery. После того, как задание 
 
-Во вьюхе мы запускаем обработчик файла - функцию testing, переданного через параметр:
+Задание обрабатывается функцией processing во `views.py`, обернутой в декоратор @job.
 
     @job
     def processing(pdfName):
@@ -123,7 +130,7 @@ Deploy
 
     $ python manage.py rqworker default
 
-Для автоматического запуска менеджера очередей в uwsgi.ini добавляется строка
+Для автоматического запуска менеджера очередей в 'uwsgi.ini' добавляется строка
 
     attach-daemon = python /home/swasher/pdfupload/manage.py rqworker default
     

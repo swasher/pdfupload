@@ -16,6 +16,7 @@
 #TODO Регулярный бекап базы кроном. Продумать куда, возможно мылом на dropbox: https://sendtodropbox.com
 #TODO Перенести продакшн на webserver, последний на nginx, настроить выдачу на запрос без указания хоста:
 #       поиск по словам "Как предотвратить обработку запросов без имени сервера"
+#TODO Жалобы на плохое качество превью
 
 #import socket
 #from datetime import datetime
@@ -43,9 +44,10 @@ from django.db.models import Q
 from django.db.models import Sum
 from pdfupload.settings import BASE_DIR
 from models import Grid, PrintingPress
+from django.utils import timezone
 
 from analyze import analyze, analyze_colorant, analyze_papersize, detect_outputter, \
-    analyze_inkcoverage, detect_preview_ftp, analyze_colorant_korol
+    analyze_inkcoverage, detect_preview_ftp, analyze_colorant_korol_old, analyze_colorant_korol
 from util import inks_to_multiline, dict_to_multiline, remove_outputter_title, crop, \
     sendfile, error_text
 
@@ -93,7 +95,6 @@ def printing(request):
 
 def grid(request, mode=''):
 
-
     context = RequestContext(request)
     #table = Grid.objects.all().order_by('datetime').reverse()
 
@@ -104,7 +105,6 @@ def grid(request, mode=''):
 
     logger.debug("this is a debug message!")
     logger.error("this is an error message!!")
-    print '1111'
 
     # Фильтр по умолчанию - за последние n дней.
     myquery = Q()
@@ -262,6 +262,7 @@ def processing(pdfName):
     # total_pages тут определяется по кол-ву строк, содержащих тэг HDAG_ColorantNames
     total_plates, pdf_colors = analyze_colorant(pdf_abs_path)
 
+    #TODO paper size не используется?
     paper_size = analyze_papersize(pdf_abs_path)
 
     outputter = detect_outputter(pdfName)
@@ -352,13 +353,20 @@ def processing(pdfName):
         # may be rotate90?
 
         # add numper of plates to pdf name
-        colorstring = analyze_colorant_korol(pdf_abs_path)
+        colorstring_old = analyze_colorant_korol_old(pdf_abs_path)
+        colorstring = analyze_colorant_korol(pdf_colors)
 
         ###add label representing paper width for Korol
         newname = pdfName + '_' + str(machine.plate_w) + '_' + str(total_plates) + 'Plates' + colorstring + pdfExtension
+
         shutil.move(pdf_abs_path, tempdir + newname)
         pdfname = newname
         pdf_abs_path = tempdir + newname
+
+        # print 'pdf_colors', pdf_colors
+        print 'colorstring_new', colorstring
+        print 'newname', newname
+        #exit()
 
 
     # Send Preview PDF to printing press FTP
@@ -386,12 +394,15 @@ def processing(pdfName):
             phone = outputter.sms_receiver.phone
             message = '{} {} вывод {} пл.{}'.format(pdfName, machine.name, outputter.name, str(total_plates))
             status = smsc.send_sms(phone, message)
-            print '--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)
-            print 'SMS text: {}'.format(message)
+            #TODO вываливается эксепшн, если нет status'а. Временно тупо обернул в try
+            try:
+                print '--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)
+                print 'SMS text: {}'.format(message)
+            except Exception, e:
+                print 'error:', e
     except Exception, e:
         logging.error('Send sms exception: {0}'.format(e))
-        print 'Send sms exception: {0}'.format(e)
-
+        print 'Send sms: probably, no phone number'
 
     # Запись в БД
     ##----------------------------------------------------------------
@@ -405,7 +416,8 @@ def processing(pdfName):
         bg = 'default'
 
     row = Grid()
-    row.datetime = datetime.datetime.now()
+    #row.datetime = datetime.datetime.now()
+    row.datetime = timezone.now()
     row.pdfname = pdfName
     row.machine = machine
     row.total_pages = complects

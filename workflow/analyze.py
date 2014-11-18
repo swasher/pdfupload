@@ -5,13 +5,13 @@ __author__ = 'Алексей'
 import os
 import logging
 from subprocess import Popen, PIPE
-from util import mm, pt
+from util import mm, pt, fail
 from genericpath import isfile
 
 from models import PrintingPress, Outputter
 
 
-def analyze(pdfname):
+def analyze_machine(pdfname):
     """
     Функция определяет основные параметры PDF (основываясь на первой странице файла)
     :param
@@ -21,38 +21,47 @@ def analyze(pdfname):
         machine - объект типа PrintingPress (or None if cant detect)
         pages - кол-во страниц
     """
+    machine = None
 
+    pdftotext_command = r"pdftotext {input} - | grep -E '({machines})'"\
+        .format(input=pdfname, machines='|'.join([i.name for i in PrintingPress.objects.all()]))
+
+    pdftotext_result = Popen(pdftotext_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
+
+    #print '|'.join([i.name for i in PrintingPress.objects.all()])
+    #print pdftotext_result
+    #print pdftotext_result[0].split()[0]
+
+    try:
+        found_string = pdftotext_result[0].split()[0]
+    except:
+        fail('Cant detect machine')
+
+    for press in PrintingPress.objects.all():
+        if found_string == press.name:
+            machine = press
+
+    return machine
+
+
+def analyze_complects(pdfname):
     pdfinfo_command = r"pdfinfo -box {0} | grep 'Page'".format(pdfname)
     pdfinfo_result = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
-
     pages = pdfinfo_result[0].split(" ")[10]
 
+    """Как детектить размер страницы(только первой)
     s = pdfinfo_result[1].split(" ")
     width = s[7]
     height = s[9]
     width = mm(width)
-    height = mm(height)
+    height = mm(height)"""
 
-    # Итерируем по всем записям модели PrintingPress, если у очередной записи
-    # совпадают ширина и высота пластины с шириной и высотой первого листа pdf,
-    # тогда копируем эту запись в переменную machine
-
-    machine = None
-    for press in PrintingPress.objects.all():
-        if width == press.plate_w and height == press.plate_h:
-            machine = press
-
-    # machine = None
-    # for press in classes.PrintingPress._registry:
-    #     if width == press.plate_w and height == press.plate_h:
-    #         machine = classes.PrintingPress._dic[press.name]
-
-    return machine, pages
+    return pages
 
 
 def analyze_papersize(pdfname):
     """
-    Функция возвращает словарь, в котором ключ - номер страницы, значения: машина, ширина листа, высота листа.
+    Функция возвращает словарь: {номер страницы: машина, ширина листа, высота листа}
     Если возвращается None - файл не найден
     Если возвращается пустой словарь - файл не Сигновский, нет инфы о страницах.
     :param pdfname:
@@ -65,8 +74,7 @@ def analyze_papersize(pdfname):
 
     # machines должно быть вида Dominant|Speedmaster|Planeta
     pdftotext_command = r"pdftotext {input} - | grep -E '({machines})'"\
-        .format(input=pdfname, machines='|'.join([i.name for i in
-                                                  PrintingPress.objects.all()]))
+        .format(input=pdfname, machines='|'.join([i.name for i in PrintingPress.objects.all()]))
 
     pdftotext_result = Popen(pdftotext_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
 
@@ -98,69 +106,42 @@ def analyze_colorant(pdfname):
     total_plates = 0
     pdf_colors = {}
 
-    # если pdf пересохранить в акробате, в нем нарушается структура. Проверяем:
-    if result_strings.split()[0] == '/HDAG_ColorantNames':
-        # ПДФ не изменялся после Сигны
-        result_strings = result_strings.splitlines()
-        for index, color in enumerate(result_strings):
-            # Убираем из строки HDAG_ColorantNames,  знаки '/[]', разделяем
-            # строку на список, убираем первый элемент (HDAG_ColorantNames)
-            separations = color.translate(None, '/[]').split()[1:]
+    #если не нашло ожидаемый 'HDAG_ColorantNames', то следующий if вызовет исключение
+    try:
+        # если pdf пересохранить в акробате, в нем нарушается структура. Проверяем:
+        if result_strings.split()[0] == '/HDAG_ColorantNames':
+            # ПДФ не изменялся после Сигны
+            result_strings = result_strings.splitlines()
+            for index, color in enumerate(result_strings):
+                # Убираем из строки HDAG_ColorantNames,  знаки '/[]', разделяем
+                # строку на список, убираем первый элемент (HDAG_ColorantNames)
+                separations = color.translate(None, '/[]').split()[1:]
 
-            #fix pantone names
-            separations = [s.replace('#20', '_') for s in separations]
+                #fix pantone names
+                separations = [s.replace('#20', '_') for s in separations]
 
-            #Создаем словарь, где ключ - номер страницы, значение - список сепараций
-            pdf_colors[index+1] = separations
+                #Создаем словарь, где ключ - номер страницы, значение - список сепараций
+                pdf_colors[index+1] = separations
 
-            total_plates += len(separations)
-    else:
-        # ПДФ был пересохранен в акробате
-        print '===But was rewrite via Acrobat==='
-        hd_pattern = re.compile(r'HDAG_ColorantNames\[(.+)\]\/HDAG_ColorantOrder')
-        result_strings = hd_pattern.findall(result_strings)
+                total_plates += len(separations)
+        else:
+            # ПДФ был пересохранен в акробате
+            print '===But was rewrite via Acrobat==='
+            hd_pattern = re.compile(r'HDAG_ColorantNames\[(.+)\]\/HDAG_ColorantOrder')
+            result_strings = hd_pattern.findall(result_strings)
 
-        for index, color in enumerate(result_strings):
-            separations = color.split('/')[1:]
-            separations = [s.replace('#20', '_') for s in separations]
-            pdf_colors[index+1] = separations
-            total_plates += len(separations)
+            for index, color in enumerate(result_strings):
+                separations = color.split('/')[1:]
+                separations = [s.replace('#20', '_') for s in separations]
+                pdf_colors[index+1] = separations
+                total_plates += len(separations)
+    except:
+        pass
 
     return total_plates, pdf_colors
 
 
-def analyze_colorant_korol_old(pdfname):
-    """
-    DEPRECATED since analize via pdf_colors implemented
-    Генерирует строку для Короля, с краткими именами красок на первой странице пдф'а
-    :param pdfname: path to pdf file
-    :return:
-    short_colors(string)
-    """
-    cmd = r"cat {} | grep --binary-files=text 'HDAG_ColorantNames'".format(pdfname)
-    result_strings = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
-
-    separations = result_strings[0].translate(None, '/[]').split()[1:]
-    #fix pantone names
-    separations = [s.replace('#20', '_') for s in separations]
-    l = []
-    for colors in separations:
-        parts = colors.split("_")
-        if 'PANTONE' in parts:
-            parts.remove('PANTONE')
-        newcolor = ''.join(parts)
-        l.append(newcolor)
-
-    short_colors = '-'.join(l)
-    if short_colors == 'Black-Cyan-Magenta-Yellow':
-        short_colors = ''
-    else:
-        short_colors = '_'+short_colors
-
-    return short_colors
-
-
-def analyze_colorant_korol(pdf_colors):
+def colorant_to_string(pdf_colors):
     """
     :param pdf_colors: Это словарь, ключ - номер страницы, значение - список из строк-названий красок
     :return: short_colors: строка, краткий список красок на первом пейдже
@@ -185,21 +166,22 @@ def analyze_colorant_korol(pdf_colors):
     #если краски - только CMYK
     if set(inks) == set(cmyk):
         #то возвращаем пустую строку - в название файла никакая инфа не добавится
-        print 'only cmyk'
+        # print 'only cmyk'
         short_colors = ''
     else:
         #иначе заменяем краски Cyan Magenta Yellow Black на их заглавные буквы и ставим их в начало строки
+        print 'inks', inks
         for ink in cmyk:
             if ink in inks:
                 inks.remove(ink)
                 replaced_colors += ink[0]
-        inks.insert(0, replaced_colors)
+        if replaced_colors:
+            inks.insert(0, replaced_colors)
 
         # inks == ['CM', 'ReflexBlueC', '246C']
 
         # объеденяем список в строку через дефис и добавляем спереди подчеркивание
         short_colors = '_' + '-'.join(inks)
-
     return short_colors
 
 

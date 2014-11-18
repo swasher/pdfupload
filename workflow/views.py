@@ -30,7 +30,7 @@ import datetime
 
 from os.path import dirname, splitext
 from django.conf import settings
-from django.shortcuts import render_to_response, RequestContext,  HttpResponseRedirect, Http404, redirect
+from django.shortcuts import RequestContext, HttpResponseRedirect, Http404, redirect, render_to_response
 from django.contrib.auth import login as django_login, authenticate, logout as django_logout
 from django.contrib import messages
 from django_rq import job
@@ -46,10 +46,10 @@ from pdfupload.settings import BASE_DIR
 from models import Grid, PrintingPress
 from django.utils import timezone
 
-from analyze import analyze, analyze_colorant, analyze_papersize, detect_outputter, \
-    analyze_inkcoverage, detect_preview_ftp, analyze_colorant_korol_old, analyze_colorant_korol
+from analyze import analyze_machine, analyze_complects, analyze_colorant, analyze_papersize, detect_outputter, \
+    analyze_inkcoverage, detect_preview_ftp, colorant_to_string
 from util import inks_to_multiline, dict_to_multiline, remove_outputter_title, crop, \
-    sendfile, error_text
+    sendfile, error_text, fail
 
 logger = logging.getLogger(__name__)
 
@@ -224,15 +224,13 @@ def processing(pdfName):
     pdfExtension = splitext(pdf_abs_path)[1]
     if pdfExtension != ".pdf" or file_is_not_pdf_document:
         logging.error('{0} File is NOT PDF - exiting...'.format(pdfName))
-        print('{0} File is NOT PDF - exiting...'.format(pdfName))
         os.unlink(pdf_abs_path)
         os.removedirs(tempdir)
-        exit()
+        fail('{0} File is NOT PDF - exiting...'.format(pdfName))
 
 
     #Check if file created with Signa
     #-----------------------------------------------------------------
-    #TODO Если файл пересохранить в акробате, то он остается типа Сигновский, но инфа о красочности уже не вытаскивается
     pdfinfo_command = "pdfinfo {} | grep Creator | tr -s ' ' | cut -f 2 -d ' '".format(pdf_abs_path)
     result_strings = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().strip()
     if result_strings == 'PrinectSignaStation':
@@ -245,19 +243,26 @@ def processing(pdfName):
     #Detect properties
     ##----------------------------------------------------------------
     # machine: plate for machine, it's an INSTANCE of PrintingPress class (AD, SM or PL)
+    # complects: number of complects
     # plates: number of plates
     # outputter: Кто выводит - leonov, korol, etc. - это объект типа FTP_server
     # total_pages, total_plates, pdf_colors - страниц, плит, текстовый блок о красочности
 
-    machine, complects = analyze(pdf_abs_path)
+    machine = analyze_machine(pdf_abs_path)
+    complects = analyze_complects(pdf_abs_path)
 
     if machine is None:
         logging.error('Cant detect machine for {}'.format(pdfName))
-        print 'Cant detect machine for {}'.format(pdfName)
-        print 'Exiting...'
         os.unlink(pdf_abs_path)
         os.removedirs(tempdir)
-        exit()
+        fail('Can\'t detect machine for {}'.format(pdfName))
+    else:
+        print 'Machine sucessfully detected: {}'.format(machine.name)
+
+    # print machine.name
+    # print complects
+    # exit()
+
 
     # total_pages тут определяется по кол-ву строк, содержащих тэг HDAG_ColorantNames
     total_plates, pdf_colors = analyze_colorant(pdf_abs_path)
@@ -340,6 +345,7 @@ def processing(pdfName):
     ### CUSTOM OPERATION DEPENDS ON OUTPUTTER
     ##----------------------------------------------------------------
     if outputter.name == 'Leonov':
+        #TODO Здесь нужно сравнивать не имена машин, а размер пластин, типа (mahine.w, machine.h)==(1030,770)
         if machine.name == 'Speedmaster':
             outputter_ftp.todir = '_1030x770'
         elif machine.name == 'Planeta':
@@ -353,8 +359,8 @@ def processing(pdfName):
         # may be rotate90?
 
         # add numper of plates to pdf name
-        colorstring_old = analyze_colorant_korol_old(pdf_abs_path)
-        colorstring = analyze_colorant_korol(pdf_colors)
+        # deprecated colorstring_old = analyze_colorant_korol_old(pdf_abs_path)
+        colorstring = colorant_to_string(pdf_colors)
 
         ###add label representing paper width for Korol
         newname = pdfName + '_' + str(machine.plate_w) + '_' + str(total_plates) + 'Plates' + colorstring + pdfExtension

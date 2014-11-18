@@ -33,6 +33,16 @@ def pt(mm):
     return int(float(mm)*72/25.4)
 
 
+def fail(txt):
+    """
+    Help function to emergency exit with txt message
+    :param txt:
+    :return: none
+    """
+    print 'FAILED: {}'.format(txt)
+    exit()
+
+
 def dict_to_multiline(dic):
     """
     Функция преобразует словарь в текстовый объект, где каждая строка вида key: value1 value.

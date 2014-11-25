@@ -10,13 +10,14 @@
 #TODO Посмотреть систему Callas PDF Toolbox
 #TODO Сделать отчеты по годам и месяцам
 #TODO Сделать кнопку 'перезалить на кинап'
-#TODO Аналогично кнопка run3
+#TODO Аналогично кнопка run
 #TODO Ротация логов nginx
 #TODO Разобраться с джипегами при выполнении collectstatic. Они должны находится в $BASE_DIR/pdfupload/static_root/jpg
 #TODO Регулярный бекап базы кроном. Продумать куда, возможно мылом на dropbox: https://sendtodropbox.com
 #TODO Перенести продакшн на webserver, последний на nginx, настроить выдачу на запрос без указания хоста:
 #       поиск по словам "Как предотвратить обработку запросов без имени сервера"
 #TODO Жалобы на плохое качество превью
+#TODO Разобраться с багом, когда в названии файла русские буквы
 
 #import socket
 #from datetime import datetime
@@ -294,11 +295,11 @@ def processing(pdfName):
     crop(pdf_abs_path, croppedtempname)
 
     gs_compress = "gs -sDEVICE=pdfwrite -dDownsampleColorImages=true " \
-                  "-dColorImageResolution=120 -dCompatibilityLevel=1.4 " \
+                  "-dColorImageResolution=150 -dCompatibilityLevel=1.4 " \
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} | grep 'Page'" \
                   .format(input=croppedtempname, output=preview_abs_path)
 
-    print '\n-->Staring PDF preview compression...'
+    print '\n-->Starting PDF preview compression...'
     os.system(gs_compress)
     print 'Compression finished.'
 
@@ -315,23 +316,10 @@ def processing(pdfName):
     make_thumb = "convert {input} -resize 175 {output}".format(input=jpeg, output=thumb)
     make_jpeg = "convert {input} -resize 2500 {output}".format(input=jpeg, output=jpeg)
 
-    print '\n-->Staring Jpeg preview compression...'
-
-    import time
-
-    class Profiler(object):
-        def __enter__(self):
-            self._startTime = time.time()
-
-        def __exit__(self, type, value, traceback):
-            print "Elapsed time: {:.3f} sec".format(time.time() - self._startTime)
-
-    with Profiler() as p:
-        os.system(gs_compress)
-    with Profiler() as p:
-        os.system(make_thumb)
-    with Profiler() as p:
-        os.system(make_jpeg)
+    print '\n-->Starting Jpeg preview compression...'
+    os.system(gs_compress)
+    os.system(make_thumb)
+    os.system(make_jpeg)
     print 'Compression finished.'
 
 
@@ -345,12 +333,11 @@ def processing(pdfName):
     ### CUSTOM OPERATION DEPENDS ON OUTPUTTER
     ##----------------------------------------------------------------
     if outputter.name == 'Leonov':
-        #TODO Здесь нужно сравнивать не имена машин, а размер пластин, типа (mahine.w, machine.h)==(1030,770)
-        if machine.name == 'Speedmaster':
+        if (machine.plate_w, machine.plate_h) == (1030, 770):
             outputter_ftp.todir = '_1030x770'
-        elif machine.name == 'Planeta':
+        elif (machine.plate_w, machine.plate_h) == (1010, 820):
             outputter_ftp.todir = '_1010x820'
-        elif machine.name == 'Dominant':
+        elif (machine.plate_w, machine.plate_h) == (740, 575):
             outputter_ftp.todir = '_ADAST'
         else:
             outputter_ftp.todir = ''
@@ -368,11 +355,6 @@ def processing(pdfName):
         shutil.move(pdf_abs_path, tempdir + newname)
         pdfname = newname
         pdf_abs_path = tempdir + newname
-
-        # print 'pdf_colors', pdf_colors
-        print 'colorstring_new', colorstring
-        print 'newname', newname
-        #exit()
 
 
     # Send Preview PDF to printing press FTP
@@ -402,13 +384,13 @@ def processing(pdfName):
             status = smsc.send_sms(phone, message)
             #TODO вываливается эксепшн, если нет status'а. Временно тупо обернул в try
             try:
-                print '--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)
+                print '\n--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)
                 print 'SMS text: {}'.format(message)
             except Exception, e:
                 print 'error:', e
     except Exception, e:
         logging.error('Send sms exception: {0}'.format(e))
-        print 'Send sms: probably, no phone number'
+        print '\nSend sms: probably, no phone number'
 
     # Запись в БД
     ##----------------------------------------------------------------
@@ -442,6 +424,6 @@ def processing(pdfName):
         os.unlink(pdf_abs_path)
         os.unlink(preview_abs_path)
         shutil.rmtree(tempdir)
-        print '\nSUCCESSFULLY finish.'
+        print 'SUCCESSFULLY finish.'
     except Exception, e:
         print 'SUCCESSFULLY finish, but problem with cleaning:', e

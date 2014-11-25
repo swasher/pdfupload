@@ -15,7 +15,7 @@ except ImportError:
 # Константы для настройки библиотеки
 SMSC_LOGIN = "swasher"			# логин клиента
 #SMSC_PASSWORD = "9231f4611078b8da51de5283b6a017fe"  # пароль или MD5-хеш пароля в нижнем регистре
-SMSC_PASSWORD = "bingo1975"  # пароль или MD5-хеш пароля в нижнем регистре
+SMSC_PASSWORD = "HyFtW8c1LSe1"  # пароль или MD5-хеш пароля в нижнем регистре
 SMSC_POST = False				# использовать метод POST
 SMSC_HTTPS = False				# использовать HTTPS протокол
 SMSC_CHARSET = "utf-8"			# кодировка сообщения (windows-1251 или koi8-r), по умолчанию используется utf-8

@@ -200,7 +200,7 @@ def detect_outputter(pdfname):
             outputter = company
 
     if 'outputter' in locals():
-        print 'Outputter successfully detected: {}'.format(outputter.name)
+        print 'Outputter successfully detected: {}\n'.format(outputter.name)
     else:
         print 'Outputter cant detected'
         logging.error('{0} Outputter is UNKNOWN'.format(pdfname))
@@ -232,7 +232,7 @@ def analyze_inkcoverage(pdfname):
         словарь, в котором ключ - номер страницы, значение - список из четырех float цифр, в процентах
     """
 
-    print '\n-->Staring ink coverage calculating...'
+    print '\n-->Starting ink coverage calculating...'
     gs_command = r"gs -q -o - -sProcessColorModel=DeviceCMYK -sDEVICE=ink_cov {}".format(pdfname)
     gs_result = Popen(gs_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
     print 'Ink coverage calculating finish.'

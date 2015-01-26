@@ -100,7 +100,6 @@ def crop(pdf_in, pdf_out, papers):
 
     status = True
 
-    # TODO Доработать временное решение кропа в отсутствии инфы о размере бумаги.
     if papers == {}:
         perl_crop = "perl pdfcrop.pl {} {}".format(pdf_in, pdf_out)
         os.system(perl_crop)

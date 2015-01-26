@@ -408,33 +408,30 @@ def processing(pdfName):
     else:
         bg = 'default'
 
-    row = Grid()
-    #row.datetime = datetime.datetime.now()
-    row.datetime = timezone.now()
-    row.pdfname = pdfName
-    row.machine = machine
-    row.total_pages = complects
-    row.total_plates = total_plates
-    row.contractor = outputter
-    row.contractor_error = contractor_error
-    row.preview_error = preview_error
-    row.colors = dict_to_multiline(pdf_colors)
-    row.inks = inks_to_multiline(inks)
-    row.bg = bg
-
-    # print 'row.datetime', row.datetime
-    # print 'row.pdfname', row.pdfname
-    # print 'row.machine', row.machine
-    # print 'row.total_pages', row.total_pages
-    # print 'row.total_plates', row.total_plates
-    # print 'row.contractor', row.contractor
-    # print 'row.contractor_error', row.contractor_error
-    # print 'row.preview_error', row.preview_error
-    # print 'row.colors', row.colors
-    # print 'row.inks', row.inks
-    # print 'row.bg', row.bg
-
     try:
+        row = Grid()
+        row.datetime = timezone.now()
+        row.pdfname = pdfName
+        row.machine = machine
+        row.total_pages = complects
+        row.total_plates = total_plates
+        row.contractor = outputter
+        row.contractor_error = contractor_error
+        row.preview_error = preview_error
+        row.colors = dict_to_multiline(pdf_colors)
+        row.inks = inks_to_multiline(inks)
+        row.bg = bg
+        # print 'row.datetime', row.datetime
+        # print 'row.pdfname', row.pdfname
+        # print 'row.machine', row.machine
+        # print 'row.total_pages', row.total_pages
+        # print 'row.total_plates', row.total_plates
+        # print 'row.contractor', row.contractor
+        # print 'row.contractor_error', row.contractor_error
+        # print 'row.preview_error', row.preview_error
+        # print 'row.colors', row.colors
+        # print 'row.inks', row.inks
+        # print 'row.bg', row.bg
         row.save()
     except Exception, e:
         print 'ERROR row.save:', e

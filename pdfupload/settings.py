@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     # 'crispy_forms',
     'workflow',
     'django_rq_dashboard',
+    'chartit',
 )
 
 

@@ -4,19 +4,24 @@
         {% load static %}
         {% get_static_prefix as STATIC_URL %}
 
-
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    {#    <META http-equiv='refresh' content='30'>#}
+{#        <META http-equiv='refresh' content='60'>#}
 
+{% comment %}
         <script src="{{ STATIC_URL }}js/jquery-1.11.0.min.js"></script>
         <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
         <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.min.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap-theme.min.css">
+{% endcomment %}
+        <script src="{% static "js/jquery-1.11.0.min.js" %}"></script>
+        <script src="{% static "js/bootstrap.min.js" %}"></script>
+        <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}">
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap-select.min.css">
-        <script src="{{ STATIC_URL }}js/bootstrap-select.min.js"></script>
+        <link rel="stylesheet" href="{% static "css/bootstrap-select.min.css" %}">
+        <script src="{% static "js/bootstrap-select.min.js" %}"></script>
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}style.css">
+        <link rel="stylesheet" href="{% static "style.css" %}">
 
         <script>
             $(function () {
@@ -25,6 +30,7 @@
         </script>
 
         <title>UPLOAD LOG</title>
+        {% block head %}  {% endblock %}
     </head>
 
 <body>
@@ -54,6 +60,16 @@
                 <li><a href="{% url 'report' %}"><span class="glyphicon glyphicon-list"></span>
                     Report</a></li>
             </ul>
+            <ul class="nav navbar-nav">
+                <li><a href="{% url 'usersettings' %}"><span class="glyphicon glyphicon-cog"></span>
+                    Settings</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav">
+                <li><a href="http://upload.tes.pp.ua:9181/" target="_blank"><span class="glyphicon glyphicon-dashboard"></span>
+                    rq-dashboard</a></li>
+            </ul>
+
 
             {% comment %}
             {# example of navbar search #}

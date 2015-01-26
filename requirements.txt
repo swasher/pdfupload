@@ -6,6 +6,7 @@ django-rq-dashboard
 django-bootstrap3
 fabric
 django-bootstrap3-datetimepicker
+django_chartit
 
 #deprecated
 #django-crispy-forms

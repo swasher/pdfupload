@@ -2,6 +2,8 @@
 
 {% block table %}
 
+{% load admin_urls %}
+
 {#Django-bootstrap3#}
 {#{% load bootstrap3 %}#}
 {% comment %}<div class="container-fluid">
@@ -129,8 +131,8 @@
               <th>Комплекты</th>
               <th>Формы</th>
               <th>Вывод</th>
-              <th>Залито вывод</th>
-              <th>Залито кинап</th>
+              <th>Вывод</th>
+              <th>Кинап</th>
               <th>Action</th>
             </tr>
         {% for row in table %}
@@ -170,7 +172,9 @@
                         <span class="glyphicon glyphicon-eye-open"></span></a>
                    {% endwith %}
                    {% endwith %}
-                   <a type="button" class="btn-sm btn-danger" href="{% url "delete" row.pk %}">
+                   <a type="button" class="btn-sm btn-info" href="{% url 'admin:workflow_grid_change' row.pk %}">
+                        <span class="glyphicon glyphicon-edit"></span></a>
+                   <a type="button" class="btn-sm btn-danger" href="{% url 'delete' row.pk %}">
                         <span class="glyphicon glyphicon-trash"></span></a>
                </td>
            </tr>

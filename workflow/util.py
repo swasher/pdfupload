@@ -51,11 +51,16 @@ def dict_to_multiline(dic):
     :return: text(str)
     """
     text = ''
-    for k, v in dic.iteritems():
-        text += str(k)+': '
-        for i in v:
-            text += i + ' '
-        text += "\n"
+    try:
+        for k, v in dic.iteritems():
+            text += str(k)+': '
+            for i in v:
+                text += i + ' '
+            text += "\n"
+    except AttributeError:
+        # исключение возникает, если файл не сигновский. dic в этом случае - пустая строка
+        # возвращается также пустая строка
+        pass
     return text
 
 
@@ -84,20 +89,16 @@ def error_text(status, e):
     return text
 
 
-def crop(pdf_in, pdf_out):
+def crop(pdf_in, pdf_out, papers):
     """
     Параметры
     pdf_in - абсолютный путь к пдф
     pdf_out - абсолютный путь для исходящего пдф
+    papers - Словарь с размерами бумаги для каждой страницы: {1: ('Speedmaster', 900, 640), 2: ('Dominant', 640, 450)}
     :return: status
     """
 
-    from analyze import analyze_papersize
-
     status = True
-
-    # Словарь с размерами бумаги для каждой страницы
-    papers = analyze_papersize(pdf_in)  # like {1: ('Speedmaster', 900, 640), 2: ('Dominant', 640, 450)}
 
     # TODO Доработать временное решение кропа в отсутствии инфы о размере бумаги.
     if papers == {}:

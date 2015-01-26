@@ -7,16 +7,12 @@
 #       For each spot color, the name of the color is printed preceded by '%%SeparationName: '. This provides a simple
 #       mechanism for users and external applications to be informed about the names of spot colors within a document.
 #TODO Что должно происходить, если форма не валидна? line 108
-#TODO Посмотреть систему Callas PDF Toolbox
 #TODO Сделать отчеты по годам и месяцам
 #TODO Сделать кнопку 'перезалить на кинап'
 #TODO Аналогично кнопка run
 #TODO Ротация логов nginx
 #TODO Разобраться с джипегами при выполнении collectstatic. Они должны находится в $BASE_DIR/pdfupload/static_root/jpg
 #TODO Регулярный бекап базы кроном. Продумать куда, возможно мылом на dropbox: https://sendtodropbox.com
-#TODO Перенести продакшн на webserver, последний на nginx, настроить выдачу на запрос без указания хоста:
-#       поиск по словам "Как предотвратить обработку запросов без имени сервера"
-#TODO Жалобы на плохое качество превью
 #TODO Разобраться с багом, когда в названии файла русские буквы
 
 #import socket
@@ -48,7 +44,7 @@ from models import Grid, PrintingPress
 from django.utils import timezone
 
 from analyze import analyze_machine, analyze_complects, analyze_colorant, analyze_papersize, detect_outputter, \
-    analyze_inkcoverage, detect_preview_ftp, colorant_to_string
+    analyze_inkcoverage, detect_preview_ftp, colorant_to_string, analyze_signastation
 from util import inks_to_multiline, dict_to_multiline, remove_outputter_title, crop, \
     sendfile, error_text, fail
 
@@ -88,6 +84,10 @@ def login(request):
 def logout(request):
     django_logout(request)
     return redirect('/')
+
+@login_required
+def usersettings(request):
+    return render_to_response('usersettings.html')
 
 
 def printing(request):
@@ -138,7 +138,10 @@ def grid(request, mode=''):
             if form.cleaned_data['machine']:
                 myquery &= Q(machine__exact=form.cleaned_data['machine'])
             if form.cleaned_data['filename']:
-                myquery &= Q(pdfname__icontains=form.cleaned_data['filename'])
+                if form.cleaned_data['filename'][0] == '-':
+                    myquery &= ~Q(pdfname__icontains=form.cleaned_data['filename'][1:])
+                else:
+                    myquery &= Q(pdfname__icontains=form.cleaned_data['filename'])
 
             if mode == 'clear':
                 myquery = defaultfilter
@@ -215,6 +218,7 @@ def processing(pdfName):
         exit()
     pdf_abs_path = tempdir+pdfName
 
+
     #Check if file is PDF
     #-----------------------------------------------------------------
     pdfcheck_command = "file {} | tr -s ':' | cut -f 2 -d ':'".format(pdf_abs_path)
@@ -232,9 +236,9 @@ def processing(pdfName):
 
     #Check if file created with Signa
     #-----------------------------------------------------------------
-    pdfinfo_command = "pdfinfo {} | grep Creator | tr -s ' ' | cut -f 2 -d ' '".format(pdf_abs_path)
-    result_strings = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().strip()
-    if result_strings == 'PrinectSignaStation':
+    valid_signa = analyze_signastation(pdf_abs_path)
+
+    if valid_signa:
         print 'File is a valid PrinectSignaStation file.'
     else:
         print 'File is NOT a valid PrinectSignaStation file.'
@@ -250,26 +254,23 @@ def processing(pdfName):
     # total_pages, total_plates, pdf_colors - страниц, плит, текстовый блок о красочности
 
     machine = analyze_machine(pdf_abs_path)
-    complects = analyze_complects(pdf_abs_path)
-
     if machine is None:
         logging.error('Cant detect machine for {}'.format(pdfName))
         os.unlink(pdf_abs_path)
         os.removedirs(tempdir)
-        fail('Can\'t detect machine for {}'.format(pdfName))
+        fail("Can't detect machine for {}".format(pdfName))
     else:
         print 'Machine sucessfully detected: {}'.format(machine.name)
 
-    # print machine.name
-    # print complects
-    # exit()
-
+    complects = analyze_complects(pdf_abs_path)
 
     # total_pages тут определяется по кол-ву строк, содержащих тэг HDAG_ColorantNames
-    total_plates, pdf_colors = analyze_colorant(pdf_abs_path)
+    if valid_signa:
+        total_plates, pdf_colors = analyze_colorant(pdf_abs_path)
+    else:
+        total_plates, pdf_colors = 0, ''
 
-    #TODO paper size не используется?
-    paper_size = analyze_papersize(pdf_abs_path)
+    paper_sizes = analyze_papersize(pdf_abs_path)
 
     outputter = detect_outputter(pdfName)
     outputter_ftp = outputter.ftp_account
@@ -288,11 +289,12 @@ def processing(pdfName):
 
     # Compress via Ghostscript and crop via PyPDF2 library.
     #----------------------------------------------------------------
-    previewname = pdfName + '.' + outputter.name + pdfExtension
+    # TODO del deprecated
+    # DEPRECATED 14.01.2015 previewname = pdfName + '.' + outputter.name + pdfExtension
     croppedtempname = tempdir + pdfName + '.' + outputter.name + '.temp' + pdfExtension
     preview_abs_path = tempdir + pdfName + '.' + outputter.name + pdfExtension
 
-    crop(pdf_abs_path, croppedtempname)
+    crop(pdf_abs_path, croppedtempname, paper_sizes)
 
     gs_compress = "gs -sDEVICE=pdfwrite -dDownsampleColorImages=true " \
                   "-dColorImageResolution=150 -dCompatibilityLevel=1.4 " \
@@ -346,11 +348,14 @@ def processing(pdfName):
         # may be rotate90?
 
         # add numper of plates to pdf name
-        # deprecated colorstring_old = analyze_colorant_korol_old(pdf_abs_path)
         colorstring = colorant_to_string(pdf_colors)
 
-        ###add label representing paper width for Korol
-        newname = pdfName + '_' + str(machine.plate_w) + '_' + str(total_plates) + 'Plates' + colorstring + pdfExtension
+        #add label representing paper width for Korol
+        #если файл не сигновский, то colorstring="", цвета не определяются
+        if colorstring:
+            newname = pdfName + '_' + str(machine.plate_w) + '_' + str(total_plates) + 'Plates' + colorstring + pdfExtension
+        else:
+            newname = pdfName + '_' + str(machine.plate_w) + pdfExtension
 
         shutil.move(pdf_abs_path, tempdir + newname)
         pdfname = newname
@@ -416,7 +421,23 @@ def processing(pdfName):
     row.colors = dict_to_multiline(pdf_colors)
     row.inks = inks_to_multiline(inks)
     row.bg = bg
-    row.save()
+
+    # print 'row.datetime', row.datetime
+    # print 'row.pdfname', row.pdfname
+    # print 'row.machine', row.machine
+    # print 'row.total_pages', row.total_pages
+    # print 'row.total_plates', row.total_plates
+    # print 'row.contractor', row.contractor
+    # print 'row.contractor_error', row.contractor_error
+    # print 'row.preview_error', row.preview_error
+    # print 'row.colors', row.colors
+    # print 'row.inks', row.inks
+    # print 'row.bg', row.bg
+
+    try:
+        row.save()
+    except Exception, e:
+        print 'ERROR row.save:', e
 
     # Очистка и окончание выполнения
     ##----------------------------------------------------------------

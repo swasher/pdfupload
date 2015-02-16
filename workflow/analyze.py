@@ -9,6 +9,7 @@ from util import mm, pt, fail
 from genericpath import isfile
 
 from models import PrintingPress, Outputter
+from lib_signamarks import mark_extraction
 
 
 def analyze_platesize(pdfname):
@@ -24,6 +25,8 @@ def analyze_platesize(pdfname):
         end_x, end_y = page.mediaBox.upperRight
         w = mm(end_x - start_x)
         h = mm(end_y - start_y)
+        if h > w:
+            w, h = h, w
         plate_sizes[index] = (w, h)
 
     return plate_sizes
@@ -37,8 +40,9 @@ def analyze_machine(pdfname):
          Путь к pdf файлу
     :return:
         machine - объект типа PrintingPress (or None if cant detect)
+                - None, если не удалось определить
     """
-    pdftotext_command = r"pdftotext {input} - | grep -E '({machines})'"\
+    pdftotext_command = r"pdftotext '{input}' - | grep -E '({machines})'"\
         .format(input=pdfname, machines='|'.join([i.name for i in PrintingPress.objects.all()]))
 
     stdout = Popen(pdftotext_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
@@ -51,13 +55,9 @@ def analyze_machine(pdfname):
             if found_string == press.name:
                 machine = press
     except IndexError:
-        #если не удалось определить, функция возвращает None
-
-        # TODO Пытаемся определить машину, исходя из формата пластины
-        # Первая проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?
+        # Тут есть проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?
         # Пока в голову приходит только прибить гвоздями определенные машины, по одной для каждого формата пластин.
         # В будущем можно добавить поле какое-то в базу, типа приоритета.
-
         primary_machines = PrintingPress.objects.filter(name__in=['Speedmaster', 'Dominant', 'Planeta'])
 
         # Высчитываем размер страниц в пдф
@@ -65,7 +65,6 @@ def analyze_machine(pdfname):
 
         # Теперь сравниваем полученные размеры с известными
         # Сравнение можно проводить только для первой страницы, т.к все равно заливаем на одного выводильщика
-
         for press in primary_machines:
             if (press.plate_w == plate_sizes[1][0]) and (press.plate_h == plate_sizes[1][1]):
                 machine = press
@@ -74,7 +73,11 @@ def analyze_machine(pdfname):
 
 
 def analyze_signastation(pdfname):
-    pdfinfo_command = "pdfinfo {} | grep Creator | tr -s ' ' | cut -f 2 -d ' '".format(pdfname)
+    """
+    :param pdfname: Путь к pdf-файлу
+    :return: Возвращиет True, если файл создан в Heidelberg Signastation
+    """
+    pdfinfo_command = "pdfinfo '{}' | grep Creator | tr -s ' ' | cut -f 2 -d ' '".format(pdfname)
     stdout = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().strip()
     if stdout == 'PrinectSignaStation':
         valid_signa = True
@@ -84,7 +87,7 @@ def analyze_signastation(pdfname):
 
 
 def analyze_complects(pdfname):
-    pdfinfo_command = r"pdfinfo -box {0} | grep 'Page'".format(pdfname)
+    pdfinfo_command = r"pdfinfo -box '{}' | grep 'Page'".format(pdfname)
     stdout = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
     pages = stdout[0].split(" ")[10]
 
@@ -112,7 +115,7 @@ def analyze_papersize(pdfname):
         return papersizes
 
     # machines должно быть вида Dominant|Speedmaster|Planeta
-    pdftotext_command = r"pdftotext {input} - | grep -E '({machines})'"\
+    pdftotext_command = r"pdftotext '{input}' - | grep -E '({machines})'"\
         .format(input=pdfname, machines='|'.join([i.name for i in PrintingPress.objects.all()]))
 
     stdout = Popen(pdftotext_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()

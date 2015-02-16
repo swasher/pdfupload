@@ -6,7 +6,7 @@
 #       detected within a document to stderr. (stderr is also used for the output from the bbox device.)
 #       For each spot color, the name of the color is printed preceded by '%%SeparationName: '. This provides a simple
 #       mechanism for users and external applications to be informed about the names of spot colors within a document.
-#TODO Что должно происходить, если форма не валидна? line 108
+#TODO Что должно происходить, если форма не валидна? line 123
 #TODO Сделать отчеты по годам и месяцам
 #TODO Сделать кнопку 'перезалить на кинап'
 #TODO Аналогично кнопка run
@@ -14,6 +14,8 @@
 #TODO Разобраться с джипегами при выполнении collectstatic. Они должны находится в $BASE_DIR/pdfupload/static_root/jpg
 #TODO Регулярный бекап базы кроном. Продумать куда, возможно мылом на dropbox: https://sendtodropbox.com
 #TODO Разобраться с багом, когда в названии файла русские буквы
+#TODO Есть такой интересный баг, при котором может произойти непрвильное определение MachinePress, если в пдф содержатся
+#    слова как названия печатных машин. Пример файла - 2012/0926_Mig, фраза 'Planetary Science от 17 января.'
 
 #import socket
 #from datetime import datetime
@@ -243,7 +245,6 @@ def processing(pdfName):
     else:
         print 'File is NOT a valid PrinectSignaStation file.'
         logging.warning('{} created with {}, not Signastation!'.format(pdfName, result_strings))
-        #TODO продумать, что делать, если файл не сигновский
 
     #Detect properties
     ##----------------------------------------------------------------
@@ -282,15 +283,8 @@ def processing(pdfName):
     pdfPath, (pdfName, pdfExtension) = dirname(pdf_abs_path), splitext(os.path.basename(pdf_abs_path))
 
 
-    # Проверка, соответствует ли PDF известному формату пластины
-    # #----------------------------------------------------------------
-    # TODO Проверка, соответствует ли PDF известному формату пластины
-
-
     # Compress via Ghostscript and crop via PyPDF2 library.
     #----------------------------------------------------------------
-    # TODO del deprecated
-    # DEPRECATED 14.01.2015 previewname = pdfName + '.' + outputter.name + pdfExtension
     croppedtempname = tempdir + pdfName + '.' + outputter.name + '.temp' + pdfExtension
     preview_abs_path = tempdir + pdfName + '.' + outputter.name + pdfExtension
 

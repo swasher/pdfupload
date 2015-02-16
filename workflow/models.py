@@ -30,6 +30,7 @@ class PrintingPress(models.Model):
     plate_w = models.IntegerField()
     plate_h = models.IntegerField()
     klapan = models.IntegerField()
+    cost = models.IntegerField(blank=True, null=True, help_text='Cost of one plate')
 
     def __unicode__(self):
         return self.name

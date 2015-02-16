@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {% load static %}
+    <link media="all" href="{% static 'nvd3/src/nv.d3.css' %}" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src='{% static 'd3/d3.min.js' %}'></script>
+    <script type="text/javascript" src='{% static 'nvd3/nv.d3.min.js' %}'></script>
+
+    {% load nvd3_tags %}
+    {% for chart in chart1 %}
+        {% load_chart chart.charttype chart.chartdata chart.chartcontainer chart.extra %}
+    {% endfor %}
+    {% for chart in chart2 %}
+        {% load_chart chart.charttype chart.chartdata chart.chartcontainer chart.extra %}
+    {% endfor %}
+    {% for chart in chart3 %}
+        {% load_chart chart.charttype chart.chartdata chart.chartcontainer chart.extra %}
+    {% endfor %}
+{% endblock %}
+
+
+{% block table %}
+    <h2>Общее количество плит в месяц</h2>
+    {% for chart in chart1 %}
+        <h3>{{ chart.year }}</h3>
+        {% include_container  chart.chartcontainer  350 1600 %}
+    {% endfor %}
+
+    <h2>Количество плит в месяц по печатным машинам</h2>
+    {% for chart in chart2 %}
+        <h3>{{ chart.year }}</h3>
+        {% include_container  chart.chartcontainer  350 1600 %}
+    {% endfor %}
+
+    <h2>Количество денег в месяц</h2>
+    {% for chart in chart3 %}
+        <h3>{{ chart.year }}</h3>
+        {% include_container  chart.chartcontainer  350 1600 %}
+    {% endfor %}
+{% endblock %}

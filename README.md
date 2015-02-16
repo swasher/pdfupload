@@ -49,6 +49,26 @@ Deploy
 В корень проекта необходимо положить библиотеку для отправки sms. Используется smsc.ua, файл API по адресу http://smsc.ua/api/python/
 нужно положить в workflow/smsc_api.py
 
+Для отрисовки графиков нужно поставить nvd3. Можно через bowler, но я ставил руками:
+
+    ::console
+    pip install sudo pip install django-nvd3
+    --> Successfully installed django-nvd3 python-nvd3 python-slugify Unidecode
+
+settings.py
+    
+    ::python
+    INSTALLED_APPS = (
+        'django_nvd3',
+        )
+
+Далее c http://nvd3.org/ скачиваем архив и копируем:
+
+    src -> static_root/nvd3/src
+    lib/d3.v2.min.js -> static_root/d3/d3.min.js
+
+Тут нужно переименовать, django-nvd3 видимо использовал первую версию.
+
 ##### Запись в tty
 
 Чтобы скрипт мог выводить служебную информацию в терминал, нужно, чтобы пользователь, от имени которого запускается

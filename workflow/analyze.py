@@ -9,7 +9,8 @@ from util import mm, pt, fail
 from genericpath import isfile
 
 from models import PrintingPress, Outputter
-from lib_signamarks import mark_extraction
+from django.conf import settings
+from signamarks import mark_extraction
 
 
 def analyze_platesize(pdfname):
@@ -32,12 +33,16 @@ def analyze_platesize(pdfname):
     return plate_sizes
 
 
-def analyze_machine(pdfname):
+def analyze_machine_OLD(pdfname):
     """
-    Функция определяет основные параметры PDF (основываясь на первой странице файла)
+    DEPRECATED
+    new function use direct substract from signa mark with pdfminer
+    """
+
+    """
+    Функция определяет основные параметры PDF (основываясь на сигна-метке на первой странице файла)
     :param
-        pdfname: str
-         Путь к pdf файлу
+        pdfname: Путь к pdf файлу
     :return:
         machine - объект типа PrintingPress (or None if cant detect)
                 - None, если не удалось определить
@@ -47,14 +52,59 @@ def analyze_machine(pdfname):
 
     stdout = Popen(pdftotext_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
 
-    machine = None
-
     try:
         found_string = stdout[0].split()[0]
         for press in PrintingPress.objects.all():
             if found_string == press.name:
                 machine = press
     except IndexError:
+        # Тут есть проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?
+        # Пока в голову приходит только прибить гвоздями определенные машины, по одной для каждого формата пластин.
+        # В будущем можно добавить поле какое-то в базу, типа приоритета.
+        primary_machines = PrintingPress.objects.filter(name__in=['Speedmaster', 'Dominant', 'Planeta'])
+
+        # Высчитываем размер страниц в пдф
+        plate_sizes = analyze_platesize(pdfname)
+
+        # Теперь сравниваем полученные размеры с известными
+        # Сравнение можно проводить только для первой страницы, т.к все равно заливаем на одного выводильщика
+        for press in primary_machines:
+            if (press.plate_w == plate_sizes[1][0]) and (press.plate_h == plate_sizes[1][1]):
+                machine = press
+
+    return machine
+
+
+def analyze_machine(pdfname):
+    """
+    Функция определяет основные параметры PDF (основываясь на сигна-метке на первой странице файла)
+    :param
+        pdfname: Путь к pdf файлу
+    :return:
+        machine - объект типа PrintingPress (or None if cant detect)
+                - None, если не удалось определить
+    """
+    machine = None
+    machine_mark_name = settings.MARK_MACHINE
+
+    marks = mark_extraction(pdfname)
+    try:
+        text_of_mark_with_machine_name = marks[0][machine_mark_name][0]
+    except KeyError, e:
+        print('Файл не содержит cигновской метки {} с названием печ. машины.'.format(machine_mark_name))
+        text_of_mark_with_machine_name = None
+
+    #print('\n', 'mark_with_machine_name')
+    #print(text_of_mark_with_machine_name.encode('utf-8'))
+
+    try:
+        for press in PrintingPress.objects.all():
+            if press.name in text_of_mark_with_machine_name:
+                machine = press
+    except Exception, e:
+        print('Trying detect machine by page size...')
+        # Если первый способ провалился, пробуем определить машину, основываясь на размере пластины.
+
         # Тут есть проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?
         # Пока в голову приходит только прибить гвоздями определенные машины, по одной для каждого формата пластин.
         # В будущем можно добавить поле какое-то в базу, типа приоритета.
@@ -131,59 +181,6 @@ def analyze_papersize(pdfname):
         papersizes[page_number] = (page_machine, page_paper_x, page_paper_y)
 
     return papersizes
-
-"""
-def analyze_colorant_old(pdfname):
-    ####################
-    # DEPRCATED
-    # Вместо grep-а по пдф-у как тексту, в новой функции используется возможность PyPDF2 извлекать токены
-
-    import re
-
-    cmd = r"cat {} | grep --binary-files=text 'HDAG_ColorantNames'".format(pdfname)
-    stdout = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE).stdout.read()
-
-    #stdout containd data like this (2 lines for 2 pages):
-    #/HDAG_ColorantNames [/Magenta /Cyan /Yellow ]
-    #/HDAG_ColorantNames [/PANTONE#20Warm#20Red#20C /PANTONE#20Green#200921#20C /Yellow ]
-
-    total_plates = 0
-    pdf_colors = {}
-
-    #если не нашло ожидаемый 'HDAG_ColorantNames', то следующий if вызовет исключение
-    try:
-        # если pdf пересохранить в акробате, в нем нарушается структура. Проверяем:
-        if stdout.split()[0] == '/HDAG_ColorantNames':
-            # ПДФ не изменялся после Сигны
-            stdout = stdout.splitlines()
-            for index, color in enumerate(stdout):
-                # Убираем из строки HDAG_ColorantNames,  знаки '/[]', разделяем
-                # строку на список, убираем первый элемент (HDAG_ColorantNames)
-                separations = color.translate(None, '/[]').split()[1:]
-
-                #fix pantone names
-                separations = [s.replace('#20', '_') for s in separations]
-
-                #Создаем словарь, где ключ - номер страницы, значение - список сепараций
-                pdf_colors[index+1] = separations
-
-                total_plates += len(separations)
-        else:
-            # ПДФ был пересохранен в акробате
-            print '===But was rewrite via Acrobat==='
-            hd_pattern = re.compile(r'HDAG_ColorantNames\[(.+)\]\/HDAG_ColorantOrder')
-            stdout = hd_pattern.findall(stdout)
-
-            for index, color in enumerate(stdout):
-                separations = color.split('/')[1:]
-                separations = [s.replace('#20', '_') for s in separations]
-                pdf_colors[index+1] = separations
-                total_plates += len(separations)
-    except:
-        pass
-
-    return total_plates, pdf_colors
-"""
 
 
 def analyze_colorant(pdfname):

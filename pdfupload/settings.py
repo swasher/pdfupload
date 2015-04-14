@@ -19,6 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 from settings_secret import *
 #SECRET_KEY = '...'
+#MARK_MACHINE = signa mark name with printing press
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

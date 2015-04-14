@@ -3,9 +3,6 @@
 
 import sys
 import os
-from lxml import etree
-from bs4 import BeautifulSoup
-from PyPDF2 import PdfFileReader
 from pprint import pprint
 
 from pdfminer.pdfdocument import PDFDocument
@@ -85,6 +82,7 @@ def mark_extraction(f):
     print m[page][signa-mark-name][(0|1|2)(mark_text|xobject|SubType)]
 
     """
+    print 'Mark extraction...'
     fp = open(f, 'rb')
 
     # Create a PDF parser object associated with the file object.
@@ -152,7 +150,7 @@ def mark_extraction(f):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        f = '../test/sample_pdf/pantone_test_admin.pdf'
+        f = '../test/sample_pdf/0173_Tavria_Korob_Leonov.pdf'
         #f = '../test/sample_pdf/test_search_dominant_mark.pdf'
         #f = '../test/sample_pdf/0059_Mig_Gazeta_Leonov.pdf'
     else:

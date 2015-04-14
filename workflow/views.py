@@ -159,6 +159,7 @@ def grid(request, mode=''):
     else:
         # В эту ветку попадаем, если пользователем перед этим не был применен фильтр.
         # Например, после Delete или первый заход на страницу
+        # Например, после Delete или первый заход на страницу
         table = Grid.objects.filter(defaultfilter).order_by('datetime').reverse()
         form = FilterForm()
 
@@ -206,14 +207,14 @@ def processing(pdfName):
 
     print '\n\n'
     print 'START PROCESSING {}'.format(pdfName)
-    print '─'*(len(pdfName)+17)
+    print '─' * (len(pdfName) + 17)
 
     #Move pdf to temp
     #-----------------------------------------------------------------
 
     tempdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
     try:
-        shutil.move(inputpath+pdfName, tempdir+pdfName)
+        shutil.move(inputpath + pdfName, tempdir + pdfName)
     except Exception, e:
         logging.error('{0}: Cant move to temp: {1}'.format(pdfName, e))
         print e

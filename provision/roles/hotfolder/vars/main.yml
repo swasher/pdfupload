@@ -1,0 +1,4 @@
+---
+hotfolder: "{{project_root}}/input/"
+python_handler: putting_job_in_the_queue.py
+workgroup: TES

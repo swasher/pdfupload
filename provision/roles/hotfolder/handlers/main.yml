@@ -1,0 +1,8 @@
+---
+ - name: restart samba
+   service: name=smbd state=restarted
+   sudo: yes
+
+ - name: restart incron
+   service: name=incron state=restarted
+   sudo: yes

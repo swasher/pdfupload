@@ -1,0 +1,24 @@
+server {
+
+    #listen       8080;
+    server_name {{fqdn}};
+    charset     utf-8;
+    access_log  {{project_root}}/logs/nginx-access.log; # compression;
+    error_log   {{project_root}}/logs/nginx-error.log; # info;
+
+    location / {
+        uwsgi_pass 127.0.0.1:49001;
+        include uwsgi_params;
+    }
+
+    location /media/ {
+        alias {{project_root}}/media/;
+        expires 30d;
+    }
+
+
+    location /static/ {
+        alias {{project_root}}/static_root/;
+        expires 30d;
+    }
+}

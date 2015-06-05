@@ -1,0 +1,7 @@
+---
+- name: Nginx | Create log directory
+  file: >
+    dest={{project_root}}/logs/
+    state=directory
+
+  # TODO реализовать проверку, чтобы в nginx.com были нужные настройки для форматов логирования

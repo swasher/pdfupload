@@ -1,0 +1,12 @@
+---
+
+#
+# This role install samba, create hotfolder directory, install incron, and setup incron settings
+#
+
+- include: samba.yml
+- include: hotfolder.yml
+- include: inotify.yml
+
+
+

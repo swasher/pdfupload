@@ -1,0 +1,14 @@
+---
+- name: Copy uwsgi config
+  template: >
+    src=uwsgi.ini.j2
+    dest={{project_root}}/uwsgi.ini
+  tags: vagrant_skip
+
+- name: Activate apps
+  file: >
+    src={{project_root}}/uwsgi.ini
+    dest=/etc/uwsgi/vassals/{{project_name}}.ini
+    state=link
+  notify: restart uwsgi emperor
+  sudo: yes

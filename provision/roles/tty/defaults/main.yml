@@ -1,0 +1,3 @@
+---
+terminal: /dev/tty1
+www-owner: www-data

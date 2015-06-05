@@ -1,0 +1,18 @@
+---
+- name: add user to tty[dialout] group
+  user: >
+    name={{remote_user}}
+    group=dialout
+  sudo: yes
+
+- name: change owner of tty1
+  file: >
+    path={{terminal}}
+    owner={{www-owner}}
+  sudo: yes
+
+- name: testing skip
+  file: >
+    path=/home/{{remote_user}}/1
+    state=directory
+  tags: vagrant_skip

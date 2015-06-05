@@ -1,0 +1,4 @@
+---
+- include: install_pkg.yml
+- include: logging.yml
+- include: vhost.yml

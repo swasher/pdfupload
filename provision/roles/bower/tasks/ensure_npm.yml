@@ -1,0 +1,9 @@
+---
+- name: Install npm
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+  with_items:
+    - npm
+  sudo: yes

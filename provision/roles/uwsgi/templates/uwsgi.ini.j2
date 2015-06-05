@@ -1,19 +1,19 @@
 [uwsgi]
 # set PYTHONHOME/virtualenv. Comment if no virtual environment
-#home=/home/swasher/pdfupload
-chdir=/home/swasher/pdfupload
+chdir={{project_root}}
 master=True
 disable-logging=True
 vacuum=True
-pidfile=/tmp/pdfupload.pid
+pidfile=/tmp/{{project_name}}.pid
 max-requests=5000
 socket=127.0.0.1:49001
 processes=2
+harakiri=20
 
 # Path to python interpreter if using virt. envir., otherwise '..'
 pythonpath=..
-env=DJANGO_SETTINGS_MODULE=pdfupload.settings
+env=DJANGO_SETTINGS_MODULE={{project_name}}.settings
 #module = django.core.handlers.wsgi:WSGIHandler()
 module = django.core.wsgi:get_wsgi_application()
-touch-reload=/tmp/pdfupload.reload
+touch-reload=/tmp/{{project_name}}.reload
 attach-daemon = python %(chdir)/manage.py rqworker default

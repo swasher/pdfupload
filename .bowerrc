@@ -1,3 +1,4 @@
 {
-  "directory": "workflow/static"
+  "directory": "workflow/static",
+  "allow_root": true
 }

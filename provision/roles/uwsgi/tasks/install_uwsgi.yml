@@ -1,0 +1,40 @@
+---
+- name: Install uwsgi
+  pip: >
+    name=uwsgi
+    state=latest
+  sudo: yes
+
+
+- name: Making sure uwsgi config directories are there
+  file: path=/etc/{{ item }} state=directory mode=0755
+  with_items:
+    - uwsgi
+    - uwsgi/vassals
+  sudo: yes
+
+
+- name: Copy emperor file
+  copy: src=emperor.ini dest=/etc/uwsgi/emperor.ini mode=0644 owner=root group=root
+  sudo: yes
+
+
+- name: Setup upstart job for the emperor NOT TESTING - MAY NOT WORK
+  copy: src=upstart.conf dest=/etc/init/uwsgi.conf mode=0644 owner=root group=root
+  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int < 15
+  sudo: yes
+
+
+- name: Setup systemd SERVICE file for the emperor
+  copy: src=systemd.service dest=/etc/systemd/system/emperor.uwsgi.service mode=0644 owner=root group=root
+  when: >
+      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
+      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
+  sudo: yes
+
+- name: Setup systemd SOCKET file for the emperor
+  copy: src=systemd.socket dest=/etc/systemd/system/emperor.uwsgi.socket mode=0644 owner=root group=root
+  when: >
+      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
+      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
+  sudo: yes

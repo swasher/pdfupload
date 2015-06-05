@@ -1,0 +1,30 @@
+---
+
+- name: Check if smsc_api.py already exist
+  stat: path={{lib_path}}/smsc_api.py
+  register: library_exist
+
+
+- name: download smsc library
+  get_url: >
+    url=http://smsc.ua/doc/api/smsc_api.py?SE=eb7cd386
+    dest={{lib_path}}/smsc_api.py
+    mode=0664
+    force=yes
+  when: not library_exist
+
+
+- name: change username
+  replace: dest="{{lib_path}}/smsc_api.py"
+           regexp="(\s*SMSC_LOGIN\s*=\s*\")\w+(\")"
+           replace="\1{{smsc_login}}\2"
+           backup=no
+  when: not library_exist
+
+
+- name: change password
+  replace: dest="{{lib_path}}/smsc_api.py"
+           regexp="(\s*SMSC_PASSWORD\s*=\s*\")\w+(\")"
+           replace="\1{{smsc_password}}\2"
+           backup=no
+  when: not library_exist

@@ -1,0 +1,10 @@
+---
+- name: Install python
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+  with_items:
+    - python
+    - python2.7-dev
+  sudo: yes

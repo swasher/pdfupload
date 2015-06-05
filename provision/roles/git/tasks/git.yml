@@ -1,0 +1,9 @@
+---
+- name: Install git
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+  with_items:
+    - git
+  sudo: yes

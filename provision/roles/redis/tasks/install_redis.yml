@@ -1,0 +1,9 @@
+---
+- name: Install nginx system packages.
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+  with_items:
+    - redis-server
+  sudo: yes

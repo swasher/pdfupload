@@ -1,0 +1,59 @@
+---
+- name: Install samba.
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+  with_items:
+    - samba
+  sudo: yes
+
+
+- name: set local master -> no
+  lineinfile: dest=/etc/samba/smb.conf
+              regexp=''
+              state=present
+              line='local master = no'
+  sudo: yes
+
+
+- name: set os level -> 1
+  lineinfile: dest=/etc/samba/smb.conf
+              regexp=''
+              state=present
+              line='os level = 1'
+  sudo: yes
+
+
+- name: set domain master -> no
+  lineinfile: dest=/etc/samba/smb.conf
+              regexp=''
+              state=present
+              line='domain master = no'
+  sudo: yes
+
+
+- name: set preffered master -> no
+  lineinfile: dest=/etc/samba/smb.conf
+              regexp=''
+              state=present
+              line='preffered master = no'
+  sudo: yes
+
+
+- name: change workgroup
+  replace: dest=/etc/samba/smb.conf
+           regexp='(\s+workgroup = )\w+(\n)'
+           replace='\1{{workgroup}}\2'
+           backup=no
+  sudo: yes
+
+
+- name: add a share
+  lineinfile: dest=/etc/samba/smb.conf
+              regexp=''
+              state=present
+              line='\n\n[pdfupload]\n\tpath = {{project_root}}/input/\n\tread only = no\n\tbrowseable = yes\n\tguest ok = yes\n\tforce user = {{remote_user}}'
+  notify: restart samba
+  sudo: yes
+

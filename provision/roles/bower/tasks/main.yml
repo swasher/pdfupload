@@ -1,0 +1,4 @@
+---
+- include: ensure_npm.yml
+- include: ensure_bower.yml
+- include: install_project-dependencies.yml

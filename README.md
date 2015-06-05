@@ -155,7 +155,7 @@ settings.py
 
     $ rq-dashboard
 
-Настраиваем uwsgi, supervisor и nginx
+Настраиваем uwsgi, emperor и nginx
 -------------------------------------
 
 ##### nginx
@@ -217,7 +217,7 @@ settings.py
     
 приведет к перезапуску uWSGI сервера.
 
-##### Supervisor
+##### Supervisor DEPRECATED; use uwsgi emperor instead
 
 В конфиг `supervisord.conf` изменения вносить не нужно. Создаем только файл конфигурации для нашего 
 питон-приложения `/etc/supervisor/conf.d/pdfupload.conf`:
@@ -232,6 +232,20 @@ settings.py
     stopwaitsecs = 60
     stopsignal=INT
     user=swasher
+
+##### Uwsgi emperor
+
+В ubuntu можно поставить uwsgi через менеджер пакетов apt, и тогда вместе с ним ставится
+и демон emperor. Но uwsgi там не самый свежий, поэтому мы будем ставим его через pip.
+
+В Ubuntu 15.04 на смену upstart пришел systemd. Как настроить автозапуск emperor
+подробно описано [тут](http://uwsgi.readthedocs.org/en/latest/Systemd.html?highlight=emperor)
+
+Вкратце, в `/etc/uwsgi/` нужно создать файл `emperor.ini`, в котором написано, где будут лежать конфиги
+вассалов, и от какого юзера запускать их.
+
+Далее, в `/etc/systemd/system/` нужно создать конфиги `emperor.uwsgi.service` и `emperor.uwsgi.socket`.
+Подробно по ссылке выше, рабочие конфиги в `provision/roles/uwsgi`
 
 Методика анализа
 -----------------------
@@ -292,6 +306,7 @@ TROUBLESHOOTING
 
 Куда смотреть, если что-то не работает:
 
+- запустить джанго в командной строке и посмотреть браузером: `python manage.py runserver 0.0.0.0:8080`
 - отчет о работе в реальном времени пишется в локальную консоль сервера /dev/tty1. Проверить, в какую консоль сейчас видим можно командой `who -m`
 - можно перезапустить nginx командой `pdfupload_restart.sh`
 - запускаем `rq-dashboard`, смотрим браузером в порт 9181

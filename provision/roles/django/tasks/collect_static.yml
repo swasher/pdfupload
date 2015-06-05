@@ -1,0 +1,11 @@
+---
+- name: Create required dir
+  file: >
+    path={{project_root}}/static_root/jpg
+    state=directory
+
+
+- name: Collecting static
+  django_manage: >
+    command=collectstatic
+    app_path={{project_root}}

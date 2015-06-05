@@ -1,0 +1,8 @@
+---
+
+#
+# This role install git and clone source from github
+#
+
+- include: git.yml
+- include: clone.yml

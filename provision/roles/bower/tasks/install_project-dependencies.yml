@@ -1,0 +1,32 @@
+---
+
+#
+# There is a bug in ansible.
+# Fixed in https://github.com/ansible/ansible-modules-extras/issues/335
+# In ansible 1.9.0.1 still not fixed, so I'm fix manually in /usr/local/lib/python2.7/dist-packages/ansible/modules/extras/packaging/language/bower.py
+#
+
+
+- name: Install dependencies via bower
+  bower: path={{project_root}}
+  tags: vagrant_skip
+
+# using standart bower ansible module fail with following error:
+  # fail only in vagrant
+
+#==> default: TASK: [bower | Install dependencies via bower] ********************************
+#==> default: <local> REMOTE_MODULE bower path=/home/vagrant/pdfupload
+#==> default: failed: [local] => {"cmd": "bower install", "failed": true, "rc": 1}
+#==> default: stderr: bower ESUDO         Cannot be run with sudo
+#==> default:
+#==> default: Additional error details:
+#==> default: Since bower is a user command, there is no need to execute it with superuser permissions.
+#==> default: If you're having permission errors when using bower without sudo, please spend a few minutes learning more about how your system should work and make any necessary repairs.
+#==> default:
+#==> default: http://www.joyent.com/blog/installing-node-and-npm
+#==> default: https://gist.github.com/isaacs/579814
+#==> default:
+#==> default: You can however run a command with sudo using --allow-root option
+#==> default:
+#==> default: msg: bower ESUDO         Cannot be run with sudo
+#==> default:

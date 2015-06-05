@@ -1,0 +1,23 @@
+---
+- name: Remove default nginx site.
+  #notify: restart nginx
+  file: >
+    path=/etc/nginx/sites-enabled/default
+    state=absent
+  sudo: yes
+
+
+- name: Install nginx configuration file
+  template: >
+    src=nginx.conf.j2
+    dest=/etc/nginx/sites-available/{{project_name}}
+  sudo: yes
+
+
+- name: Enable virtual host
+  notify: restart nginx
+  file: >
+    src=/etc/nginx/sites-available/{{project_name}}
+    dest=/etc/nginx/sites-enabled/{{project_name}}
+    state=link
+  sudo: yes

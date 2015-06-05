@@ -1,0 +1,3 @@
+---
+- include: install_uwsgi.yml
+- include: install_template.yml

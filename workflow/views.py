@@ -212,6 +212,8 @@ def processing(pdfName):
     #Move pdf to temp
     #-----------------------------------------------------------------
 
+    print('111')
+    print(tmppath)
     tempdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
     try:
         shutil.move(inputpath + pdfName, tempdir + pdfName)
@@ -219,7 +221,7 @@ def processing(pdfName):
         logging.error('{0}: Cant move to temp: {1}'.format(pdfName, e))
         print e
         exit()
-    pdf_abs_path = tempdir+pdfName
+    pdf_abs_path = tempdir + pdfName
 
 
     #Check if file is PDF

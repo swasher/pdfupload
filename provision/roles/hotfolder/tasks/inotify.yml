@@ -1,0 +1,35 @@
+---
+
+- name: Install incron.
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+  with_items:
+    - incron
+  sudo: yes
+
+
+- name: Allow user using incrontab
+  lineinfile: >
+    dest=/etc/incron.allow
+    line='{{remote_user}}'
+    state=present
+  sudo: yes
+
+
+#string must be in
+#/var/spool/incron/user
+#раньше юзер был рутом, щас надо попробовть нон-привелегед
+
+
+# TODO нужно ли добавить юзера в группу icron для записи в /var/spool/incron/ ???
+
+- name: setup task for incron
+  lineinfile: dest=/var/spool/incron/{{remote_user}}
+              regexp=''
+              state=present
+              line='{{hotfolder}} IN_CLOSE_WRITE python {{project_root}}/{{python_handler}} $#'
+              create=yes
+  notify: restart incron
+  sudo: yes

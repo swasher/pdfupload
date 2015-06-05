@@ -1,0 +1,23 @@
+# Приватные файлы
+*.txt
+!requirements.txt
+db.sqlite3
+pdfupload/secret_settings.py
+deploy.yaml
+
+#Служебные файлы
+*.pyc
+**/migrations/
+__pycache__/
+.idea/
+.vagrant/
+logs/
+input/
+
+# Статика
+static_root/
+media/
+**/static/
+test/
+
+# Создаваемые программой файлы

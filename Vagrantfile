@@ -52,8 +52,8 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", inline: "sudo apt-get install python-dev python-pip mc -y"
   config.vm.provision "shell", inline: "sudo pip install ansible"
-  #config.vm.provision "shell", inline: "ansible-playbook -i /home/vagrant/pdfupload/provision/inventories/vagrant /home/vagrant/pdfupload/provision/provision.yml -v --ask-become-pass --skip-tags=vagrant_skip"
-  config.vm.provision "shell", inline: "ansible-playbook -i /home/vagrant/pdfupload/provision/inventories/vagrant /home/vagrant/pdfupload/provision/provision.yml -v --ask-become-pass"
+  config.vm.provision "shell", inline: "ansible-playbook -i /home/vagrant/pdfupload/provision/inventories/vagrant /home/vagrant/pdfupload/provision/provision.yml -v --ask-become-pass --skip-tags=vagrant_skip --ask-vault-pass"
+
 
 
 end

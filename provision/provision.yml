@@ -3,7 +3,7 @@
 # Steps to reproduce new server:
 # - install fresh ubuntu machine on ESXi (testing on 15.04). During install select `OpenSSH Server`.
 # - Write down custom ssh port to /etc/ssh/sshd-config
-# - Assign appropriate static IP in winbox for new machine
+# - On router assign appropriate static IP for new machine
 # - Reboot
 # - On machine, when run ansible: ssh-copy-id [user]@[server-ip] -p [server-port]
 # - Note: Provision assumes, that pdfupload machine is dedicated server, so python package will install system-wide.
@@ -12,8 +12,12 @@
 
 # Steps to recreate local development environment
 # - install pycharm, git for windows, virtualbox, vagrant with ubuntu/vivid64
+# - ensure `C:\Program Files (x86)\Git\etc\gitconfig` have `autocrlf = false` (git doesn't process files)
 # - run `vagrant box add ubuntu/vivid64`
 # - start pycharm
+# - set pycharm preferences:
+# --- settings -> editor -> file encodings -> project and default encoding -> utf-8
+# --- settings -> editor -> code style -> line separator -> unix and osx
 # - click 'Check out from version control', then Github
 # - select appropriate repo and click 'Clone'
 # - start vagrant box (tools -> vagrant -> up). This set-up environment with all dependencies.

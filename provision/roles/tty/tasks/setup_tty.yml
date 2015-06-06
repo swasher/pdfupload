@@ -1,14 +1,14 @@
 ---
 - name: add user to tty[dialout] group
   user: >
-    name={{remote_user}}
+    name='{{remote_user}}'
     group=dialout
   sudo: yes
 
 - name: change owner of tty1
   file: >
-    path={{terminal}}
-    owner={{www-owner}}
+    path='{{terminal}}'
+    owner='{{www_owner}}'
   sudo: yes
 
 - name: testing skip

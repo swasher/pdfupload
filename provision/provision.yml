@@ -10,10 +10,14 @@
 #         This is due high load on file system during pdf processing.
 
 
-# Steps to create local development environment
-# - install pycharm, virtualbox, vagrant with ubuntu/vivid64
-# - open project
-# - start vagrant box (tools -> vagrant -> up). Environment with all dependencies will install automatically.
+# Steps to recreate local development environment
+# - install pycharm, git for windows, virtualbox, vagrant with ubuntu/vivid64
+# - run `vagrant box add ubuntu/vivid64`
+# - start pycharm
+# - click 'Check out from version control', then Github
+# - select appropriate repo and click 'Clone'
+# - start vagrant box (tools -> vagrant -> up). This set-up environment with all dependencies.
+
 # - add string to your hosts file: [vagrant-box-ip] vagrant.tes.pp.ua
 # - vault magic word hint: b-0
 

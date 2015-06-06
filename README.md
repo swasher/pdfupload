@@ -7,7 +7,7 @@ Deploy
 - Настройка конфигов
 - Обработчик incrontab
 - Доступ по samba
-- uWSGI, supervisor и nginx
+- uWSGI, emperor и nginx
 
 Установка
 --------------------
@@ -36,13 +36,11 @@ Deploy
 
 Для отрисовки графиков нужно поставить nvd3. Можно через bowler, но я ставил руками:
 
-    ::console
     pip install sudo pip install django-nvd3
     --> Successfully installed django-nvd3 python-nvd3 python-slugify Unidecode
 
 settings.py
     
-    ::python
     INSTALLED_APPS = (
         'django_nvd3',
         )

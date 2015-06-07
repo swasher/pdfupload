@@ -1,8 +1,10 @@
 ---
-- django_manage: >
-      command=makemigrations
-      app_path={{project_root}}
+- name: django makemigration
+  django_manage: >
+    command=makemigrations
+    app_path={{project_root}}
 
-- django_manage: >
-      command=migrate
-      app_path={{project_root}}
+- name: django migrate
+  django_manage: >
+    command=migrate
+    app_path={{project_root}}

@@ -1,0 +1,6 @@
+- name: Copy fixtures
+  template: >
+    src=initial_data.json
+    dest={{project_root}}/workflow/fixtures/initial_data.json
+  tags: vagrant_skip
+  sudo: no

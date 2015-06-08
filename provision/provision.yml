@@ -5,7 +5,7 @@
 # - Write down custom ssh port to /etc/ssh/sshd-config
 # - On router assign appropriate static IP for new machine
 # - Reboot
-# - On machine, when run ansible: ssh-copy-id [user]@[server-ip] -p [server-port]
+# - Copy ssh key from 'ansible' machine to target machine: ssh-copy-id [user]@[server-ip] -p [server-port]
 # - Note: Provision assumes, that pdfupload machine is dedicated server, so python package will install system-wide.
 #         This is due high load on file system during pdf processing.
 
@@ -25,6 +25,8 @@
 # - add string to your hosts file: [vagrant-box-ip] vagrant.tes.pp.ua
 # - vault magic word hint: b-0
 
+# TODOes and temporary solution:
+# - owner of uwsgi process set to normal user, not www-data, due www-data can't write to tty1, even it is in tty group
 
 - hosts: all
   remote_user: "{{remote_user}}"

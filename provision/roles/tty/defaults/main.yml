@@ -1,3 +1,5 @@
 ---
 terminal: /dev/tty1
-www_owner: www-data
+#www_owner: www-data
+www_owner: swasher
+tty_group: tty

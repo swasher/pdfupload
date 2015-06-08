@@ -1,5 +1,6 @@
 ---
 - include: copy_secret.yml
+- include: copy_fixtures.yml
 - include: django_migrate.yml
 - include: chmod_debug.yml
 - include: collect_static.yml

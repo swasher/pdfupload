@@ -1,5 +1,7 @@
 ---
 
+# TODO зделать отдельно - развертывание из среды разработки и развертывание только с гитхаба
+
 # Steps to reproduce new server:
 # - install fresh ubuntu machine on ESXi (testing on 15.04). During install select `OpenSSH Server`.
 # - Write down custom ssh port to /etc/ssh/sshd-config

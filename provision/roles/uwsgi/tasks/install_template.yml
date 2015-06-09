@@ -3,7 +3,7 @@
   template: >
     src=uwsgi.ini.j2
     dest={{project_root}}/uwsgi.ini
-  tags: vagrant_skip
+
 
 - name: Activate apps
   file: >

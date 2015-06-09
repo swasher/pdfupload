@@ -1,6 +1,43 @@
+---
+
+# Handling fixtures makeing by unusual way because Ansible don't support copy with decrypt: https://github.com/ansible/ansible/issues/10349
+#
+# So we encrypt file by hand, then ansible can decrypt it at server side using vault store password
+#
+# First we need to do, that encrypt fixtures by hand with openssl:
+# openssl aes-256-cbc -salt -a -e -in initial_data.json -out initial_data.encrypted -k [secret_phrase]
+#
+# Second, put [passphrase] in ansible-vault file with variables (ie in credentials.yml: passphrase: secret_phrase)
+#
+# Then, ansible can copy and decrypt this file by itself automatically
+#
+# For help type `openssl enc --help`
+
+
+- name: Create required dir
+  file: >
+    path={{project_root}}/workflow/fixtures
+    state=directory
+  sudo: no
+
 - name: Copy fixtures
-  template: >
-    src=initial_data.json
-    dest={{project_root}}/workflow/fixtures/initial_data.json
+  copy: >
+    src=initial_data.encrypted
+    dest={{project_root}}/workflow/fixtures/initial_data.encrypted
   tags: vagrant_skip
   sudo: no
+
+
+- name: Decrypt the initial data
+  command: openssl aes-256-cbc -salt -a -d
+           -in {{project_root}}/workflow/fixtures/initial_data.encrypted
+           -out {{project_root}}/workflow/fixtures/initial_data.json
+           -k {{ passphrase }}
+#           creates={{ ssl_dest_dir }}/decrypted.key
+  tags: vagrant_skip
+  sudo: no
+
+
+#- name: Rename the decrypted SSL key
+#  command: mv {{ ssl_dest_dir }}/decrypted.key {{ ssl_dest_dir }}/nginx.key
+#           removes={{ ssl_dest_dir }}/decrypted.key

@@ -3,6 +3,8 @@
 !requirements.txt
 db.sqlite3
 pdfupload/secret_settings.py
+credentials-not-vcs.yml
+initial_data.json
 deploy.yaml
 
 #Служебные файлы

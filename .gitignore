@@ -3,7 +3,7 @@
 !requirements.txt
 db.sqlite3
 pdfupload/secret_settings.py
-credentials-not-vcs.yml
+credentials-NOT-FOR-GIT.yml
 initial_data.json
 deploy.yaml
 
@@ -21,5 +21,16 @@ static_root/
 media/
 **/static/
 test/
+tmp/
 
 # Создаваемые программой файлы
+
+workflow/templates/debug.html
+workflow/templates/log.html
+workflow/templates/test.html
+TODO.md
+rebuild_db.sh
+fabfile.py
+PDFSOFTWARE.md
+pdfupload/settings_secret.py
+workflow/templates/info.html

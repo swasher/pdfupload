@@ -20,6 +20,7 @@
     state=directory
   sudo: no
 
+
 - name: Copy fixtures
   copy: >
     src=initial_data.encrypted
@@ -33,11 +34,11 @@
            -in {{project_root}}/workflow/fixtures/initial_data.encrypted
            -out {{project_root}}/workflow/fixtures/initial_data.json
            -k {{ passphrase }}
-#           creates={{ ssl_dest_dir }}/decrypted.key
   tags: vagrant_skip
   sudo: no
 
 
-#- name: Rename the decrypted SSL key
-#  command: mv {{ ssl_dest_dir }}/decrypted.key {{ ssl_dest_dir }}/nginx.key
-#           removes={{ ssl_dest_dir }}/decrypted.key
+- name: Delete encrypted
+  file: >
+    path={{project_root}}/workflow/fixtures/initial_data.encrypted
+    state=absent

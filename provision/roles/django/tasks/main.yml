@@ -4,3 +4,4 @@
 - include: django_migrate.yml
 - include: chmod_debug.yml
 - include: collect_static.yml
+- include: create_superuser.yml

@@ -101,11 +101,6 @@ def grid(request, mode=''):
     context = RequestContext(request)
     #table = Grid.objects.all().order_by('datetime').reverse()
 
-    TTY = '/dev/tty1'
-    sys.stdout = open(TTY, 'w')
-    sys.stderr = open(TTY, 'w')
-    #sys.stdout.write('filename'+'\n')
-
     logger.debug("this is a debug message!")
     logger.error("this is an error message!!")
 
@@ -201,9 +196,13 @@ def processing(pdfName):
 
     # socket.setdefaulttimeout(10.0)
 
-    TTY = '/dev/tty1'
-    sys.stdout = open(TTY, 'w')
-    sys.stderr = open(TTY, 'w')  # Теперь print пишет в назначенный TTY
+    try:
+        tty = '/dev/tty1'
+        sys.stdout = open(tty, 'w')
+        sys.stderr = open(tty, 'w')
+        #sys.stdout.write('filename'+'\n')
+    except:
+        pass
 
     print '\n\n'
     print 'START PROCESSING {}'.format(pdfName)

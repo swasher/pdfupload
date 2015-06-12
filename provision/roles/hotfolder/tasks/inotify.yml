@@ -31,5 +31,8 @@
               state=present
               line='{{hotfolder}} IN_CLOSE_WRITE python {{project_root}}/{{python_handler}} $#'
               create=yes
+              owner='{{remote-user}}'
+              group='incron'
+              mode=0600
   notify: restart incron
   sudo: yes

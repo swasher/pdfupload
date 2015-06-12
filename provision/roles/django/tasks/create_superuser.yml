@@ -1,0 +1,12 @@
+---
+- name: Copy script to target
+  template: >
+    src=create_superuser.py.j2
+    dest={{project_root}}/create_superuser.py
+  tags: vagrant_skip
+  sudo: no
+
+- name: Start script to create superuser
+  command: python create_superuser.py
+  args:
+    chdir: '{{project_root}}'

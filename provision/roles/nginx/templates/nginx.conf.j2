@@ -3,8 +3,8 @@ server {
     #listen       8080;
     server_name {{fqdn}};
     charset     utf-8;
-    access_log  {{project_root}}/logs/nginx-access.log; # compression;
-    error_log   {{project_root}}/logs/nginx-error.log; # info;
+    access_log  {{log_path}}/nginx-access.log; # compression;
+    error_log   {{log_path}}/nginx-error.log; # info;
 
     location / {
         uwsgi_pass 127.0.0.1:49001;

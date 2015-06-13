@@ -1,4 +1,7 @@
 ---
+# TODO superuser can't create on dev(local) machine due bug
+# https://github.com/ansible/ansible/issues/9526
+# so please create it by hand
 - name: Copy script to target
   template: >
     src=create_superuser.py.j2
@@ -10,3 +13,5 @@
   command: python create_superuser.py
   args:
     chdir: '{{project_root}}'
+  tags: vagrant_skip
+  sudo: no

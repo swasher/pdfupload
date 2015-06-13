@@ -7,4 +7,6 @@
   with_items:
     - python
     - python2.7-dev
+    - libpython2.7-dev
+    - libyaml-dev
   sudo: yes

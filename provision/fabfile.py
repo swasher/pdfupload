@@ -1,23 +1,17 @@
 from fabric.api import local, hosts, env, run
 
 def provision_staging():
-    local('ansible-playbook -i inventories/staging --ask-become-pass -v --ask-vault-pass provision.yml')
+    local('ansible-playbook -i inventories/staging --ask-become-pass --ask-vault-pass provision.yml')
 
 def provision_production():
     local('ansible-playbook -i inventories/production --ask-become-pass -vv --ask-vault-pass provision.yml')
 
-def encode_credentials():
-    local('')
-
-# this fab do not execute directly normally;
-# instead this line execute during vagrant provision via Vagrantfile
-# use it only on debug or for problem resolution
-def provision_vagrant():
-    local('ansible-playbook -i inventories/vagrant --ask-become-pass -vv  --ask-vault-pass provision.yml ')
-    #local('ansible-playbook -i inventories/vagrant --ask-become-pass -vv --skip-tags=vagrant_skip --ask-vault-pass provision.yml ')
+def provision_local():
+    #local('ansible-playbook -i inventories/vagrant --ask-become-pass -vv  --ask-vault-pass provision.yml ')
+    local('ansible-playbook -i inventories/vagrant --ask-become-pass -vv --skip-tags=vagrant_skip --ask-vault-pass provision.yml ')
 
 
-# For use this feature, you must have hosts description in ~/.shh/config with following format:
+# For use this feature, you must have hosts description at ansible machine in ~/.shh/config with following format:
 # Host staging
 #     HostName 111.222.333.444
 #     Port 22000
@@ -37,3 +31,7 @@ def deploy():
     run('uname -a')
     #git fetch origin
     #git reset --hard origin/master
+
+
+def encode_credentials():
+    local('')

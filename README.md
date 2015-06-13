@@ -9,6 +9,51 @@ Provision with Ansible
 При запуске ansible локальные файлы не используются, все файлы берутся с гита! Поэтому перед
 запуском provision нужно не забыть сделать push!
 
+The trick:
+Так как Ansible не работает под виндовс, провижн запускается ВНУТРИ поднятого vagrant-бокса.
+
+# TODO зделать отдельно - развертывание из среды разработки и развертывание только с гитхаба
+
+Steps to reproduce new server:
+
+- create fresh ubuntu machine on ESXi (testing on 15.04). During install select `OpenSSH Server`.
+- write down custom ssh port to /etc/ssh/sshd-config
+- on router assign appropriate static IP for new machine
+- Reboot
+- Copy ssh key from 'ansible' machine to target machine: ssh-copy-id [user]@[server-ip] -p [server-port]
+- Note: Provision assumes, that pdfupload machine is dedicated server, so python package will install system-wide.
+        This is due high load on file system during pdf processing.
+
+
+Steps to recreate local development environment
+
+- install pycharm, git for windows, virtualbox, vagrant with ubuntu/vivid64
+- download box with Ubuntu 15.04: `vagrant box add ubuntu/vivid64`
+- clone project from github: `git clone https://github.com/swasher/pdfupload.git`
+- using PowerShell, start vagrant box from project dir: `vagrant up`
+
+- due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision
+--- so first we connect to box via ssh, and then start provision INSIDE. There is a thread https://github.com/mitchellh/vagrant/issues/3396
+- enter vagrant box: `vagrant ssh`
+- start provision: `cd pdfupload/provision && fab provision_local`
+
+- generate keys: `ssh-keygen -t rsa`
+- TODO fill ~/.shh/config as described in fabfile
+
+Development tools tunung:
+
+- git
+--- ensure `C:\Program Files (x86)\Git\etc\gitconfig` have `autocrlf = false` (git doesn't process files)
+- pycharm
+--- settings -> editor -> file encodings -> project and default encoding -> utf-8
+--- settings -> editor -> code style -> line separator -> unix and osx
+
+- add string to your hosts file or adjustment your router: [machine-ip] [machine-fqdn], where fqdn from group_vars
+- vault magic word hint: b-0
+
+TODOes and temporary solution:
+- owner of uwsgi process set to normal user, not www-data, due www-data can't write to tty1, even it is in tty group
+
 Установка
 --------------------
 

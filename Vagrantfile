@@ -41,9 +41,13 @@ Vagrant.configure(2) do |config|
   #config.vm.network "public_network"
   config.vm.network "private_network", type: "dhcp"
 
+  # for supress "stdin: is not a tty error"
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  config.vm.provision "shell", inline: "sudo apt-get install python-dev python-pip mc -y"
-  config.vm.provision "shell", inline: "sudo pip install ansible"
-  config.vm.provision "shell", inline: "ansible-playbook -i /home/vagrant/pdfupload/provision/inventories/vagrant /home/vagrant/pdfupload/provision/provision.yml -v --ask-become-pass --skip-tags=vagrant_skip --ask-vault-pass"
+  config.vm.provision "shell", inline: "sudo apt-get update -qq && sudo apt-get install python-dev python-pip libpython2.7-dev libyaml-dev mc -y -q"
+  config.vm.provision "shell", inline: "sudo pip install ansible fabric"
+#   config.vm.provision "shell",
+#     :keep_color => true,
+#     :inline => "export PYTHONUNBUFFERED=1 && cd pdfupload/provision && fab provision_local"
 
 end

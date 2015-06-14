@@ -22,13 +22,11 @@ Vagrant.configure(2) do |config|
   # how login as different user http://stackoverflow.com/a/22648525
   # config.ssh.username = "swasher"
 
-  #  config.vm.hostname = "pdfdevelop"
-  #  config.vm.network :private_network, ip: "192.168.0.90"
-
   # Set the name of the VM. See: http://stackoverflow.com/a/17864388/100134
   #  config.vm.define :pdfdevelop do |pdfdevelop|
   #  end
 
+  #  config.vm.hostname = "pdfdevelop"
 
   config.vm.synced_folder ".", "/home/vagrant/pdfupload", id: "vagrant-root",
     owner: "vagrant",
@@ -37,17 +35,16 @@ Vagrant.configure(2) do |config|
 
 
   # Share port for nginx
-  config.vm.network "forwarded_port", guest: 80, host: 8888
+  #config.vm.network "forwarded_port", guest: 80, host: 8888
   #config.vm.network "public_network"
-  config.vm.network "private_network", type: "dhcp"
+  #config.vm.network "private_network", type: "dhcp"
+  config.vm.network :private_network, ip: "172.28.128.20"
 
   # for supress "stdin: is not a tty error"
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
   config.vm.provision "shell", inline: "sudo apt-get update -qq && sudo apt-get install python-dev python-pip libpython2.7-dev libyaml-dev mc -y -q"
   config.vm.provision "shell", inline: "sudo pip install ansible fabric"
-#   config.vm.provision "shell",
-#     :keep_color => true,
-#     :inline => "export PYTHONUNBUFFERED=1 && cd pdfupload/provision && fab provision_local"
+  config.vm.provision "shell", privileged: false, inline: "cd pdfupload/provision && fab provision_local"
 
 end

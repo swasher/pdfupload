@@ -1,2 +1,2 @@
 ---
-log_path: ~/{{remote_user}}/logs/
+#log_path: "{{ lookup('env','HOME') }}/logs"

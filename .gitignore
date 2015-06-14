@@ -1,36 +1,30 @@
 # Приватные файлы
-*.txt
+**/*.txt
 !requirements.txt
 db.sqlite3
 pdfupload/secret_settings.py
-credentials-NOT-FOR-GIT.yml
-initial_data.json
-deploy.yaml
+**/*NOT-FOR-GIT*
+workflow/fixtures/initial_data.json
 
-#Служебные файлы
+# Служебные файлы
 *.pyc
 **/migrations/
 __pycache__/
 .idea/
 .vagrant/
-logs/
-input/
 
 # Статика
-static_root/
-media/
-**/static/
-test/
-tmp/
+static_root/**
+workflow/static/**
+test/**
 
-# Создаваемые программой файлы
-
+# Сырое
 workflow/templates/debug.html
 workflow/templates/log.html
 workflow/templates/test.html
+workflow/templates/info.html
 TODO.md
 rebuild_db.sh
 fabfile.py
 PDFSOFTWARE.md
 pdfupload/settings_secret.py
-workflow/templates/info.html

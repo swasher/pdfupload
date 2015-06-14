@@ -1,0 +1,10 @@
+---
+- include: tty_permission.yml
+- include: utf8_console.yml
+
+- name: for test purpose
+  debug: msg="Empty action with tag"
+  tags: vagrant_skip
+
+- name: test
+  debug: msg="System var {{ log_dir }} Secret var {{ smsc_login }}"

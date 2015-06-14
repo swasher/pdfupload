@@ -1,12 +1,5 @@
 ---
-#
-# WARNING!
-# THIS FILE HAVE PRIVATE CREDENTIALS AND MUST BE KEPT IN SECURE!
-#
-
-project_name: pdfupload
 project_root: /home/swasher/pdfupload
-project_repo: http://github.com/swasher/pdfupload.git
 fqdn: pdfupload.tes.pp.ua
 remote_user: swasher
 

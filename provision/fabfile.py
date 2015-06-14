@@ -7,9 +7,8 @@ def provision_production():
     local('ansible-playbook -i inventories/production --ask-become-pass -vv --ask-vault-pass provision.yml')
 
 def provision_local():
-    #local('ansible-playbook -i inventories/vagrant --ask-become-pass -vv  --ask-vault-pass provision.yml ')
-    local('ansible-playbook -i inventories/vagrant --ask-become-pass -vv --skip-tags=vagrant_skip --ask-vault-pass provision.yml ')
-
+    #local('ansible-playbook -i inventories/vagrant -v provision.yml ')
+    local('ansible-playbook -i inventories/vagrant -vv --skip-tags=vagrant_skip provision.yml ')
 
 # For use this feature, you must have hosts description at ansible machine in ~/.shh/config with following format:
 # Host staging
@@ -29,9 +28,6 @@ def production():
 
 def deploy():
     run('uname -a')
-    #git fetch origin
-    #git reset --hard origin/master
-
-
-def encode_credentials():
-    local('')
+    run('pwd')
+    #run('git fetch origin')
+    #run('git reset --hard origin/master')

@@ -1,8 +1,14 @@
 ---
+- name: Ensure log directory present
+  file: >
+    dest={{log_dir}}
+    state=directory
+
 - name: Install uwsgi
   pip: >
     name=uwsgi
     state=latest
+    extra_args='--quiet'
   sudo: yes
 
 

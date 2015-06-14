@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+# Get home dir for tmp, input and log
+from os.path import expanduser
+HOME_DIR = expanduser("~")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -109,8 +112,10 @@ STATICFILES_DIRS = (
     BASE_DIR + '/static_root/jpg',
 )
 
-INPUT_PATH = BASE_DIR + '/input/'
-TEMP_PATH = BASE_DIR + '/tmp/'
+#INPUT_PATH = BASE_DIR + '/input/'
+#TEMP_PATH = BASE_DIR + '/tmp/'
+INPUT_PATH = HOME_DIR + '/input/'
+TEMP_PATH = HOME_DIR + '/tmp/'
 
 import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',

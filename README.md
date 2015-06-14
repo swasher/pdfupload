@@ -1,5 +1,7 @@
-Provision with Ansible
+Installation
 --------------------------
+
+Установка производится с помощью менеджера конфигурций Ansible.
 
 Директория provision содержит все необходимое для автоматического провижиона с помощью Ansible.
 Файл provision/provision.yml содержит подробные инструкции, как создать staging/production систему
@@ -12,7 +14,7 @@ Provision with Ansible
 The trick:
 Так как Ansible не работает под виндовс, провижн запускается ВНУТРИ поднятого vagrant-бокса.
 
-# TODO зделать отдельно - развертывание из среды разработки и развертывание только с гитхаба
+TODO зделать отдельно - развертывание из среды разработки и развертывание только с гитхаба
 
 Steps to reproduce new server:
 
@@ -27,13 +29,18 @@ Steps to reproduce new server:
 
 Steps to recreate local development environment
 
+- BUG 1: невозможно создать файл в шаред фолдер
+- BUG 2: невозможно интерактивный ввод-вывод
+
+
 - install pycharm, git for windows, virtualbox, vagrant with ubuntu/vivid64
 - download box with Ubuntu 15.04: `vagrant box add ubuntu/vivid64`
 - clone project from github: `git clone https://github.com/swasher/pdfupload.git`
 - using PowerShell, start vagrant box from project dir: `vagrant up`
 
-- due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision
---- so first we connect to box via ssh, and then start provision INSIDE. There is a thread https://github.com/mitchellh/vagrant/issues/3396
+- due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision.
+- --- Folk: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3) [two](https://github.com/mitchellh/vagrant/issues/2924) [and at last](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)"
+- --- so first we connect to box via ssh, and then start provision INSIDE. 
 - enter vagrant box: `vagrant ssh`
 - start provision: `cd pdfupload/provision && fab provision_local`
 
@@ -54,7 +61,12 @@ Development tools tunung:
 TODOes and temporary solution:
 - owner of uwsgi process set to normal user, not www-data, due www-data can't write to tty1, even it is in tty group
 
-Установка
+Deploy
+--------------------
+
+TODO
+
+Install by hand
 --------------------
 
 Установка выполняется с использование ansible. Ниже описано, как установить вручную.

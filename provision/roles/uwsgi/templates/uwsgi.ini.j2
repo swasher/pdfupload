@@ -1,9 +1,13 @@
 [uwsgi]
-# set PYTHONHOME/virtualenv. Comment if no virtual environment
 chdir={{project_root}}
 master=True
-disable-logging=True
-logto={{log_path}}
+disable-logging=False
+
+plugins    = python,logfile
+logto      = {{log_dir}}/uwsgi.log
+req-logger = file:{{log_dir}}/uwsgi-access.log
+logger     = file:{{log_dir}}/uwsgi-error.log
+
 vacuum=True
 pidfile=/tmp/{{project_name}}.pid
 max-requests=5000

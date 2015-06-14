@@ -18,7 +18,7 @@
   file: >
     path={{project_root}}/workflow/fixtures
     state=directory
-  sudo: no
+  tags: vagrant_skip
 
 
 - name: Copy fixtures
@@ -26,7 +26,6 @@
     src=initial_data.encrypted
     dest={{project_root}}/workflow/fixtures/initial_data.encrypted
   tags: vagrant_skip
-  sudo: no
 
 
 - name: Decrypt the initial data
@@ -35,10 +34,16 @@
            -out {{project_root}}/workflow/fixtures/initial_data.json
            -k {{ passphrase }}
   tags: vagrant_skip
-  sudo: no
 
 
 - name: Delete encrypted
   file: >
     path={{project_root}}/workflow/fixtures/initial_data.encrypted
     state=absent
+  tags: vagrant_skip
+
+- name: Load fixtures
+  django_manage: >
+    command=loaddata
+    app_path={{ project_root }}
+    fixtures=initial_data.json

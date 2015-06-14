@@ -1,7 +1,7 @@
 ---
-- name: Nginx | Create log directory
+- name: Ensure log directory present
   file: >
-    dest={{log_path}}
+    dest={{log_dir}}
     state=directory
 
   # TODO реализовать проверку, чтобы в nginx.com были нужные настройки для форматов логирования

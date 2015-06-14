@@ -1,2 +1,1 @@
-uwsgi_process_owner: swasher
-log_path: ~/{{remote_user}}/logs/
+uwsgi_process_owner: "{{ remote_user }}"

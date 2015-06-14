@@ -1,13 +1,10 @@
 ---
-
 - hosts: all
-  remote_user: "{{remote_user}}"
   vars_files:
-    - credentials.yml
-  #gather_facts: yes
+    - group_vars/secret_vars.yml
 
   roles:
-    - tty
+    - system
     - python
     - git
     - smsc

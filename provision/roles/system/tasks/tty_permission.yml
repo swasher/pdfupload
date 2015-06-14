@@ -6,6 +6,9 @@
     append=yes
   sudo: yes
 
+#- file: path=/etc/test state=absent
+#- file: path=/etc/test state=directory
+
 #- name: change owner of tty1
 #  file: >
 #    path='{{terminal}}'

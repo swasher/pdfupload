@@ -1,4 +1,9 @@
 ---
+#- name: TESTING Remove db
+#  file: >
+#    path={{project_root}}.dbsqlite3
+#    state=absent
+
 - name: django makemigration
   django_manage: >
     command=makemigrations

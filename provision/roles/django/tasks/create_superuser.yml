@@ -1,17 +1,19 @@
 ---
-# TODO superuser can't create on dev(local) machine due bug
+# hack: due to impossible create files on shared folders,
+# using workaround with /tmp dir
 # https://github.com/ansible/ansible/issues/9526
-# so please create it by hand
+
 - name: Copy script to target
   template: >
     src=create_superuser.py.j2
-    dest={{project_root}}/create_superuser.py
-  tags: vagrant_skip
-  sudo: no
+    dest=/tmp/create_superuser.py
 
 - name: Start script to create superuser
-  command: python create_superuser.py
+  command: python /tmp/create_superuser.py
   args:
-    chdir: '{{project_root}}'
-  tags: vagrant_skip
-  sudo: no
+    chdir: "{{project_root}}"
+
+- name: Remove script
+  file: >
+    path=/tmp/create_superuser.py
+    state=absent

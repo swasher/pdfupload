@@ -1,0 +1,9 @@
+---
+project_repo: http://github.com/swasher/pdfupload.git
+project_name: pdfupload
+#user_home: "{{ lookup('env','HOME') }}"
+user_home: "/home/{{remote_user}}"
+project_root: "{{user_home}}/pdfupload"
+ansible_ssh_user: "{{ remote_user }}"
+log_dir: "{{ user_home }}/log"
+input_dir: "{{ user_home }}/input"

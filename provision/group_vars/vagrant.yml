@@ -1,4 +1,3 @@
 ---
-project_root: "{{user_home}}/pdfupload"
 fqdn: vagrant.tes.pp.ua
 remote_user: vagrant

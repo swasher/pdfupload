@@ -1,5 +1,5 @@
 ---
 - name: Create hotfolder
   file: >
-    dest={{hotfolder}}
+    dest={{input_dir}}
     state=directory

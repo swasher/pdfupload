@@ -29,7 +29,7 @@
   lineinfile: dest=/var/spool/incron/{{remote_user}}
               regexp=''
               state=present
-              line='{{hotfolder}} IN_CLOSE_WRITE python {{project_root}}/{{python_handler}} $#'
+              line='{{input_dir}} IN_CLOSE_WRITE python {{project_root}}/{{python_handler}} $#'
               create=yes
               owner={{remote_user}}
               group=incron

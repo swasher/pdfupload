@@ -1,0 +1,9 @@
+---
+- name: Install poppler-utils, which contains pdfinfo tool.
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+  with_items:
+    - poppler-utils
+  sudo: yes

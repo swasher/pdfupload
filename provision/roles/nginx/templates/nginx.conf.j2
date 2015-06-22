@@ -1,3 +1,9 @@
+upstream {{upstream}} {
+    # server unix:///path/to/your/mysite/mysite.sock;     # for a file socket
+    # server 127.0.0.1:49001;                             # for a web port socket (we'll use this first)
+    server unix://{{socket}};
+}
+
 server {
 
     #listen       8080;
@@ -7,7 +13,7 @@ server {
     error_log   {{log_dir}}/nginx-error.log; # info;
 
     location / {
-        uwsgi_pass 127.0.0.1:49001;
+        uwsgi_pass {{upstream}};
         include uwsgi_params;
     }
 

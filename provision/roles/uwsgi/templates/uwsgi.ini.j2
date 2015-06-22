@@ -2,16 +2,17 @@
 chdir={{project_root}}
 master=True
 disable-logging=False
+chmod-socket = 777
+chown-socket = {{uwsgi_process_owner}}
 
-plugins    = python,logfile
 logto      = {{log_dir}}/uwsgi.log
 req-logger = file:{{log_dir}}/uwsgi-access.log
 logger     = file:{{log_dir}}/uwsgi-error.log
 
 vacuum=True
-pidfile=/tmp/{{project_name}}.pid
+pidfile={{ram_dir}}/{{project_name}}.pid
 max-requests=5000
-socket=127.0.0.1:49001
+socket={{socket}}
 processes=2
 harakiri=20
 

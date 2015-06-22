@@ -53,7 +53,7 @@
   lineinfile: dest=/etc/samba/smb.conf
               regexp=''
               state=present
-              line='\n\n[pdfupload]\n\tpath = {{project_root}}/input/\n\tread only = no\n\tbrowseable = yes\n\tguest ok = yes\n\tforce user = {{remote_user}}'
+              line='\n\n[pdfupload]\n\tpath = {{input_dir}}\n\tread only = no\n\tbrowseable = yes\n\tguest ok = yes\n\tforce user = {{remote_user}}'
   notify: restart samba
   sudo: yes
 

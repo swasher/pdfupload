@@ -3,7 +3,7 @@ Description=Socket for uWSGI Emperor
 
 [Socket]
 # Change this to your uwsgi application port or unix socket location
-ListenStream=/tmp/uwsgid.sock
+ListenStream={{socket}}
 
 [Install]
 WantedBy=sockets.target

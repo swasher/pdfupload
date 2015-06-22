@@ -1,0 +1,15 @@
+---
+- debug: msg="Variable USER is {{ lookup('env','USER') }}"
+- debug: msg="Variable HOME is {{ lookup('env','HOME') }}"
+
+
+- debug: msg="USER HOME is {{user_home}}"
+- debug: msg="PROJECT ROOT is {{project_root}}"
+- debug: msg="remote_user is {{remote_user}}"
+- debug: msg="ansible_ssh_user is {{ansible_ssh_user}}"
+
+- name: for test purpose
+  debug: msg="Empty action with vagrant_skip tag"
+  tags: vagrant_skip
+
+- fail: msg="Halt due testing purpose."

@@ -1,8 +1,23 @@
 ---
+- name: Ensure pid directory present
+  file: >
+    dest=/run/uwsgi
+    state=directory
+    owner={{remote_user}}
+    group={{remote_user}}
+    mode=0666
+  sudo: yes
+
+- name: Ensure pid directory present at next reboot
+  template: src=tmpfiles.d.j2 dest=/etc/tmpfiles.d/emperor.conf mode=0666 owner={{remote_user}} group={{remote_user}}
+  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15
+  sudo: yes
+
 - name: Ensure log directory present
   file: >
     dest={{log_dir}}
     state=directory
+
 
 - name: Install uwsgi
   pip: >
@@ -44,7 +59,7 @@
   sudo: yes
 
 - name: Setup systemd SOCKET file for the emperor
-  copy: src=systemd.socket dest=/etc/systemd/system/emperor.uwsgi.socket mode=0644 owner=root group=root
+  template: src=systemd.socket dest=/etc/systemd/system/emperor.uwsgi.socket mode=0644 owner=root group=root
   when: >
       (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
       or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)

@@ -211,7 +211,6 @@ def processing(pdfName):
     #Move pdf to temp
     #-----------------------------------------------------------------
 
-    print('111')
     print(tmppath)
     tempdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
     try:

@@ -48,7 +48,7 @@ def provision():
 def deploy():
     with cd(env.project_path):
         run('uname -a')
-        run('ll')
         run('pwd')
-        #run('git fetch origin')
-        #run('git reset --hard origin/master')
+        run('git fetch origin')
+        run('git reset --hard origin/master')
+        run('touch /tmp/pdfupload.reload')

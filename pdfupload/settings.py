@@ -16,11 +16,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 from os.path import expanduser
 HOME_DIR = expanduser("~")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-from settings_secret import *
+try:
+    from settings_secure import *
+except ImportError:
+    pass
 #SECRET_KEY = '...'
 #MARK_MACHINE = signa mark name with printing press
 
@@ -69,14 +69,27 @@ WSGI_APPLICATION = 'pdfupload.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+# sqlite
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
+# postgresql
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': {{dbname}},
+        'USER': {{dbuser}},
+        'PASSWORD': {{dbpassword}},
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
+
 
 RQ_QUEUES = {
     'default': {

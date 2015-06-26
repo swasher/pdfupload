@@ -1,6 +1,0 @@
----
-- name: We need others can write to debug.html
-  file: >
-    path={{project_root}}/workflow/templates/debug.html
-    mode=0666
-  tags: vagrant_skip

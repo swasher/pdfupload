@@ -170,7 +170,6 @@ def grid(request, mode=''):
 @login_required
 def delete(request, rowid):
     #TODO сделать, чтобы после удаления не сбрасывался фильтр
-    #TODO при удалении возникает exception, хотя запись удаляется. Думаю, это в return redirect
     context = RequestContext(request)
 
     try:

@@ -2,13 +2,13 @@
 **/*.txt
 !requirements.txt
 db.sqlite3
-pdfupload/secret_settings.py
+**/*secure*
+**/*secret*
 **/*NOT-FOR-GIT*
 workflow/fixtures/initial_data.json
 
-# Служебные файлы
+# Файлы, создаваемые приложением
 *.pyc
-**/migrations/
 __pycache__/
 .idea/
 .vagrant/

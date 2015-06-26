@@ -10,6 +10,7 @@
     - smsc
     - nginx
     - redis
+    - postgres
     - hotfolder
     - pip
     - bower

@@ -8,6 +8,15 @@
 - debug: msg="remote_user is {{remote_user}}"
 - debug: msg="ansible_ssh_user is {{ansible_ssh_user}}"
 
+
+- debug: msg="hostvars is {{hostvars}}"
+- debug: msg="group_names is {{group_names}}"
+- debug: msg="groups is {{groups}}"
+- debug: msg="inventory_hostname is {{inventory_hostname}}"
+- debug: msg="play_hosts is {{play_hosts}}"
+
+
+
 - name: for test purpose
   debug: msg="Empty action with vagrant_skip tag"
   tags: vagrant_skip

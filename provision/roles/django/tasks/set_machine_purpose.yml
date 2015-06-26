@@ -1,0 +1,17 @@
+---
+
+# This yaml setting up enveronment variable on target machine
+# via systemd service, so after reboot variable will be actual.
+# This variable using in django's setting.py for determine type
+# of machine: production, staging or develop
+
+# Also, it involves the use strictly names of Ansible groups:
+# - production
+# - staging
+# - develop
+
+- name: Set server type at boot time
+  lineinfile: >
+    dest=/etc/environment
+    line={{environment_variable}}="{{group_names}}"
+  sudo: yes

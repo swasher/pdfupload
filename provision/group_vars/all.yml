@@ -12,3 +12,5 @@ input_dir: "{{ user_home }}/input"
 #upstream_connect: 127.0.0.1:49001  -- there is a proble in that, nginx.conf.j2 already have `unix://`
 ram_dir: "/run/uwsgi"
 socket: "{{ram_dir}}/{{project_name}}.socket"
+
+apt_cache_valid_time: 86400

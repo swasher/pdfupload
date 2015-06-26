@@ -24,7 +24,6 @@ except ImportError:
 #SECRET_KEY = '...'
 #MARK_MACHINE = signa mark name with printing press
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 TEMPLATE_DEBUG = True
@@ -82,9 +81,9 @@ WSGI_APPLICATION = 'pdfupload.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': {{dbname}},
-        'USER': {{dbuser}},
-        'PASSWORD': {{dbpassword}},
+        'NAME': 'dumb',
+        'USER': 'dumb',
+        'PASSWORD': 'dumb',
         'HOST': 'localhost',
         'PORT': '',
     }

@@ -9,18 +9,20 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Due we move setting to module, we need up to three level above of this file
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
 
 # Get home dir for tmp, input and log
 from os.path import expanduser
 HOME_DIR = expanduser("~")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-try:
-    from settings_secure import *
-except ImportError:
-    pass
+#try:
+#    from settings_secure import *
+#except ImportError:
+#    pass
 #SECRET_KEY = '...'
 #MARK_MACHINE = signa mark name with printing press
 

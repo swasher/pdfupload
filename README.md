@@ -26,9 +26,9 @@ Playbook requirements:
 - в secret_vars - логин/пароль для отправки смс, для суперюзера джанго, подробнее см. `secret_vars_template.yml` 
 
 The trick:
-Так как Ansible не работает под виндовс, провижн запускается ВНУТРИ поднятого vagrant-бокса.
+Так как Ansible не работает под Microsoft Windows, плейбук запускается ВНУТРИ поднятого vagrant-бокса.
 
-TODO cделать отдельно - развертывание из среды разработки и развертывание только с гитхаба
+> TODO cделать отдельно - развертывание из среды разработки и развертывание только с гитхаба
 
 Есть некая условность в именовании машин - они должны называться production, staging и developing соответственно.
 Именно такие константы используются в навании Ansible groups, в fabric, в настройках django-settings, 
@@ -37,11 +37,12 @@ TODO cделать отдельно - развертывание из среды
 Steps to reproduce new server:
 
 - create fresh ubuntu machine on ESXi (testing on 15.04). During install select `OpenSSH Server`.
-- write down custom ssh port to /etc/ssh/sshd-config
+- set up custom ssh port in /etc/ssh/sshd-config
 - on router assign appropriate static IP for new machine
-- Reboot
-- Copy ssh key from 'ansible' machine to target machine: ssh-copy-id [user]@[server-ip] -p [server-port]
-- Note: Provision assumes, that pdfupload machine is dedicated server, so python package will install system-wide.
+- reboot machine
+- on ansible machine, enter the connection data into ~/.ssh/config with 
+- on ansible machine, copy ssh key to target machine: ssh-copy-id [staging|developing]
+- Note: Provision assumes, that pdfupload machine is dedicated server, so we do not use virtual environment.
         This is due high load on file system during pdf processing.
 
 
@@ -49,7 +50,6 @@ Steps to recreate local development environment
 
 - BUG 1: невозможно создать файл в шаред фолдер
 - BUG 2: невозможно интерактивный ввод-вывод
-
 
 - install pycharm, git for windows, virtualbox, vagrant with ubuntu/vivid64
 - download box with Ubuntu 15.04: `vagrant box add ubuntu/vivid64`
@@ -60,7 +60,7 @@ Steps to recreate local development environment
 - --- Folk: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3) [two](https://github.com/mitchellh/vagrant/issues/2924) [and at last](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)"
 - --- so first we connect to box via ssh, and then start provision INSIDE. 
 - enter vagrant box: `vagrant ssh`
-- start provision: `cd pdfupload/provision && fab provision_local`
+- start provision: `cd pdfupload/provision && fab developing provision`
 
 - generate keys: `ssh-keygen -t rsa`
 - TODO fill ~/.shh/config as described in fabfile

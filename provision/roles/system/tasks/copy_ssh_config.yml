@@ -1,0 +1,44 @@
+---
+
+# Handling ssh config makeing by unusual way because Ansible don't support copy with decrypt: https://github.com/ansible/ansible/issues/10349
+#
+# So we encrypt file by hand, then ansible can decrypt it at server side using vault store password
+#
+# First we need to do, that encrypt secret file by hand with openssl:
+# openssl aes-256-cbc -salt -a -e -in UN_ENCRYPTED -out ENCRYPTED -k [secret_phrase]
+# Now, we can manage this file with versioning
+#
+# Second, put [passphrase] in ansible-vault file with variables (ie in credentials.yml: passphrase: secret_phrase)
+#
+# Then, ansible can copy and decrypt this file by itself automatically
+#
+# For help type `openssl enc --help`
+
+
+- name: Ensure dir exist
+  file: >
+    path=/home/{{remote_user}}/.ssh
+    state=directory
+  when: {{group_names}} == "developing"
+
+
+- name: Copy fixtures
+  copy: >
+    src=config.encrypted
+    dest=/home/{{remote_user}}/.ssh/config.encrypted
+  when: {{group_names}} == "developing"
+
+
+- name: Decrypt the initial data
+  command: openssl aes-256-cbc -salt -a -d
+           -in /home/{{remote_user}}/.ssh/config.encrypted
+           -out /home/{{remote_user}}/.ssh/config
+           -k {{ passphrase }}
+  when: {{group_names}} == "developing"
+
+
+- name: Delete encrypted
+  file: >
+    path=/home/{{remote_user}}/.ssh/config.encrypted
+    state=absent
+  when: {{group_names}} == "developing"

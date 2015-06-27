@@ -15,4 +15,4 @@ elif ENVIRONMENT == "developing":
 # At last, load secure settings. There an one secire file to all machine, but
 # you can freely setup separate secure settings for each target.
 
-from settings_secure import *
+from secret_settings import *

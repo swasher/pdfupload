@@ -66,8 +66,9 @@ ROOT_URLCONF = 'pdfupload.urls'
 
 WSGI_APPLICATION = 'pdfupload.wsgi.application'
 
-
+#
 # Database
+#
 
 # sqlite
 # DATABASES = {

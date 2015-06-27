@@ -13,5 +13,14 @@
 - name: Set server type at boot time
   lineinfile: >
     dest=/etc/environment
-    line={{environment_variable}}="{{group_names}}"
+    line={{environment_variable}}="{{group_names[0]}}"
   sudo: yes
+
+- name: Set server type right now
+  #shell: "set up ${{environment_variable}}"
+  #environment:
+  #  - '{{environment_variable}}': '{{group_names[0]}}'
+  shell: "export {{environment_variable}}={{group_names[0]}}"
+
+- name: Echo my_env_var again
+  shell: "echo ${{environment_variable}}"

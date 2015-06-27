@@ -42,7 +42,7 @@ def vagrant():
 
 def provision():
     additional_params = '--skip-tags=vagrant_skip' if env.hosts == 'vagrant' else ''
-    local('ansible-playbook -i inventories/{machine} --ask-become-pass {additional_params} provision.yml'.format(machine=env.hosts[0], additional_params=additional_params))
+    local('ansible-playbook -i inventories/{machine} --ask-become-pass -v {additional_params} provision.yml'.format(machine=env.hosts[0], additional_params=additional_params))
 
 
 def deploy():

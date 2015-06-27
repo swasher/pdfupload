@@ -81,9 +81,9 @@ WSGI_APPLICATION = 'pdfupload.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dumb',
-        'USER': 'dumb',
-        'PASSWORD': 'dumb',
+        'NAME': 'dummy',
+        'USER': 'dummy',
+        'PASSWORD': 'dummy',
         'HOST': 'localhost',
         'PORT': '',
     }

@@ -113,9 +113,6 @@ USE_TZ = True
 #USE_TZ = False
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR + '/static_root/'
 LOGIN_URL = '/login_redirect'
@@ -124,15 +121,13 @@ STATICFILES_DIRS = (
     BASE_DIR + '/static_root/jpg',
 )
 
-#INPUT_PATH = BASE_DIR + '/input/'
-#TEMP_PATH = BASE_DIR + '/tmp/'
 INPUT_PATH = HOME_DIR + '/input/'
 TEMP_PATH = HOME_DIR + '/tmp/'
 
 import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
                     datefmt='%d/%m/%Y %H:%M',
-                    filename=BASE_DIR + '/workflow/templates/debug.html',
+                    filename=HOME_DIR + '/log/django_debug.log',
                     level=logging.DEBUG)
 
 # LOGGING = {

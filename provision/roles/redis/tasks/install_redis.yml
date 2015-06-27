@@ -1,5 +1,5 @@
 ---
-- name: Install nginx system packages.
+- name: Install redis system packages.
   apt: >
     pkg={{item}}
     state=installed

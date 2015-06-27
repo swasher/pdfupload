@@ -9,8 +9,9 @@
 - debug: msg="ansible_ssh_user is {{ansible_ssh_user}}"
 
 
-- debug: msg="hostvars is {{hostvars}}"
-- debug: msg="group_names is {{group_names[0]}}"
+#- debug: msg="hostvars is {{hostvars}}"
+- debug: msg="group_names is {{group_names}}"
+- debug: msg="group_names[0] is {{group_names[0]}}"
 - debug: msg="groups is {{groups}}"
 - debug: msg="inventory_hostname is {{inventory_hostname}}"
 - debug: msg="play_hosts is {{play_hosts}}"

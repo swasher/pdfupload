@@ -1,4 +1,5 @@
 ---
+- include: install_requirements.yml
 - include: create_database.yml
 - include: set_machine_purpose.yml
 - include: copy_secret.yml
@@ -6,3 +7,4 @@
 - include: copy_fixtures.yml
 - include: collect_static.yml
 - include: create_superuser.yml
+- include: install_debug_tools.yml

@@ -1,2 +1,2 @@
-[develop]
+[developing]
 local:2222  ansible_connection=local

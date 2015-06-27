@@ -18,14 +18,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 from os.path import expanduser
 HOME_DIR = expanduser("~")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-#try:
-#    from settings_secure import *
-#except ImportError:
-#    pass
-#SECRET_KEY = '...'
-#MARK_MACHINE = signa mark name with printing press
-
 DEBUG = True
 
 TEMPLATE_DEBUG = True
@@ -42,10 +34,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_rq',
-    #'datetimewidget',
     'bootstrap3_datetime',
-    # 'bootstrap3',
-    # 'crispy_forms',
     'workflow',
     'django_rq_dashboard',
     'django_nvd3',
@@ -68,19 +57,7 @@ ROOT_URLCONF = 'pdfupload.urls'
 
 WSGI_APPLICATION = 'pdfupload.wsgi.application'
 
-#
-# Database
-#
 
-# sqlite
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-# postgresql
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

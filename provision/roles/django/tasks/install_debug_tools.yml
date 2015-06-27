@@ -1,0 +1,23 @@
+---
+- name: Install pip requirements for project
+  pip: >
+    requirements={{project_root}}/requirements.txt
+    extra_args='--quiet'
+  sudo: yes
+
+- name: Install django-debug-toolbar
+  pip: name=django-debug-toolbar
+  when: group_names[0] == "developing"
+  sudo: yes
+
+# You can debug python with pdb as `import pdb; pdb.set_trace()`
+- name: Install pdb
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+    cache_valid_time={{ apt_cache_valid_time }}
+  with_items:
+    - pdb
+  when: group_names[0] == "developing"
+  sudo: yes

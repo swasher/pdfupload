@@ -36,12 +36,12 @@ def staging():
 def production():
     env.hosts = ['production']
 
-def vagrant():
-    env.hosts = ['develop']
+def developing():
+    env.hosts = ['developing']
 
 
 def provision():
-    additional_params = '--skip-tags=vagrant_skip' if env.hosts == 'vagrant' else ''
+    additional_params = '--skip-tags=vagrant_skip' if env.hosts == 'developing' else ''
     local('ansible-playbook -i inventories/{machine} --ask-become-pass -v {additional_params} provision.yml'.format(machine=env.hosts[0], additional_params=additional_params))
 
 

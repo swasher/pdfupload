@@ -19,14 +19,14 @@
   file: >
     path=/home/{{remote_user}}/.ssh
     state=directory
-  when: {{group_names}} == "developing"
+  when: group_names[0] == "developing"
 
 
 - name: Copy fixtures
   copy: >
     src=config.encrypted
     dest=/home/{{remote_user}}/.ssh/config.encrypted
-  when: {{group_names}} == "developing"
+  when: group_names[0] == "developing"
 
 
 - name: Decrypt the initial data
@@ -34,11 +34,11 @@
            -in /home/{{remote_user}}/.ssh/config.encrypted
            -out /home/{{remote_user}}/.ssh/config
            -k {{ passphrase }}
-  when: {{group_names}} == "developing"
+  when: group_names[0] == "developing"
 
 
 - name: Delete encrypted
   file: >
     path=/home/{{remote_user}}/.ssh/config.encrypted
     state=absent
-  when: {{group_names}} == "developing"
+  when: group_names[0] == "developing"

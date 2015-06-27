@@ -2,10 +2,11 @@
 **/*.txt
 !requirements.txt
 db.sqlite3
-**/*secure*
 **/*secret*
 **/*NOT-FOR-GIT*
 workflow/fixtures/initial_data.json
+test/**
+
 
 # Файлы, создаваемые приложением
 *.pyc
@@ -13,10 +14,11 @@ __pycache__/
 .idea/
 .vagrant/
 
+
 # Статика
 static_root/**
 workflow/static/**
-test/**
+
 
 # Сырое
 workflow/templates/debug.html

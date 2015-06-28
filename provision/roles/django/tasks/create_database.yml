@@ -27,3 +27,17 @@
                    role_attr_flags=NOSUPERUSER,NOCREATEDB
                    state=present
   sudo_user: postgres
+
+#
+# Are we should remove db???
+#
+
+- name: Django makemigration
+  django_manage: >
+    command=makemigrations
+    app_path={{project_root}}
+
+- name: Django migrate
+  django_manage: >
+    command=migrate
+    app_path={{project_root}}

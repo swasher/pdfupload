@@ -1,17 +1,20 @@
-"""
-Django settings for pdfupload project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
-"""
+import os
+import secrets
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # Due we move setting to module, we need up to three level above of this file
-import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+# Example using type of enveronment
+#
+#ENV      = os.getenv('DJANGO_ENVIRONMENT', 'development')
+#DEV_ENV  = ENV == 'development'
+#TEST_ENV = ENV == 'staging'
+#PROD_ENV = ENV == 'production'
+
+
+SECRET_KEY = secrets.SECRET_KEY
+MARK_MACHINE = secrets.MARK_MACHINE
 
 
 # Get home dir for tmp, input and log
@@ -61,9 +64,9 @@ WSGI_APPLICATION = 'pdfupload.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dummy',
-        'USER': 'dummy',
-        'PASSWORD': 'dummy',
+        'NAME': secrets.DATABASE_NAME,
+        'USER': secrets.DATABASE_USER,
+        'PASSWORD': secrets.DATABASE_PASSWORD,
         'HOST': 'localhost',
         'PORT': '',
     }

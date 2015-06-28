@@ -16,10 +16,12 @@
 - debug: msg="inventory_hostname is {{inventory_hostname}}"
 - debug: msg="play_hosts is {{play_hosts}}"
 
-
+- name: for test purpose
+  debug: msg="skip_tags is {{skip_tags}}"
 
 - name: for test purpose
   debug: msg="Empty action with vagrant_skip tag"
   tags: vagrant_skip
+
 
 - fail: msg="Halt due testing purpose."

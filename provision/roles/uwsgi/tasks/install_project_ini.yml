@@ -5,12 +5,3 @@
     dest=/etc/uwsgi/vassals/{{project_name}}.ini
   notify: restart uwsgi emperor
   sudo: yes
-
-
-#- name: Activate apps
-#  file: >
-#    src={{project_root}}/uwsgi.ini
-#    dest=/etc/uwsgi/vassals/{{project_name}}.ini
-#    state=link
-#  notify: restart uwsgi emperor
-#  sudo: yes

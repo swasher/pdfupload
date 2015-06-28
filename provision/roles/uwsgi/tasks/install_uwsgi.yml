@@ -65,17 +65,35 @@
       or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
   sudo: yes
 
-- name: Disable the service...
-  command: systemctl disable emperor.uwsgi.service
-  when: >
-      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
+#- name: Disable the service...
+#  command: systemctl disable emperor.uwsgi.service
+#  when: >
+#      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
+#      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
+#  sudo: yes
+#
+#
+#- name: ... and enable the socket unit.
+#  command: systemctl enable emperor.uwsgi.socket
+#  when: >
+#      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
+#      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
+#  sudo: yes
+
+- name: Stopping uwsgi.service
+  service: >
+    name=emperor.uwsgi.service
+    state=stopped
   sudo: yes
 
+- name: Start uwsgi.socket
+  service: >
+    name=emperor.uwsgi.socket
+    state=started
+  sudo: yes
 
-- name: ... and enable the socket unit.
-  command: systemctl enable emperor.uwsgi.socket
-  when: >
-      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
+- name: Start uwsgi.service
+  service: >
+    name=emperor.uwsgi.service
+    state=started
   sudo: yes

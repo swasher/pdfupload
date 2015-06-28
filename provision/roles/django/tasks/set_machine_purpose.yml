@@ -21,6 +21,3 @@
   #environment:
   #  - '{{environment_variable}}': '{{group_names[0]}}'
   shell: "export {{environment_variable}}={{group_names[0]}}"
-
-- name: Echo my_env_var again
-  shell: "echo ${{environment_variable}}"

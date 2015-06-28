@@ -1,7 +1,4 @@
 ---
-#hotfolder: "{{remote_user}}/input/"
-#tmpfolder: "{{project_root}}/tmp/"
-#hotfolder: "/home/{{remote_user}}/input/"
 tmpfolder: "/home/{{remote_user}}/tmp/"
 python_handler: putting_job_in_the_queue.py
 workgroup: TES

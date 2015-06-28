@@ -9,36 +9,44 @@
     - samba
   sudo: yes
 
+- name: Copy samba template
+  template: >
+    src=samba.ini.j2
+    dest=/etc/samba/smb.{{project_name}}.conf
+  sudo: yes
+
+- name: Include template
+  lineinfile: dest=/etc/samba/smb.conf
+              line='incude /etc/samba/smb.{{project_name}}.conf'
+  sudo: yes
+
+
 
 - name: set local master -> no
   lineinfile: dest=/etc/samba/smb.conf
-              regexp=''
-              state=present
               line='local master = no'
+              insertafter="\[global\]"
   sudo: yes
 
 
 - name: set os level -> 1
   lineinfile: dest=/etc/samba/smb.conf
-              regexp=''
-              state=present
               line='os level = 1'
+              insertafter="\[global\]"
   sudo: yes
 
 
 - name: set domain master -> no
   lineinfile: dest=/etc/samba/smb.conf
-              regexp=''
-              state=present
               line='domain master = no'
+              insertafter="\[global\]"
   sudo: yes
 
 
 - name: set preffered master -> no
   lineinfile: dest=/etc/samba/smb.conf
-              regexp=''
-              state=present
               line='preffered master = no'
+              insertafter="\[global\]"
   sudo: yes
 
 
@@ -46,15 +54,6 @@
   replace: dest=/etc/samba/smb.conf
            regexp='(\s+workgroup = )\w+(\n)'
            replace='\1{{workgroup}}\2'
-           backup=no
-  sudo: yes
-
-
-- name: add a share
-  lineinfile: dest=/etc/samba/smb.conf
-              regexp=''
-              state=present
-              line='\n\n[{{project_name}}]\n\tpath = {{input_dir}}\n\tread only = no\n\tbrowseable = yes\n\tguest ok = yes\n\tforce user = {{remote_user}}'
   notify: restart samba
   sudo: yes
 

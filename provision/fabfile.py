@@ -36,13 +36,22 @@ def staging():
 def production():
     env.hosts = ['production']
 
-def developing():
-    env.hosts = ['developing']
+def development():
+    env.hosts = ['development']
 
 
 def provision():
-    additional_params = '--skip-tags=vagrant_skip' if env.hosts == 'developing' else ''
-    local('ansible-playbook -i inventories/{machine} --ask-become-pass -v {additional_params} provision.yml'.format(machine=env.hosts[0], additional_params=additional_params))
+    additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
+
+    # Do you want verbose output from ansible? Uncomment it.
+    #additional_params += ' -v'
+
+    local('ansible-playbook -i inventories/{target} --ask-become-pass {additional_params} '
+          'provision.yml'.format(target=env.hosts[0], additional_params=additional_params))
+
+
+def testing():
+    local('ansible-playbook -i inventories/{target} --ask-become-pass -vv testing.yml'.format(target=env.hosts[0]))
 
 
 def deploy():

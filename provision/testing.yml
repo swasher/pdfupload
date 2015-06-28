@@ -1,0 +1,18 @@
+---
+- hosts: all
+  vars_files:
+    - group_vars/secret_vars.yml
+
+  roles:
+#    - system
+#    - python
+#    - git
+#    - smsc
+#    - nginx
+#    - redis
+#    - postgres
+    - hotfolder
+#    - pip
+#    - bower
+#    - django
+#    - uwsgi

@@ -25,12 +25,3 @@
     value=/bin/setupcon
   sudo: yes
 
-
-#- name: Run setupcon at boot
-#  lineinfile: >
-#    dest=/lib/systemd/system/systemd-vconsole-setup.service
-#    regexp=ExecStart=/bin/true
-#    line=ExecStart=/bin/setupcon
-#  sudo: yes
-
-

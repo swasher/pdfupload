@@ -22,7 +22,7 @@
   when: group_names[0] == "development"
 
 
-- name: Copy fixtures
+- name: Copy ssh config
   copy: >
     src=config.encrypted
     dest=/home/{{remote_user}}/.ssh/config.encrypted

@@ -4,21 +4,18 @@
 # On a modern system, /run/ is mounted as a tmpfs and is the right place to put sockets and pidfiles into.
 #
 
-- name: Ensure pid directory present
-  file: >
-    dest=/run/uwsgi
-    state=directory
-    owner={{remote_user}}
-    group={{remote_user}}
-    mode=0666
-  sudo: yes
-
-- name: Ensure pid directory present at next reboot
+- name: Make systemd-tmpfiles, which create /run/uwsgi at each boot
   template: >
     src=tmpfiles.d.j2
-    dest=/etc/tmpfiles.d/emperor.conf
-    mode=0666
-    owner={{remote_user}}
-    group={{remote_user}}
-  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15
+    dest=/etc/tmpfiles.d/{{tmpfilesd_template}}
+    mode=0600
+    owner=root
+    group=root
+  sudo: yes
+
+
+- name: Create tmpdir right now
+  shell: systemd-tmpfiles --create {{tmpfilesd_template}}
+  args:
+    chdir: /etc/tmpfiles.d
   sudo: yes

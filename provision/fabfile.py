@@ -59,3 +59,10 @@ def deploy():
         run('git fetch origin')
         run('git reset --hard origin/master')
         run('touch /tmp/pdfupload.reload')
+
+        # run only migrate (not makemigrations) becouse we sync migration files via git
+        #run('python manage.py migrate myapp')
+        # then run test
+        #run('python manage.py test myapp')
+
+        # also, we need reinstall requirements.txt due to new package may be used

@@ -1,16 +1,17 @@
 import os
 import secrets
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-# Due we move setting to module, we need up to three level above of this file
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-
 # Example using type of enveronment
 #
-#ENV      = os.getenv('DJANGO_ENVIRONMENT', 'development')
-#DEV_ENV  = ENV == 'development'
-#TEST_ENV = ENV == 'staging'
-#PROD_ENV = ENV == 'production'
+ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
+DEV_ENV  = ENVIRONMENT == 'development'
+TEST_ENV = ENVIRONMENT == 'staging'
+PROD_ENV = ENVIRONMENT == 'production'
+
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Due we move setting to module, we need up to three level above of this file
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
 SECRET_KEY = secrets.SECRET_KEY
@@ -152,3 +153,10 @@ logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
 # }
 
 #CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+if PROD_ENV:
+    from production import *
+elif TEST_ENV:
+    from staging import *
+elif DEV_ENV:
+    from development import *

@@ -41,7 +41,7 @@ import smsc_api
 from forms import FilterForm
 from django.db.models import Q
 from django.db.models import Sum
-from pdfupload.settings.defaults import BASE_DIR
+# deprecated   from pdfupload.settings import BASE_DIR
 from models import Grid, PrintingPress
 from django.utils import timezone
 

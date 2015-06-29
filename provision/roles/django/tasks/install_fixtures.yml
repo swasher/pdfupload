@@ -28,6 +28,7 @@
   tags: vagrant_skip
 
 
+
 - name: Decrypt the initial data
   command: openssl aes-256-cbc -salt -a -d
            -in {{project_root}}/workflow/fixtures/initial_data.encrypted
@@ -42,8 +43,11 @@
     state=absent
   tags: vagrant_skip
 
+
+# Fixtures will not load on production for protect live database!
 - name: Load fixtures
   django_manage: >
     command=loaddata
     app_path={{ project_root }}
     fixtures=initial_data.json
+  when: group_names[0] != "production"

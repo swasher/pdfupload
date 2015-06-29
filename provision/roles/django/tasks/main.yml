@@ -1,6 +1,5 @@
 ---
 - include: install_requirements.yml
-- include: install_debug_tools.yml
 - include: copy_secret.yml
 - include: set_machine_purpose.yml
 - include: create_database.yml

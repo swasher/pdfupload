@@ -15,21 +15,21 @@
 # For help type `openssl enc --help`
 
 
-- name: Ensure dir exist
+- name: Ensure .ssh dir exist
   file: >
     path=/home/{{remote_user}}/.ssh
     state=directory
   when: group_names[0] == "development"
 
 
-- name: Copy ssh config
+- name: Copy .config
   copy: >
     src=config.encrypted
     dest=/home/{{remote_user}}/.ssh/config.encrypted
   when: group_names[0] == "development"
 
 
-- name: Decrypt the initial data
+- name: Decrypt .config
   command: openssl aes-256-cbc -salt -a -d
            -in /home/{{remote_user}}/.ssh/config.encrypted
            -out /home/{{remote_user}}/.ssh/config
@@ -37,7 +37,7 @@
   when: group_names[0] == "development"
 
 
-- name: Delete encrypted
+- name: Delete encrypted .config
   file: >
     path=/home/{{remote_user}}/.ssh/config.encrypted
     state=absent

@@ -9,7 +9,4 @@ fabric
 django-bootstrap3-datetimepicker
 django-nvd3
 pdfminer
-
-#deprecated
-#django-crispy-forms
-#django-datetime-widget
+django-debug-toolbar

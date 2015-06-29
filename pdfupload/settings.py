@@ -152,8 +152,6 @@ logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
 #     }
 # }
 
-#CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
 if PROD_ENV:
     from production import *
 elif TEST_ENV:

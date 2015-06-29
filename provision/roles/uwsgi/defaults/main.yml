@@ -1,0 +1,3 @@
+---
+emperor_service=emperor.uwsgi.service
+emperor_socket=emperor.uwsgi.socket

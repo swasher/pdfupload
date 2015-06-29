@@ -43,7 +43,6 @@ INSTALLED_APPS = (
     'django_nvd3',
 )
 
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

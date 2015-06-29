@@ -1,26 +1,5 @@
 ---
-#- name: restart uwsgi
-#  service: name=uwsgi state=restarted
-#  sudo_user: root
-
-
-# try to restart the emperor, never mind if it fails
-#- name: restart uwsgi emperor
-#  shell: "[ -e /run/uwsgi-emperor.pid ] && /usr/local/bin/uwsgi --reload /run/uwsgi-emperor.pid || true"
-
-
-# todo DEPRECATED
-#- name: restart uwsgi emperor
-#  shell: "systemctl restart emperor.uwsgi.service"
-#  when: >
-#      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-#      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
-#  sudo: yes
-
 - name: restart uwsgi emperor
   service: name=emperor.uwsgi.service
            state=restarted
-  when: >
-      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
   sudo: yes

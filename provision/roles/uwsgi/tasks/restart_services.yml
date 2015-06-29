@@ -1,0 +1,43 @@
+---
+#- name: Stop uwsgi.service
+#  service: >
+#    name={{emperor_service}}
+#    state=stopped
+#  sudo: yes
+#
+#- name: Start uwsgi.socket
+#  service: >
+#    name={{emperor_socket}}
+#    state=started
+#  sudo: yes
+
+- name: Start uwsgi.service
+  service: >
+    name={{emperor_service}}
+    state=started
+  sudo: yes
+
+
+# As described in manual,
+# - Then disable the service and enable the socket unit.
+# - systemctl disable emperor.uwsgi.service
+# - systemctl enable emperor.uwsgi.socket
+
+- name: Start uwsgi.service
+  service: >
+    name={{emperor_service}}
+    enabled=no
+  sudo: yes
+
+- name: Start uwsgi.socket
+  service: >
+    name={{emperor_socket}}
+    enabled=yes
+  sudo: yes
+
+# finally, restart nginx
+- name: Restart nginx
+  service: >
+    name=nginx
+    state=restarted
+  sudo: yes

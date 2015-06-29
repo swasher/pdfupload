@@ -10,8 +10,3 @@ elif ENVIRONMENT == "staging":
     from staging import *
 elif ENVIRONMENT == "development":
     from development import *
-
-
-#from .secret_settings import *
-#DATABASES['default'].update(CONNECTION)
-#DATABASES['default']['NAME']=CONNECTION['NAME']

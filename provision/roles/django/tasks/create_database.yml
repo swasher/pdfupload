@@ -33,9 +33,13 @@
 #
 
 - name: Django makemigration
-  django_manage: >
-    command=makemigrations
-    app_path={{project_root}}
+  # NOTE embedded ansible command dont work
+  #django_manage: >
+  #  command=makemigrations
+  #  app_path={{project_root}}
+  shell: 'python manage.py makemigrations'
+  args:
+    chdir: "{{project_root}}"
 
 - name: Django migrate
   django_manage: >

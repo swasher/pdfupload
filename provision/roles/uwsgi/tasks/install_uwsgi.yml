@@ -1,18 +1,4 @@
 ---
-- name: Ensure pid directory present
-  file: >
-    dest=/run/uwsgi
-    state=directory
-    owner={{remote_user}}
-    group={{remote_user}}
-    mode=0666
-  sudo: yes
-
-- name: Ensure pid directory present at next reboot
-  template: src=tmpfiles.d.j2 dest=/etc/tmpfiles.d/emperor.conf mode=0666 owner={{remote_user}} group={{remote_user}}
-  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15
-  sudo: yes
-
 - name: Ensure log directory present
   file: >
     dest={{log_dir}}
@@ -45,55 +31,23 @@
   sudo: yes
 
 
-- name: Setup upstart job for the emperor NOT TESTING - MAY NOT WORK
-  copy: src=upstart.conf dest=/etc/init/uwsgi.conf mode=0644 owner=root group=root
-  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int < 15
-  sudo: yes
+# FOR UPSTART
+#- name: Setup upstart job for the emperor NOT TESTING - MAY NOT WORK
+#  copy: src=upstart.conf dest=/etc/init/uwsgi.conf mode=0644 owner=root group=root
+#  sudo: yes
 
 
 - name: Setup systemd SERVICE file for the emperor
-  copy: src=systemd.service dest=/etc/systemd/system/emperor.uwsgi.service mode=0644 owner=root group=root
+  copy: src=systemd.service dest=/etc/systemd/system/{{emperor_service}} mode=0644 owner=root group=root
   when: >
       (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
       or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
   sudo: yes
 
 - name: Setup systemd SOCKET file for the emperor
-  template: src=systemd.socket dest=/etc/systemd/system/emperor.uwsgi.socket mode=0644 owner=root group=root
+  template: src=systemd.socket dest=/etc/systemd/system/{{emperor_socket}} mode=0644 owner=root group=root
   when: >
       (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
       or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
   sudo: yes
 
-#- name: Disable the service...
-#  command: systemctl disable emperor.uwsgi.service
-#  when: >
-#      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-#      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
-#  sudo: yes
-#
-#
-#- name: ... and enable the socket unit.
-#  command: systemctl enable emperor.uwsgi.socket
-#  when: >
-#      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-#      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
-#  sudo: yes
-
-- name: Stopping uwsgi.service
-  service: >
-    name=emperor.uwsgi.service
-    state=stopped
-  sudo: yes
-
-- name: Start uwsgi.socket
-  service: >
-    name=emperor.uwsgi.socket
-    state=started
-  sudo: yes
-
-- name: Start uwsgi.service
-  service: >
-    name=emperor.uwsgi.service
-    state=started
-  sudo: yes

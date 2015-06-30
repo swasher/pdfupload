@@ -39,12 +39,12 @@ Vagrant.configure(2) do |config|
   #config.vm.network "public_network"
   #config.vm.network "private_network", type: "dhcp"
   config.vm.network :private_network, ip: "172.28.128.20"
-  #config.vm.network :private_network, ip: "192.168.0.64"
 
   # for supress "stdin: is not a tty error"
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  config.vm.provision "shell", inline: "sudo apt-get update -qq && sudo apt-get install python-dev python-pip libpython2.7-dev libyaml-dev mc -y -q"
+  config.vm.provision "shell", inline: "sudo apt-get update -qq && sudo apt-get install python-dev libpython2.7-dev libyaml-dev mc -y -q"
+  config.vm.provision "shell", inline: "curl -s https://bootstrap.pypa.io/get-pip.py | sudo python -"
   config.vm.provision "shell", inline: "sudo pip install ansible fabric"
   config.vm.provision "shell", privileged: false, inline: "cd pdfupload/provision && fab development provision"
 

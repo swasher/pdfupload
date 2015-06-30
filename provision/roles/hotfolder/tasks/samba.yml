@@ -12,7 +12,7 @@
 - name: Copy samba share template
   template: >
     src=samba.ini.j2
-    dest=/etc/samba/{{samba_include}}
+    dest={{samba_include}}
   sudo: yes
 
 - name: Include template

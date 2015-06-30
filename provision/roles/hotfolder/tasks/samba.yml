@@ -12,12 +12,12 @@
 - name: Copy samba share template
   template: >
     src=samba.ini.j2
-    dest=/etc/samba/smb.{{project_name}}.conf
+    dest=/etc/samba/{{samba_include}}
   sudo: yes
 
 - name: Include template
   lineinfile: dest=/etc/samba/smb.conf
-              line='include /etc/samba/smb.{{project_name}}.conf'
+              line='include = {{samba_include}}'
   sudo: yes
 
 

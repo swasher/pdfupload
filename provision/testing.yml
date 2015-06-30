@@ -4,14 +4,14 @@
     - group_vars/secret_vars.yml
 
   roles:
-#    - system
+    - system
 #    - python
 #    - git
 #    - smsc
 #    - nginx
 #    - redis
 #    - postgres
-    - hotfolder
+#    - hotfolder
 #    - pip
 #    - bower
 #    - django

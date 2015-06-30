@@ -17,11 +17,26 @@
 - debug: msg="play_hosts is {{play_hosts}}"
 
 - name: for test purpose
-  debug: msg="skip_tags is {{skip_tags}}"
-
-- name: for test purpose
   debug: msg="Empty action with vagrant_skip tag"
   tags: vagrant_skip
 
+- name: restart samba
+  service: name=smbd.service state=restarted
+  sudo: yes
 
 - fail: msg="Halt due testing purpose."
+
+
+
+# samba
+#msg: Failed to start samba.service: Unit samba.service is masked.
+
+# smb
+#msg: Failed to stop smb.service: Unit smb.service not loaded.
+#Failed to start smb.service: Unit smb.service failed to load: No such file or directory.
+
+#samba.service
+#msg: Failed to start samba.service: Unit samba.service is masked.
+
+#smbd.service
+# OKEY

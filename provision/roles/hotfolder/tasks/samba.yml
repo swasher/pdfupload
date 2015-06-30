@@ -9,7 +9,7 @@
     - samba
   sudo: yes
 
-- name: Copy samba template
+- name: Copy samba share template
   template: >
     src=samba.ini.j2
     dest=/etc/samba/smb.{{project_name}}.conf
@@ -17,7 +17,7 @@
 
 - name: Include template
   lineinfile: dest=/etc/samba/smb.conf
-              line='incude /etc/samba/smb.{{project_name}}.conf'
+              line='include /etc/samba/smb.{{project_name}}.conf'
   sudo: yes
 
 
@@ -45,7 +45,7 @@
 
 - name: set preffered master -> no
   lineinfile: dest=/etc/samba/smb.conf
-              line='preffered master = no'
+              line='preferred master = no'
               insertafter="\[global\]"
   sudo: yes
 

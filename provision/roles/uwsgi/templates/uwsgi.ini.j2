@@ -28,8 +28,8 @@ logger     = file:{{log_dir}}/uwsgi-error.log
 chdir={{project_root}}
 touch-reload=/tmp/{{project_name}}.reload
 attach-daemon = python %(chdir)/manage.py rqworker default
+attach-daemon = rq-dashboard
 
-#env=DJANGO_SETTINGS_MODULE={{project_name}}.settings.{{group_names[0]}}
 env=DJANGO_SETTINGS_MODULE={{project_name}}.settings
 
 #module = django.core.handlers.wsgi:WSGIHandler()

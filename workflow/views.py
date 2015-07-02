@@ -210,7 +210,11 @@ def processing(pdfName):
     #Move pdf to temp
     #-----------------------------------------------------------------
 
+    print(settings.DEBUG)
+    print(settings.HOME_DIR)
+    print(settings.TEMP_PATH)
     print(tmppath)
+    print(os.path.join(settings.HOME_DIR, settings.TEMP_PATH))
     tempdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
     try:
         shutil.move(inputpath + pdfName, tempdir + pdfName)
@@ -303,8 +307,10 @@ def processing(pdfName):
     # Make JPEG preview for Grid (only first page)
     # #----------------------------------------------------------------
     #  Для этой операции используется созданный на предыдущем шаге кропленый документ
-    jpeg = os.path.join(settings.STATIC_ROOT, 'jpg', pdfName + '.jpg')
-    thumb = os.path.join(settings.STATIC_ROOT, 'jpg', pdfName + '_thumb' + '.jpg')
+    print(settings.MEDIA_ROOT)
+    print(os.path.join(settings.MEDIA_ROOT, 'jpg', pdfName + '.jpg'))
+    jpeg = os.path.join(settings.MEDIA_ROOT, 'jpg', pdfName + '.jpg')
+    thumb = os.path.join(settings.MEDIA_ROOT, 'jpg', pdfName + '_thumb' + '.jpg')
     gs_compress = "gs -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -dJPEGQ=80 -r{resolution}"\
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} " \
                   .format(resolution='200', input=croppedtempname, output=jpeg)
@@ -313,8 +319,11 @@ def processing(pdfName):
     make_jpeg = "convert {input} -resize 2500 {output}".format(input=jpeg, output=jpeg)
 
     print '\n-->Starting Jpeg preview compression...'
+    print '---->make full resolution jpg'
     os.system(gs_compress)
+    print '---->downsample to thumb'
     os.system(make_thumb)
+    print '---->downsample to preview'
     os.system(make_jpeg)
     print 'Compression finished.'
 

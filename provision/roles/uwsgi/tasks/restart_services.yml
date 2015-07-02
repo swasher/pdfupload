@@ -22,6 +22,7 @@
 # - Then disable the service and enable the socket unit.
 # - systemctl disable emperor.uwsgi.service
 # - systemctl enable emperor.uwsgi.socket
+# ---- Я так понял, что при загрузке должен стартовать только сокет, а он уже поднимает сервис, когда в сокет обращаются
 
 - name: Start uwsgi.service
   service: >

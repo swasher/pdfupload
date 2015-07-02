@@ -1,35 +1,51 @@
 import os
 import secrets
+from os.path import join
 
-# Example using type of enveronment
 #
-ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
-DEV_ENV  = ENVIRONMENT == 'development'
-TEST_ENV = ENVIRONMENT == 'staging'
-PROD_ENV = ENVIRONMENT == 'production'
+# PATH SETUP
+#
 
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-# Due we move setting to module, we need up to three level above of this file
+# BASE_DIR two levels upper than settings.py
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+# Get home dir of {{remote_user}} for tmp, input and log, etc.
+from os.path import expanduser
+HOME_DIR = expanduser("~")
+
+INPUT_PATH = HOME_DIR + '/input/'
+TEMP_PATH = HOME_DIR + '/tmp/'
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR + '/static_root/'
+STATICFILES_DIRS = (
+    HOME_DIR + '/jpg',
+)
+
+MEDIA_ROOT = HOME_DIR + '/media'
+MEDIA_URL = "media/"
+
+LOGIN_URL = '/login_redirect'
+
+
+
+#
+# ENVIRONMENT SETUP
+#
 
 SECRET_KEY = secrets.SECRET_KEY
 MARK_MACHINE = secrets.MARK_MACHINE
 
-
-# Get home dir for tmp, input and log
-from os.path import expanduser
-HOME_DIR = expanduser("~")
-
 DEBUG = True
-
 TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 
-# Application definition
+
+#
+# APPLICATION SETUP
+#
+
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -55,11 +71,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.locale.LocaleMiddleware'
 )
 
-
 ROOT_URLCONF = 'pdfupload.urls'
 
 WSGI_APPLICATION = 'pdfupload.wsgi.application'
-
 
 DATABASES = {
     'default': {
@@ -72,7 +86,6 @@ DATABASES = {
     }
 }
 
-
 RQ_QUEUES = {
     'default': {
     'HOST': 'localhost',
@@ -82,30 +95,19 @@ RQ_QUEUES = {
 }
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.6/topics/i18n/
-
 LANGUAGE_CODE = 'ru-RU'
-
 TIME_ZONE = 'Europe/Kiev'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 #USE_TZ = False
 
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR + '/static_root/'
-LOGIN_URL = '/login_redirect'
 
-STATICFILES_DIRS = (
-    BASE_DIR + '/static_root/jpg',
-)
+#
+# LOGGING SETUP
+#
 
-INPUT_PATH = HOME_DIR + '/input/'
-TEMP_PATH = HOME_DIR + '/tmp/'
 
 import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
@@ -151,6 +153,17 @@ logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
 #         },
 #     }
 # }
+
+
+#
+# LOAD SERVER-DEPENDING SETTINGS
+#
+
+ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
+
+DEV_ENV  = ENVIRONMENT == 'development'
+TEST_ENV = ENVIRONMENT == 'staging'
+PROD_ENV = ENVIRONMENT == 'production'
 
 if PROD_ENV:
     from production import *

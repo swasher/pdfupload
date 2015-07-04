@@ -164,15 +164,17 @@ def remove_outputter_title(pdfname):
 
     fpath, (fname, fext) = os.path.dirname(pdfname), os.path.splitext(os.path.basename(pdfname))
 
-    parts = fname.split("_")
+    # Тут нужен unicode, потому что имя файла может содержать русские буквы,
+    # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
+    parts = unicode(fname).split("_")
 
-    #for company in classes.FTP_server._dic.keys():
-    #    if company in parts:
-    #        parts.remove(company)
+    #for outputter in classes.FTP_server._dic.keys():
+    #    if outputter in parts:
+    #        parts.remove(outputter)
 
-    for company in Outputter.objects.all():
-        if company.name in parts:
-            parts.remove(company.name)
+    for outputter in Outputter.objects.all():
+        if outputter.name in parts:
+            parts.remove(outputter.name)
 
     newname = join(fpath, '_'.join(parts)) + fext
 

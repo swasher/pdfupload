@@ -1,16 +1,16 @@
 #!/usr/bin/python
-#coding: utf-8
-__author__ = 'Алексей'
+# -- coding: utf-8 --
 
 import os
 import logging
+import re
 from subprocess import Popen, PIPE
 from util import mm, pt, fail
 from genericpath import isfile
 
 from models import PrintingPress, Outputter
 from django.conf import settings
-from signamarks import mark_extraction
+from signamarks import mark_extraction, detect_mark
 
 
 def analyze_platesize(pdfname):
@@ -85,24 +85,34 @@ def analyze_machine(pdfname):
                 - None, если не удалось определить
     """
     machine = None
-    machine_mark_name = settings.MARK_MACHINE
 
     marks = mark_extraction(pdfname)
+    machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, marks)
+
     try:
-        text_of_mark_with_machine_name = marks[0][machine_mark_name][0]
+        extracted_text = marks[0][machine_mark_name][0]
+        mark_content = re.findall(machine_mark_regex, extracted_text)[0]
+
+        # TODO delete debugging
+        # print('extracted_text=', extracted_text.encode('UTF-8'))
+        # print('regex=',machine_mark_regex)
+        # print('type result=', type(mark_content))
+        # print('result=', mark_content)
+        # exit()
+
     except KeyError, e:
         print('Файл не содержит cигновской метки {} с названием печ. машины.'.format(machine_mark_name))
-        text_of_mark_with_machine_name = None
+        mark_content = None
 
     #print('\n', 'mark_with_machine_name')
-    #print(text_of_mark_with_machine_name.encode('utf-8'))
+    #print(extracted_text.encode('utf-8'))
 
-    try:
+    if mark_content:
         for press in PrintingPress.objects.all():
-            if press.name in text_of_mark_with_machine_name:
+            if press.name == mark_content:
                 machine = press
-    except Exception, e:
-        print('Trying detect machine by page size...')
+    else:
+        print('Trying detect machine by plate size...')
         # Если первый способ провалился, пробуем определить машину, основываясь на размере пластины.
 
         # Тут есть проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?
@@ -151,7 +161,12 @@ def analyze_complects(pdfname):
     return pages
 
 
-def analyze_papersize(pdfname):
+def analyze_papersize_OLD(pdfname):
+    """
+    DEPRECATED
+    new function use direct substract from signa mark with pdfminer
+    """
+
     """
     Функция возвращает словарь: {номер страницы: машина, ширина листа, высота листа}
     Если файл не найден, - то возвращается None
@@ -179,6 +194,55 @@ def analyze_papersize(pdfname):
         page_paper_x = int(float(page_param[1].replace(',', '.')))  # В Сигне число имеет запятую вместо точки
         page_paper_y = int(float(page_param[3].replace(',', '.')))
         papersizes[page_number] = (page_machine, page_paper_x, page_paper_y)
+    return papersizes
+
+
+def analyze_papersize(pdfname):
+    """
+    Функция возвращает словарь: {номер страницы: машина, ширина листа, высота листа}
+    Если файл не найден, - то возвращается None
+    Если файл не Сигновский, нет инфы о страницах, - то возвращается пустой словарь
+    :param pdfname:
+    :return:
+    """
+
+    print('Start analyze_papersize')
+    marks = mark_extraction(pdfname)
+
+    # todo delete
+    #from pprint import pprint
+    #pprint(marks)
+
+    machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, marks)
+    paper_mark_name, paper_mark_regex = detect_mark(settings.MARKS_PAPER, marks)
+
+    papersizes = {}
+    for page, piece_info in marks.items():
+        page_number = page + 1
+
+        # `piece_info['Machine']` возвращает список: (u'Выведено: Speedmaster', 'pssMO14_1', 'TextMark')
+        # далее regex извлекает нужную нам часть метки, - имя машины или размеры бумаги
+
+        try:
+            machine = re.findall(machine_mark_regex, piece_info[machine_mark_name][0])[0]
+        except KeyError:
+            print('Страница {} не содержит cигновской метки {}'.format(page_number, machine_mark_name))
+            machine = None
+
+        try:
+            paper = re.findall(paper_mark_regex, piece_info[paper_mark_name][0])[0]
+            paper_w = int(round(float(paper[0].replace(',', '.'))))
+            paper_h = int(round(float(paper[1].replace(',', '.'))))
+        except KeyError:
+            print('Страница не содержит cигновской метки {}'.format(paper_mark_name))
+            paper_w, paper_h = None, None
+
+        #print(page_number, machine.encode('utf-8'), paper)
+        papersizes[page_number] = (machine, paper_w, paper_h)
+
+    # todo delete
+    #from pprint import pprint
+    #pprint(papersizes)
 
     return papersizes
 
@@ -271,7 +335,10 @@ def detect_outputter(pdfname):
     """
 
     fname, fext = os.path.splitext(pdfname)
-    parts = fname.lower().split("_")
+
+    # Тут нужен unicode, потому что имя файла может содержать русские буквы,
+    # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
+    parts = unicode(fname).lower().split("_")
 
     for company in Outputter.objects.all():
         if company.name.lower() in parts:

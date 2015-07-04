@@ -53,4 +53,8 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: "sudo pip install ansible fabric"
   config.vm.provision "shell", privileged: false, inline: "cd pdfupload/provision && fab development provision"
 
+  config.vm.provider :virtualbox do |vb|
+    vb.gui = true
+  end
+
 end

@@ -196,7 +196,8 @@ def processing(pdfName):
     # socket.setdefaulttimeout(10.0)
 
     try:
-        tty = '/dev/tty1'
+        #tty = '/dev/tty1'
+        tty = '/dev/pts/0'
         sys.stdout = open(tty, 'w')
         sys.stderr = open(tty, 'w')
         #sys.stdout.write('filename'+'\n')
@@ -210,11 +211,6 @@ def processing(pdfName):
     #Move pdf to temp
     #-----------------------------------------------------------------
 
-    print(settings.DEBUG)
-    print(settings.HOME_DIR)
-    print(settings.TEMP_PATH)
-    print(tmppath)
-    print(os.path.join(settings.HOME_DIR, settings.TEMP_PATH))
     tempdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
     try:
         shutil.move(inputpath + pdfName, tempdir + pdfName)

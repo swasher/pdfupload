@@ -148,14 +148,50 @@ def mark_extraction(f):
     return result
 
 
+def detect_mark(list_of_available_marks, pdf_extracted_marks):
+    """
+    Со временем названия и содержания сигна-меток, содержащих нужную информацию, может изменяться.
+    Все названия меток вместе с регулярками для извлечения находятся в settings.
+    Эта функция определяет, какая именно метка используется, и возвращает два значения - имя марки и regexю.
+
+    Так же предполагается, что название марки одинаково для всех страниц, и поэтому производится анализ только первой.
+
+    :param list_of_available_marks: Список всех возможных меток. Каждая метка - кортеж [название, регулярка]
+    :param pdf_extracted_marks: Извлеченные данные при помощи 'mark_extraction'
+    :return: Кортеж из двух значений - имя марки и regex для ее извлечения
+    """
+
+
+    # Создаем кортеж, содержащий имена всех меток на первой странице
+    pdf_marks = pdf_extracted_marks[0]
+    pdf_mark_names = []
+    for item in pdf_marks.keys():
+        pdf_mark_names.append(item)
+
+    # Проверяем, какой из доступных шаблонов присутствует в кортеже pdf_mark_names. Он и будет результатом поиска.
+    for mark in list_of_available_marks:
+        if mark[0] in pdf_mark_names:
+            detected_mark = mark
+
+    # Если ничего не нашлось, возвращаем None
+    try:
+        detected_mark
+    except NameError:
+        detected_mark = None
+
+    return detected_mark
+
+
 if __name__ == '__main__':
+    test_path = '/home/vagrant/!!print/pdf_for_testing'
     if len(sys.argv) < 2:
-        f = '../test/sample_pdf/0173_Tavria_Korob_Leonov.pdf'
-        #f = '../test/sample_pdf/test_search_dominant_mark.pdf'
-        #f = '../test/sample_pdf/0059_Mig_Gazeta_Leonov.pdf'
+        f = os.path.join(test_path, '0007_Operniy_Afihsa_S16_NEWMARKS_Admin.pdf')
+        #f = '../test/pdf_for_testing/test_search_dominant_mark.pdf'
+        #f = '../test/pdf_for_testing/0059_Mig_Gazeta_Leonov.pdf'
     else:
         f = sys.argv[1]
 
+    print f
     if not os.path.exists(f):
         sys.exit('ERROR: PDF "{}" was not found!'.format(sys.argv[1]))
 
@@ -163,7 +199,7 @@ if __name__ == '__main__':
     pprint(pdf_marks)
 
     print 'Выведено:'
-    print pdf_marks[0]['tes_Outputter'][0]
+    print pdf_marks[0]['Outputter'][0]
 
     #print '\n'
     #pprint(pdf_marks[0])

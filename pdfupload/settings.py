@@ -1,5 +1,6 @@
 import os
 import secrets
+import marks
 from os.path import join
 
 #
@@ -34,9 +35,9 @@ LOGIN_URL = '/login_redirect'
 #
 
 SECRET_KEY = secrets.SECRET_KEY
-MARKS_MACHINE = secrets.MARKS_MACHINE
-MARKS_PAPER = secrets.MARKS_PAPER
-MARKS_OUTPUTTER = secrets.MARKS_OUTPUTTER
+MARKS_MACHINE = marks.MARKS_MACHINE
+MARKS_PAPER = marks.MARKS_PAPER
+MARKS_OUTPUTTER = marks.MARKS_OUTPUTTER
 
 DEBUG = True
 TEMPLATE_DEBUG = True

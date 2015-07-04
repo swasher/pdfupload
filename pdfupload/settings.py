@@ -18,9 +18,9 @@ TEMP_PATH = HOME_DIR + '/tmp/'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR + '/static_root/'
-STATICFILES_DIRS = (
-    HOME_DIR + '/jpg',
-)
+# STATICFILES_DIRS = (
+#     HOME_DIR + '/jpg',
+# )
 
 MEDIA_ROOT = HOME_DIR + '/media'
 MEDIA_URL = "media/"

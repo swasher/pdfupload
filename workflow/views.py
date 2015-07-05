@@ -209,6 +209,9 @@ def processing(pdfName):
     except:
         pass
 
+    # remove quote added by incron for support whitespace-contained filenames
+    pdfName = pdfName.strip("'")
+
     print '\n\n'
     print 'START PROCESSING {}'.format(pdfName)
     print '─' * (len(pdfName) + 17)
@@ -233,8 +236,8 @@ def processing(pdfName):
     file_is_not_pdf_document = result_strings != 'PDF document'
     print "File is a", result_strings
 
-    pdfExtension = splitext(pdf_abs_path)[1]
-    if pdfExtension != ".pdf" or file_is_not_pdf_document:
+    pdfExtension = pdf_abs_path.split('.')[-1]
+    if pdfExtension != "pdf" or file_is_not_pdf_document:
         logging.error('{0} File is NOT PDF - exiting...'.format(pdfName))
         os.unlink(pdf_abs_path)
         os.removedirs(tempdir)

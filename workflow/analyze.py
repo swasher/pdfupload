@@ -339,7 +339,7 @@ def detect_outputter(pdfname):
     # Тут нужен unicode, потому что имя файла может содержать русские буквы,
     # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
     # TODO лажа все равно происходит!!!
-    parts = fname.encode('UTF-8').lower().split("_")
+    parts = fname.decode('UTF-8').lower().split("_")
 
     for company in Outputter.objects.all():
         if company.name.lower() in parts:

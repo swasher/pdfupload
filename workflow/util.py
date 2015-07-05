@@ -155,7 +155,7 @@ def remove_outputter_title(pdfname):
 
     # Тут нужен unicode, потому что имя файла может содержать русские буквы,
     # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
-    parts = unicode(fname).split("_")
+    parts = fname.decode('UTF-8').split("_")
 
     #for outputter in classes.FTP_server._dic.keys():
     #    if outputter in parts:
@@ -169,6 +169,8 @@ def remove_outputter_title(pdfname):
 
     # Если подрядчик не определен, то файл не переименовывается и не перемещается
     #Для этой проверки сравнивается старое название с новым
+    print 'pdfname', pdfname
+    print 'newname', newname
     if pdfname != newname:
         shutil.move(pdfname, newname)
 

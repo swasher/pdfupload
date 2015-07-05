@@ -27,9 +27,6 @@ INPUT_PATH = HOME_DIR + '/input/'
 TEMP_PATH = HOME_DIR + '/tmp/'
 
 STATIC_ROOT = BASE_DIR + '/static_root/'
-# STATICFILES_DIRS = (
-#     HOME_DIR + '/jpg',
-# )
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = HOME_DIR + '/media/'

@@ -1,3 +1,4 @@
 ---
 environment_variable: DJANGO_ENVIRONMENT
 apt_cache_valid_time: 86400
+tty: '/dev/pts/0'

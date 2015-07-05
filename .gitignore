@@ -16,6 +16,7 @@ __pycache__/
 
 
 # Статика
+test/**
 static_root/**
 workflow/static/**
 

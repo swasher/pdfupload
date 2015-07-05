@@ -10,6 +10,7 @@ Vagrant.configure(2) do |config|
     v.name = "pdfdevelop"
     v.memory = 1024
     v.cpus = 1
+    v.gui = false
 
     # enable internet access
     #v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
@@ -52,9 +53,5 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: "curl -s https://bootstrap.pypa.io/get-pip.py | sudo python -"
   config.vm.provision "shell", inline: "sudo pip install ansible fabric"
   config.vm.provision "shell", privileged: false, inline: "cd pdfupload/provision && fab development provision"
-
-  config.vm.provider :virtualbox do |vb|
-    vb.gui = true
-  end
 
 end

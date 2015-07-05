@@ -336,21 +336,13 @@ def processing(pdfName):
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} " \
                   .format(resolution='200', input=croppedtempname, output=jpeg)
 
-
-    """
-    make_thumb = "convert {input} -resize 175 {output}".format(input=jpeg, output=thumb)
-    make_jpeg = "convert {input} -resize 2500 {output}".format(input=jpeg, output=jpeg)
-    """
     print '\n-->Starting Jpeg preview compression...'
-    print '---->make full resolution jpg'
+    print '·····make full resolution jpg'
     os.system(gs_compress)
-    print '---->downsample to thumb'
-    #os.system(make_thumb)
-    print 'settings.MEDIA_ROOT + proof', os.path.join(settings.MEDIA_ROOT + proof)
+    print '·····downsample to thumb'
     reduce_image(jpeg, os.path.join(settings.MEDIA_ROOT + proof), 2500)
-    print '---->downsample to preview'
-    #os.system(make_jpeg)
-    reduce_image(jpeg, os.path.join(settings.MEDIA_ROOT + proof), 200)
+    print '·····downsample to preview'
+    reduce_image(jpeg, os.path.join(settings.MEDIA_ROOT + thumb), 175)
     print 'Compression finished.'
     os.unlink(jpeg)
 
@@ -466,9 +458,8 @@ def processing(pdfName):
         # print 'row.colors', row.colors
         # print 'row.inks', row.inks
         # print 'row.bg', row.bg
-        print 'row.proof', row.proof
-        print 'row.thumb', row.thumb
-        print(settings.MEDIA_ROOT)
+        # print 'row.proof', row.proof
+        # print 'row.thumb', row.thumb
         row.save()
     except Exception, e:
         print 'ERROR row.save:', e

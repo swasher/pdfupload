@@ -169,8 +169,6 @@ def remove_outputter_title(pdfname):
 
     # Если подрядчик не определен, то файл не переименовывается и не перемещается
     #Для этой проверки сравнивается старое название с новым
-    print 'pdfname', pdfname
-    print 'newname', newname
     if pdfname != newname:
         shutil.move(pdfname, newname)
 

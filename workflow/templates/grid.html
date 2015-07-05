@@ -163,20 +163,6 @@
                    {% endif %}
                </td>
                <td>
-{% comment %}
-                   {% with "jpg/"|add:row.pdfname|add:".jpg" as jpg_link %}
-                   {% with "jpg/"|add:row.pdfname|add:"_thumb.jpg" as thumb_link %}
-                        <a type="button"
-                           class="btn-sm btn-default"
-                           title="<img src='{% static thumb_link %}' width='175'>"
-                           data-html="true"
-                           data-toggle="tooltip"
-                           data-placement="left"
-                           href='{% static jpg_link %}'>
-                        <span class="glyphicon glyphicon-eye-open"></span></a>
-                   {% endwith %}
-                   {% endwith %}
-{% endcomment %}
                    <a type="button"
                        class="btn-sm btn-default"
                        title="<img src='{% if row.proof %}{{ row.thumb.url }}{% endif %}' width='175'>"
@@ -185,7 +171,6 @@
                        data-placement="left"
                        href='{% if row.proof %}{{ row.proof.url }}{% endif %}'>
                        <span class="glyphicon glyphicon-eye-open"></span>
-                       {% if row.proof %}{{ row.proof.url }}{% endif %}
                    </a>
                    <a type="button" class="btn-sm btn-info" href="{% url 'admin:workflow_grid_change' row.pk %}">
                         <span class="glyphicon glyphicon-edit"></span></a>

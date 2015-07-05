@@ -41,7 +41,7 @@ LOGIN_URL = '/login_redirect'
 # ENVIRONMENT SETUP
 #
 
-TTY = '/dev/pts/0'
+TTY = secrets.TTY
 
 SECRET_KEY = secrets.SECRET_KEY
 MARKS_MACHINE = marks.MARKS_MACHINE

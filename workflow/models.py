@@ -1,5 +1,4 @@
 # coding: utf-8
-#
 
 from django.db import models
 
@@ -46,6 +45,7 @@ class Outputter(models.Model):
 
 
 class Grid(models.Model):
+    order = models.PositiveSmallIntegerField()
     datetime = models.DateTimeField()
     pdfname = models.CharField(max_length=100)
     machine = models.ForeignKey(PrintingPress, null=True)
@@ -57,6 +57,8 @@ class Grid(models.Model):
     colors = models.CharField(max_length=500, blank=True)  # мультилайн текст - инфа о колористике
     inks = models.CharField(max_length=500, blank=True)    # мультилайн текст - инфа о заполнении краской
     bg = models.CharField(max_length=50)                   # цвет строки
+    proof = models.ImageField(blank=True, null=True)
+    thumb = models.ImageField(blank=True, null=True)
 
     def __unicode__(self):
         return self.pdfname

@@ -10,3 +10,4 @@ django-bootstrap3-datetimepicker
 django-nvd3
 pdfminer
 django-debug-toolbar
+Pillow

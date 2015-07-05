@@ -338,7 +338,8 @@ def detect_outputter(pdfname):
 
     # Тут нужен unicode, потому что имя файла может содержать русские буквы,
     # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
-    parts = unicode(fname).lower().split("_")
+    # TODO лажа все равно происходит!!!
+    parts = fname.encode('UTF-8').lower().split("_")
 
     for company in Outputter.objects.all():
         if company.name.lower() in parts:
@@ -391,3 +392,10 @@ def analyze_inkcoverage(pdfname):
         inks[index + 1] = args
 
     return inks
+
+
+def analyze_order(pdfname):
+    order = re.findall("(\d+)", pdfname)[0]
+    if order is None:
+        order = 0
+    return order

@@ -78,17 +78,6 @@ def inks_to_multiline(dic):
     return text
 
 
-def error_text(status, e):
-    if status:
-        text = "OK"
-    else:
-        if e:
-            text = e
-        else:
-            text = "Unknown error"
-    return text
-
-
 def crop(pdf_in, pdf_out, papers):
     """
     Параметры
@@ -267,3 +256,24 @@ def error_text(status, e):
         else:
             text = "Unknown error"
     return text
+
+
+def reduce_image(infile, outfile, new_width):
+    """
+    Эта функция пропорционально уменьшает изображение до ширины width
+    :param source: путь к исходному изображению
+    :param target: путь к уменьшенному изображению
+    :param width: до какой ширины уменьшать (в пикселах)
+    :return:
+    """
+    from PIL import Image
+
+    if infile != outfile:
+        try:
+            im = Image.open(infile)
+            height, width = im.size
+            new_height = new_width * height / width
+            im = im.resize((new_height, new_width), Image.ANTIALIAS)
+            im.save(outfile)
+        except IOError, e:
+            print("cannot create thumbnail for {} with exception: {}".format(infile, e))

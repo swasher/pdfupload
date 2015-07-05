@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import os
 import secrets
 import marks
@@ -8,31 +10,38 @@ from os.path import join
 #
 
 # BASE_DIR two levels upper than settings.py
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-# Get home dir of {{remote_user}} for tmp, input and log, etc.
-from os.path import expanduser
-HOME_DIR = expanduser("~")
+# default BASE_DIR buggy for me - __file__ return relative path instead absolute
+# BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+# look discussion here - https://code.djangoproject.com/ticket/21409 (espesially comment 5 and 6)
+# and here - http://stackoverflow.com/a/7116925/1334825
+# but probably it will be work fine in python3
+
+p = os.path
+BASE_DIR = p.abspath(p.normpath(p.join(p.dirname(__file__), p.pardir)))
+
+# HOME на один уровень выше, чем BASE. Я хочу, чтобы media, log и другие директории лежили *рядом* с проектом, а не внутри
+HOME_DIR = os.path.dirname(BASE_DIR)
 
 INPUT_PATH = HOME_DIR + '/input/'
 TEMP_PATH = HOME_DIR + '/tmp/'
 
-STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR + '/static_root/'
 # STATICFILES_DIRS = (
 #     HOME_DIR + '/jpg',
 # )
+STATIC_URL = '/static/'
 
-MEDIA_ROOT = HOME_DIR + '/media'
-MEDIA_URL = "media/"
+MEDIA_ROOT = HOME_DIR + '/media/'
+MEDIA_URL = "/media/"
 
 LOGIN_URL = '/login_redirect'
-
-
 
 #
 # ENVIRONMENT SETUP
 #
+
+TTY = '/dev/pts/3'
 
 SECRET_KEY = secrets.SECRET_KEY
 MARKS_MACHINE = marks.MARKS_MACHINE

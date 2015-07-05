@@ -125,6 +125,7 @@
 <div class="container-fluid">
     <table class="table table-striped table-hover table-bordered">
             <tr>
+              <th>№</th>
               <th>Дата</th>
               <th>Имя файла</th>
               <th>Машина</th>
@@ -137,6 +138,7 @@
             </tr>
         {% for row in table %}
            <tr class={{ row.bg }}>
+               <td>{{ row.order }}</td>
                <td>{{ row.datetime|date:"d M Y, D H.i" }}</td>
                <td>{{ row.pdfname }}</td>
                <td>{{ row.machine.name }}</td>
@@ -160,7 +162,9 @@
                         <span class="glyphicon glyphicon-remove-circle text-danger big-icon" data-toggle='tooltip' title='{{ row.preview_error }}'></span>
                    {% endif %}
                </td>
-               <td>{% with "jpg/"|add:row.pdfname|add:".jpg" as jpg_link %}
+               <td>
+{% comment %}
+                   {% with "jpg/"|add:row.pdfname|add:".jpg" as jpg_link %}
                    {% with "jpg/"|add:row.pdfname|add:"_thumb.jpg" as thumb_link %}
                         <a type="button"
                            class="btn-sm btn-default"
@@ -172,6 +176,17 @@
                         <span class="glyphicon glyphicon-eye-open"></span></a>
                    {% endwith %}
                    {% endwith %}
+{% endcomment %}
+                   <a type="button"
+                       class="btn-sm btn-default"
+                       title="<img src='{% if row.proof %}{{ row.thumb.url }}{% endif %}' width='175'>"
+                       data-html="true"
+                       data-toggle="tooltip"
+                       data-placement="left"
+                       href='{% if row.proof %}{{ row.proof.url }}{% endif %}'>
+                       <span class="glyphicon glyphicon-eye-open"></span>
+                       {% if row.proof %}{{ row.proof.url }}{% endif %}
+                   </a>
                    <a type="button" class="btn-sm btn-info" href="{% url 'admin:workflow_grid_change' row.pk %}">
                         <span class="glyphicon glyphicon-edit"></span></a>
                    <a type="button" class="btn-sm btn-danger" href="{% url 'delete' row.pk %}">

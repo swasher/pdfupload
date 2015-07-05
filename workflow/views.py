@@ -46,9 +46,9 @@ from models import Grid, PrintingPress
 from django.utils import timezone
 
 from analyze import analyze_machine, analyze_complects, analyze_colorant, analyze_papersize, detect_outputter, \
-    analyze_inkcoverage, detect_preview_ftp, colorant_to_string, analyze_signastation
+    analyze_inkcoverage, detect_preview_ftp, colorant_to_string, analyze_signastation, analyze_order
 from util import inks_to_multiline, dict_to_multiline, remove_outputter_title, crop, \
-    sendfile, error_text, fail
+    sendfile, error_text, fail, reduce_image
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +97,13 @@ def printing(request):
 
 
 def grid(request, mode=''):
+
+    try:
+        sys.stdout = open(settings.TTY, 'w')
+        sys.stderr = open(settings.TTY, 'w')
+        #sys.stdout.write('filename'+'\n')
+    except:
+        pass
 
     context = RequestContext(request)
     #table = Grid.objects.all().order_by('datetime').reverse()
@@ -196,10 +203,8 @@ def processing(pdfName):
     # socket.setdefaulttimeout(10.0)
 
     try:
-        #tty = '/dev/tty1'
-        tty = '/dev/pts/0'
-        sys.stdout = open(tty, 'w')
-        sys.stderr = open(tty, 'w')
+        sys.stdout = open(settings.TTY, 'w')
+        sys.stderr = open(settings.TTY, 'w')
         #sys.stdout.write('filename'+'\n')
     except:
         pass
@@ -282,8 +287,9 @@ def processing(pdfName):
 
     pdfPath, (pdfName, pdfExtension) = dirname(pdf_abs_path), splitext(os.path.basename(pdf_abs_path))
 
+    order = analyze_order(pdfName)
 
-    # Compress via Ghostscript and crop via PyPDF2 library.
+    # Crop via PyPDF2 library and compress via Ghostscript
     #----------------------------------------------------------------
     croppedtempname = tempdir + pdfName + '.' + outputter.name + '.temp' + pdfExtension
     preview_abs_path = tempdir + pdfName + '.' + outputter.name + pdfExtension
@@ -303,25 +309,47 @@ def processing(pdfName):
     # Make JPEG preview for Grid (only first page)
     # #----------------------------------------------------------------
     #  Для этой операции используется созданный на предыдущем шаге кропленый документ
-    print(settings.MEDIA_ROOT)
-    print(os.path.join(settings.MEDIA_ROOT, 'jpg', pdfName + '.jpg'))
-    jpeg = os.path.join(settings.MEDIA_ROOT, 'jpg', pdfName + '.jpg')
-    thumb = os.path.join(settings.MEDIA_ROOT, 'jpg', pdfName + '_thumb' + '.jpg')
+
+    # TODO разрулить эти гвозди с годом
+    from datetime import datetime
+    currentYear = str(datetime.now().year)
+    proof_path = os.path.join('proof', currentYear)
+    if not os.path.exists(settings.MEDIA_ROOT + proof_path):
+        os.makedirs(settings.MEDIA_ROOT + proof_path)
+
+    jpeg = os.path.join(tempdir, pdfName + '.jpg')
+
+    proof = os.path.join(proof_path, pdfName + '.jpg')
+    thumb = os.path.join(proof_path, pdfName + '_thumb' + '.jpg')
+
+    # todo delete debug
+    # print('preview_abs_path', preview_abs_path)
+    # print('croppedtempname', croppedtempname)
+    # print('source', jpeg)
+    # print('proof', proof)
+    # print('thumb', thumb)
+
     gs_compress = "gs -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -dJPEGQ=80 -r{resolution}"\
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} " \
                   .format(resolution='200', input=croppedtempname, output=jpeg)
 
+
+    """
     make_thumb = "convert {input} -resize 175 {output}".format(input=jpeg, output=thumb)
     make_jpeg = "convert {input} -resize 2500 {output}".format(input=jpeg, output=jpeg)
-
+    """
     print '\n-->Starting Jpeg preview compression...'
     print '---->make full resolution jpg'
     os.system(gs_compress)
     print '---->downsample to thumb'
-    os.system(make_thumb)
+    #os.system(make_thumb)
+    print 'settings.MEDIA_ROOT + proof', os.path.join(settings.MEDIA_ROOT + proof)
+    reduce_image(jpeg, os.path.join(settings.MEDIA_ROOT + proof), 2500)
     print '---->downsample to preview'
-    os.system(make_jpeg)
+    #os.system(make_jpeg)
+    reduce_image(jpeg, os.path.join(settings.MEDIA_ROOT + proof), 200)
     print 'Compression finished.'
+    os.unlink(jpeg)
 
 
     # Сalculating ink coverage
@@ -409,6 +437,7 @@ def processing(pdfName):
 
     try:
         row = Grid()
+        row.order = order
         row.datetime = timezone.now()
         row.pdfname = pdfName
         row.machine = machine
@@ -420,6 +449,9 @@ def processing(pdfName):
         row.colors = dict_to_multiline(pdf_colors)
         row.inks = inks_to_multiline(inks)
         row.bg = bg
+        row.proof = proof
+        row.thumb = thumb
+        # print 'row.order', row.order
         # print 'row.datetime', row.datetime
         # print 'row.pdfname', row.pdfname
         # print 'row.machine', row.machine
@@ -431,6 +463,9 @@ def processing(pdfName):
         # print 'row.colors', row.colors
         # print 'row.inks', row.inks
         # print 'row.bg', row.bg
+        print 'row.proof', row.proof
+        print 'row.thumb', row.thumb
+        print(settings.MEDIA_ROOT)
         row.save()
     except Exception, e:
         print 'ERROR row.save:', e

@@ -1,0 +1,10 @@
+---
+- name: Ensure required directories exist
+  dest: >
+    dest={{item}}
+    state=directory
+  with_items:
+    - {{ log_dir }}
+    - {{ user_home }}/media
+    - {{ user_home }}/tmp
+

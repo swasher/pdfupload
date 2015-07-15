@@ -395,7 +395,8 @@ def analyze_inkcoverage(pdfname):
 
 
 def analyze_order(pdfname):
-    order = re.findall("(\d+)", pdfname)[0]
+    name = os.path.basename(pdfname)
+    order = re.findall("^(\d+)", name)[0]
     if order is None:
         order = 0
     return order

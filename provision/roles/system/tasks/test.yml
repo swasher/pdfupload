@@ -10,6 +10,8 @@
 
 
 #- debug: msg="hostvars is {{hostvars}}"
+- debug: msg="groups.all is {{groups['all']}}"
+- debug: msg="play_hosts is {{play_hosts}}"
 - debug: msg="group_names is {{group_names}}"
 - debug: msg="group_names[0] is {{group_names[0]}}"
 - debug: msg="groups is {{groups}}"
@@ -20,9 +22,14 @@
   debug: msg="Empty action with vagrant_skip tag"
   tags: vagrant_skip
 
-- name: restart samba
-  service: name=smbd.service state=restarted
-  sudo: yes
+- name: test delegating
+  shell: ifconfig
+  delegate_to: production
+  register: ifconfig
+
+- debug: var=ifconfig.stdout_lines
+
+- debug: msg="Prodiction IP is {{groups.production}}"
 
 - fail: msg="Halt due testing purpose."
 

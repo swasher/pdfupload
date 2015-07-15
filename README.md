@@ -24,6 +24,7 @@ Playbook requirements:
 - в inventories/* установить IP и порт
 - в group_vars/* FQDN и имя пользователя, от которого будет происходить развертывание (пользователь должен существовать)
 - в secret_vars - логин/пароль для отправки смс, для суперюзера джанго, подробнее см. `secret_vars_template.yml` 
+- {{remote_user}} должен быть одинаковый на всех серверах (кроме development)
 
 The trick:
 Так как Ansible не работает под Microsoft Windows, плейбук запускается ВНУТРИ поднятого vagrant-бокса.

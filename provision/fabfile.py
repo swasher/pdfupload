@@ -1,3 +1,5 @@
+# --- coding: utf-8 ---
+
 from fabric.api import local, hosts, env, run
 from fabric.context_managers import cd
 from fabric.api import settings
@@ -19,24 +21,23 @@ env.use_ssh_config = True
 env.project_path = '/home/swasher/pdfupload'
 
 
+# def staging():
+#     env.hosts = ['staging']
 
-def staging():
-    env.hosts = ['staging']
+# def production():
+#     env.hosts = ['production']
 
-def production():
-    env.hosts = ['production']
-
-def development():
-    env.hosts = ['development']
+# def development():
+#     env.hosts = ['development']
 
 
 def provision():
     additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
 
     # Do you want verbose output from ansible? Uncomment it.
-    #additional_params += ' -v'
+    # additional_params += ' -vvv'
 
-    local('ansible-playbook -i inventories/{target} --ask-become-pass {additional_params} '
+    local('ansible-playbook -i inventories/all --ask-become-pass {additional_params} --limit {target} '
           'provision.yml'.format(target=env.hosts[0], additional_params=additional_params))
 
 
@@ -52,49 +53,27 @@ def deploy():
         run('python manage.py migrate')
         run('touch /tmp/pdfupload.reload')
 
+        # after pip install, run collectstatic
+
         # then run test
         #run('python manage.py test myapp')
 
-        # also, we need reinstall requirements.txt due to new package may be used
+
+@hosts('staging')
+def restore_staging():
+    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/pdfupload', '~'))
+    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/media', '~'))
+
+    run('sudo -u postgres dropdb --if-exists pdfuploaddb')
+    run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
+    run('pg_dump -h production pdfuploaddb | psql pdfuploaddb')
+
+    run('touch /tmp/pdfupload')
+
 
 @hosts('production')
-def staging_restore():
-    env.hosts = ['staging']
-    #with settings(user='swasher', host_string='192.168.0.203', port='22522'):
-    #env.hosts = ['production']
-
-    run('hostname -f')
-    staging()
-    run('echo {}')
-    print(env.port)
-
-    with settings(hosts='staging'):
-        run('hostname -f')
-
-def parsing():
-    from os.path import expanduser
-    from paramiko.config import SSHConfig
-
-    def hostinfo(host, config):
-        hive = config.lookup(host)
-        if 'hostname' in hive:
-            host = hive['hostname']
-        if 'user' in hive:
-            host = '%s@%s' % (hive['user'], host)
-        if 'port' in hive:
-            host = '%s:%s' % (host, hive['port'])
-        return host
-
-    try:
-        config_file = file(expanduser('~/.ssh/config'))
-    except IOError, e:
-        print(e)
-    else:
-        config = SSHConfig()
-        config.parse(config_file)
-        keys = [config.lookup(host).get('identityfile', None) for host in env.hosts]
-        env.key_filename = [expanduser(key) for key in keys if key is not None]
-        env.hosts = [hostinfo(host, config) for host in env.hosts]
-
-        for role, rolehosts in env.roledefs.items():
-            env.roledefs[role] = [hostinfo(host, config) for host in rolehosts]
+def restore_db():
+    exit('\nV E R Y   D A N G E R O U S!!!\n==============================\nComment out this line in fabric to drop production DB and load data from backup server!\n')
+    #run('sudo -u postgres dropdb --if-exists pdfuploaddb')
+    #run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
+    run('ssh staging cat ???DB??? | psql pdfuploaddb')

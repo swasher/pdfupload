@@ -87,6 +87,7 @@ def logout(request):
     django_logout(request)
     return redirect('/')
 
+
 @login_required
 def usersettings(request):
     return render_to_response('usersettings.html')
@@ -160,7 +161,6 @@ def grid(request, mode=''):
                 pass
     else:
         # В эту ветку попадаем, если пользователем перед этим не был применен фильтр.
-        # Например, после Delete или первый заход на страницу
         # Например, после Delete или первый заход на страницу
         table = Grid.objects.filter(defaultfilter).order_by('datetime').reverse()
         form = FilterForm()

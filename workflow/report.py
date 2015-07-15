@@ -24,14 +24,6 @@ def report(request):
             self.chartcontainer = chartcontainer
             self.extra = extra
 
-    try:
-        #TTY = '/dev/pts/2'
-        TTY = '/dev/tty1'
-        sys.stdout = open(TTY, 'w')
-        sys.stderr = open(TTY, 'w')
-    except:
-        pass
-
     # минимальный и максимальный года
     min_year = Grid.objects.all().aggregate(Min('datetime'))['datetime__min'].year
     max_year = Grid.objects.all().aggregate(Max('datetime'))['datetime__max'].year

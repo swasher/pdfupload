@@ -1,0 +1,14 @@
+# ------------------------
+# {{ ansible_managed }}
+# ------------------------
+
+Host *
+     StrictHostKeyChecking no
+
+{% for server in servers %}
+Host {{server.name}}
+     HostName {{server.ip}}
+     Port {{server.port}}
+     User {{server.user}}
+
+{% endfor %}

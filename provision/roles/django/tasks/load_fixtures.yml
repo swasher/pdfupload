@@ -50,4 +50,4 @@
     command=loaddata
     app_path={{ project_root }}
     fixtures=initial_data.json
-  when: group_names[0] != "production"
+  when: group_names[0] != "production" and group_names[0] != "staging"

@@ -16,7 +16,8 @@ def main():
     with open('dump.txt', 'r') as j:
         for line in j:
             if ';' in line:
-                machinetext, outputtertext, plates, complects, created, bg, f, _ = line.strip().split(';')
+                order, machinetext, outputtertext, plates, complects, created, bg, f, _ = line.strip().split(';')
+                # print 'order', order
                 # print 'machinetext', machinetext
                 # print 'outputter', outputter
                 # print 'plates', plates
@@ -36,6 +37,7 @@ def main():
 
                 try:
                     row = Grid()
+                    row.order = int(order)
                     row.datetime = date
                     row.pdfname = f
                     row.machine = machine

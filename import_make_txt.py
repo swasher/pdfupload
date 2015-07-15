@@ -11,7 +11,7 @@ import json
 from time import gmtime, strftime
 from subprocess import Popen, PIPE
 from datetime import datetime
-from workflow.analyze import analyze_signastation, analyze_colorant, analyze_platesize, analyze_complects
+from workflow.analyze import analyze_signastation, analyze_colorant, analyze_platesize, analyze_complects, analyze_order
 from workflow.models import Outputter, PrintingPress
 
 
@@ -77,15 +77,13 @@ def analyze_machine(pdfname):
     stdout = Popen(pdftotext_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
 
     try:
-        print 111555
         found_string = stdout[0].split()[0]
-        print 'found_string', found_string
+        if found_string == 'FS_Speedmaster':
+            found_string = 'Speedmaster'
         for press in PrintingPress.objects.all():
-            print press.name
             if found_string == press.name:
                 machine = press
     except IndexError:
-        print 222555
         primary_machines = PrintingPress.objects.filter(name__in=['Speedmaster', 'Dominant', 'Planeta'])
 
         # Высчитываем размер страниц в пдф
@@ -121,19 +119,20 @@ def analyze_machine(pdfname):
             machine = PrintingPress.objects.get(name='Dominant')
         else:
             if timepdf < sm_installed:
-                #print 'BEFORE'
+                print 'BEFORE'
                 machine = PrintingPress.objects.get(name='Planeta')
             else:
-                #print 'AFTER'
+                print 'AFTER'
                 machine = PrintingPress.objects.get(name='Speedmaster')
     return machine
 
 
 def main():
-    import_path = '/mnt/importpdf/2012'
+    import_path = '/mnt/oldpdf/print/2014'
     tree = sortedWalk(import_path)
 
     ### Что нужно для записи в базу
+    # - номер заказа- из имени файла
     # - машина      - на основе размера страницы
     # - contractor  - выводильщик (если не указан, то Admin)
     # - plates      - кол-во пластин - либо HDAG тег, либо написать на основе gs
@@ -142,14 +141,21 @@ def main():
     # - bg          - цвет полоски (может зависет от успешности каких-то этапов импорта)
     # - f           - имя файла
 
+   #print '{}  {}\t{}\t[{}][{}]  {}  {} {}'.format(order, machine.name, outputter.name, plates, complects, created, bg, f).expandtabs(15)
+    print 'Order Machine       Outputter [Pl][Cmpl] Created      Bg                Filename'
+    print '--------------------------------------------------------------------------'
+
     with open('dump.txt', 'w') as j:
         for dir, dirs, files in tree:
             for f in files:
-                if os.path.splitext(f)[1] == '.pdf' and (f == '0925_Modeus_Stikers_Korol.pdf' or f == '0926_Mig_Gazeta_Korol.pdf'):
-                    print '\n', f
+                if os.path.splitext(f)[1] == '.pdf':  # and (f == '1018_Gift_Snezinki-goluboy_Leonov.pdf'):
+
+                    order = analyze_order(pdf_full_path)
+
                     pdf_full_path = os.path.join(dir, f)
 
                     mtime = os.path.getmtime(pdf_full_path)
+
                     created = strftime("%d %b %Y", gmtime(mtime))
 
                     complects = analyze_complects(pdf_full_path)
@@ -169,9 +175,10 @@ def main():
                     contractor_error = ''    # код ошибки заливки файла на вывод
                     preview_error = ''       # код ошибки заливки превьюхи на кинап
 
-                    print '{}\t{}\tpl.{} coml.{}  {}  {} {}'.format(machine.name, outputter.name, plates, complects, created, bg, f).expandtabs(15)
 
-                    j.write(';'.join((machine.name, outputter.name, str(plates), str(complects), created, bg, f, '\n')))
+                    print '{}  {}\t{}\t[{}][{}]\t{}  {}\t{}'.format(order, machine.name, outputter.name, plates, complects, created, bg, f).expandtabs(10)
+
+                    j.write(';'.join((order, machine.name, outputter.name, str(plates), str(complects), created, bg, f, '\n')))
 
 
 if __name__ == '__main__':

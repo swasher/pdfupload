@@ -5,6 +5,7 @@
 
   roles:
     - system
+    - backup
     - pdf
     - python
     - git

@@ -1,9 +1,10 @@
 ---
 - include: install_dependencies.yml
 - include: install_requirements.yml
+- include: ensure_directories.yml
 - include: copy_secret.yml
 - include: set_machine_purpose.yml
 - include: create_database.yml
-- include: install_fixtures.yml
+- include: load_fixtures.yml
 - include: create_superuser.yml
 - include: collect_static.yml

@@ -6,6 +6,7 @@ db.sqlite3
 **/*NOT-FOR-GIT*
 workflow/fixtures/initial_data.json
 test/**
+test.py
 
 
 # Файлы, создаваемые приложением

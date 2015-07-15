@@ -1,7 +1,15 @@
 Installation
 --------------------------
 
-Установка производится с помощью менеджера конфигурций Ansible. 
+Обслуживание производится на четырех серверах
+
+- development - машина разработчика, развернутая в vagrant
+- staging - машина для тестирования деплоя
+- production - собственно сервер с системой
+- backup - сервер для бекапа базы данных
+
+Установка производится с помощью менеджера конфигурций Ansible. Ключи создаются вручную. Для доступа от production до
+backup используется ключ без пасс-фразы.
 
 Директория provision содержит все необходимое для автоматического провижиона с помощью Ansible.
 Файл provision/provision.yml содержит подробные инструкции, как создать staging/production систему
@@ -19,19 +27,22 @@ Playbook requirements:
 
 ### Ansible variables
 
-Перед использованием Ansible нужно установить переменные для каждой машины, на которой предполагается развертывание:
+Перед использованием Ansible нужно установить переменные:
 
-- в inventories/* установить IP и порт
+- адреса [user, ip, port] машин устанавливаются в roles/system/vars/main.yml. Этот файл находится под ansible-vault. При
+  развертывании эти данные разворачиваются в ~/.ssh/config и /etc/hosts. Таким образом, машины могут резольвить имена
+  друг друга и обращаться по ssh.
 - в group_vars/* FQDN и имя пользователя, от которого будет происходить развертывание (пользователь должен существовать)
 - в secret_vars - логин/пароль для отправки смс, для суперюзера джанго, подробнее см. `secret_vars_template.yml` 
-- {{remote_user}} должен быть одинаковый на всех серверах (кроме development)
+- {{remote_user}} должен быть одинаковый на всех серверах (кроме development, там имя пользователя vagrant)
 
 The trick:
 Так как Ansible не работает под Microsoft Windows, плейбук запускается ВНУТРИ поднятого vagrant-бокса.
 
 > TODO cделать отдельно - развертывание из среды разработки и развертывание только с гитхаба
 
-Есть некая условность (hardcoded) в именовании машин - они должны называться production, staging и developing соответственно.
+Есть некая условность (hardcoded) в именовании машин - они должны называться production, staging, developing 
+и backup соответственно.
 Именно такие константы используются в навании Ansible groups, в fabric, в настройках django-settings, 
 в файле [ssh]config для запуска Ansible, etc. 
 
@@ -41,7 +52,7 @@ Steps to reproduce new server:
 - set up custom ssh port in /etc/ssh/sshd-config
 - on router assign appropriate static IP for new machine
 - reboot machine
-- on ansible machine, enter the connection data into ~/.ssh/config with 
+- on ansible machine, enter the connection data into roles/system/vars/main.yml
 - on ansible machine, copy ssh key to target machine: ssh-copy-id [staging|developing]
 - Note: Provision assumes, that pdfupload machine is dedicated server, so we do not use virtual environment.
         This is due high load on file system during pdf processing.
@@ -50,7 +61,7 @@ Steps to reproduce new server:
 Steps to recreate local development environment
 
 - BUG 1: невозможно создать файл в шаред фолдер
-- BUG 2: невозможно интерактивный ввод-вывод
+- BUG 2: невозможно использовать интерактивный ввод-вывод при работе плейбука
 
 - install pycharm, git for windows, virtualbox, vagrant with ubuntu/vivid64
 - download box with Ubuntu 15.04: `vagrant box add ubuntu/vivid64`
@@ -59,12 +70,11 @@ Steps to recreate local development environment
 
 - due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision.
 - --- Folk: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3) [two](https://github.com/mitchellh/vagrant/issues/2924) [and at last](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)"
-- --- so first we connect to box via ssh, and then start provision INSIDE. 
+- --- so we connect to box via ssh first, and then start provision INSIDE the vagrant box. 
 - enter vagrant box: `vagrant ssh`
 - start provision: `cd pdfupload/provision && fab developing provision`
 
 - generate keys: `ssh-keygen -t rsa`
-- TODO fill ~/.shh/config as described in fabfile
 
 Development tools tunung:
 
@@ -83,7 +93,15 @@ TODOes and temporary solution:
 Deploy
 --------------------
 
-TODO
+Деплой выполняется одной командой fabric:
+ 
+    $ fab [provision|staging] deploy
+    
+Сначала выполняется деплой на тестовый сервер, тестируется, потом деплоится на рабочий. Если во время тестирования на
+тестовом сервере что-то пошло не так, то перед следующей попыткой деплоя нужно привести тестовый сервер в состояние,
+идентичное рабочему серверу:
+
+    $ fab restore_staging
 
 Install by hand
 --------------------
@@ -103,7 +121,7 @@ Install by hand
     $ git clone https://github.com/swasher/pdfupload.git
     
 и создаем директорию для логов
-    
+
     $ mkdir pdfupload/logs
 
 ##### Устанавливаем зависимости

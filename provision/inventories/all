@@ -1,0 +1,10 @@
+# Your servers must be configured in ~/.ssh/config
+
+[development]
+#local:2222  ansible_connection=local
+
+[production]
+production
+
+[staging]
+staging

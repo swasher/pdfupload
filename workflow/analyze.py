@@ -85,11 +85,11 @@ def analyze_machine(pdfname):
                 - None, если не удалось определить
     """
     machine = None
-
-    marks = mark_extraction(pdfname)
     machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, marks)
 
     try:
+        marks = mark_extraction(pdfname)
+
         extracted_text = marks[0][machine_mark_name][0]
         mark_content = re.findall(machine_mark_regex, extracted_text)[0]
 

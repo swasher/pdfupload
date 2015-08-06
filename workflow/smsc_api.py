@@ -4,9 +4,11 @@
 #
 # ADD BY SWASHER
 #
+#----------------------------------------------------------
 from django.conf import settings
 SMSC_LOGIN = settings.SMSC_LOGIN		# логин клиента
 SMSC_PASSWORD = settings.SMSC_PASSWORD	# пароль или MD5-хеш пароля в нижнем регистре
+#----------------------------------------------------------
 
 
 from datetime import datetime

@@ -4,15 +4,13 @@
 import os
 import logging
 import re
-from subprocess import Popen, PIPE
-from genericpath import isfile
 
+from subprocess import Popen, PIPE
 from models import PrintingPress, Outputter
 from django.conf import settings
 from signamarks import detect_mark
 from PyPDF2 import PdfFileReader
-
-from util import mm, pt
+from util import mm
 
 def detect_is_pdf(pdf):
     """
@@ -147,30 +145,6 @@ def analyze_machine(pdf):
     return machines
 
 
-# def analyze_complects(pdf):
-#     """
-#     DEPRECATED
-#     """
-#
-#     """
-#     Функиция принимает путь к пдф и возвращиет кол-во содержащихся в нем страниц
-#     :param pdf: объект pdf
-#     :return: int
-#     """
-#     pdfinfo_command = r"pdfinfo -box '{}' | grep 'Page'".format(pdf.abspath)
-#     stdout = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
-#     pages = stdout[0].split(" ")[10]
-#
-#     """Как детектить размер страницы(только первой)
-#     s = stdout[1].split(" ")
-#     width = s[7]
-#     height = s[9]
-#     width = mm(width)
-#     height = mm(height)"""
-#
-#     return pages
-
-
 def analyze_papersize(pdf):
     """
     Функция возвращает словарь: {номер страницы: машина, ширина листа, высота листа}
@@ -180,7 +154,6 @@ def analyze_papersize(pdf):
     """
 
     if pdf.marks:
-
         machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, pdf.marks)
         paper_mark_name, paper_mark_regex = detect_mark(settings.MARKS_PAPER, pdf.marks)
 
@@ -210,10 +183,6 @@ def analyze_papersize(pdf):
 
     else:
         papersizes = None
-
-    # TODO delete
-    #from pprint import pprint
-    #pprint(papersizes)
 
     return papersizes
 

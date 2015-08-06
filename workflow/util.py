@@ -3,13 +3,12 @@
 # __author__ = 'Алексей'
 
 import os
-import shutil
 import sys
 import logging
 import time
+
 from datetime import datetime
 from django.conf import settings
-
 from ftplib import FTP
 
 
@@ -225,8 +224,8 @@ def get_jpeg_path():
     :param pdf:
     :return:
     """
-    currentYear = str(datetime.now().year)
-    proof_subpath = os.path.join('proof', currentYear)
+    current_year = str(datetime.now().year)
+    proof_subpath = os.path.join('proof', current_year)
     proof_path = os.path.join(settings.MEDIA_ROOT, proof_subpath)
     if not os.path.exists(proof_path):
         os.makedirs(proof_path)

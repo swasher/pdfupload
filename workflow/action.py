@@ -289,14 +289,15 @@ def send_sms(pdf):
             # либо массив (<id>, -<код ошибки>) в случае ошибки
             status = smsc.send_sms(phone, message)
 
-            #TODO вываливается эксепшн, если нет status'а. Временно тупо обернул в try
-            try:
-                print('····send to {} with status: {}'.format(pdf.outputter.sms_receiver.name, status))
-                print('····text: {}'.format(message))
-            except Exception, e:
-                print 'error:', e
+            if len(status) == 4:
+                print('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
+                print('····sms text: {}'.format(message))
+            elif len(status) == 2:
+                print('····sms FAILED with error: {}'.format(status[1]))
+                print('····more info: https://smsc.ru/api/http/#answer')
+
     except Exception, e:
-        logging.error('Send sms exception: {0}'.format(e))
+        logging.error('SMS FAILED: {0}'.format(e))
         print '····FAILED. Error: {}'.format(e)
 
 

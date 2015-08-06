@@ -4,6 +4,7 @@
 import sys
 import os
 from pprint import pprint
+#from analyze import analyze_signastation
 
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager
@@ -26,11 +27,20 @@ def find_mo_objects(lt_objs):
     :param lt_objs:
     :return:
     """
+    # from pprint import pprint
+    # for obj in lt_objs:
+    #     print obj
+    # exit('stop!')
+
     list_mo = {}
     for obj in lt_objs:
-        if 'pssMO' in obj.name:
-            #print 'FIND {}'.format(obj.name)
-            list_mo[obj.name] = obj
+        try:
+            if 'pssMO' in obj.name:
+                #print 'FIND {}'.format(obj.name)
+                list_mo[obj.name] = obj
+        except AttributeError:
+            # obj may not have attibute 'name'
+            pass
     return list_mo
 
 
@@ -63,7 +73,7 @@ def parse_mo_dict(mo_dict):
     return miner_dict
 
 
-def mark_extraction(f):
+def mark_extraction(pdf):
     """
     Возвращает словарь, где ключ - номер страницы, а значение - словарь.
     Во внутреннем словаре ключ - имя метка (как она названа в сигне), а
@@ -76,83 +86,92 @@ def mark_extraction(f):
 
     В нем ключи - это название меток, а значения -[0] - текст метки, [1] - имя xobject, а [2] - сигновский тип метки
 
+    Если файл не сигновский, возвращается None
+
     usage:
     import mark_extraction
     m = mark_extraction(file)
     print m[page][signa-mark-name][(0|1|2)(mark_text|xobject|SubType)]
 
     """
-    print 'Mark extraction...'
-    fp = open(f, 'rb')
+    if pdf.is_signastation:
 
-    # Create a PDF parser object associated with the file object.
-    parser = PDFParser(fp)
+        print '\n--> Mark extraction'
+        fp = open(pdf.abspath, 'rb')
 
-    # Create a PDF document object that stores the document structure.
-    # Password for initialization as 2nd parameter
-    doc = PDFDocument(parser)
+        # Create a PDF parser object associated with the file object.
+        parser = PDFParser(fp)
 
-    # Check if the document allows text extraction. If not, abort.
-    if not doc.is_extractable:
-        raise PDFTextExtractionNotAllowed
+        # Create a PDF document object that stores the document structure.
+        # Password for initialization as 2nd parameter
+        doc = PDFDocument(parser)
 
-    # Create a PDF resource manager object that stores shared resources.
-    rsrcmgr = PDFResourceManager()
+        # Check if the document allows text extraction. If not, abort.
+        if not doc.is_extractable:
+            raise PDFTextExtractionNotAllowed
 
-    # BEGIN LAYOUT ANALYSIS
-    # Set parameters for analysis.
-    laparams = LAParams()
+        # Create a PDF resource manager object that stores shared resources.
+        rsrcmgr = PDFResourceManager()
 
-    # Create a PDF page aggregator object.
-    device = PDFPageAggregator(rsrcmgr, laparams=laparams)
+        # BEGIN LAYOUT ANALYSIS
+        # Set parameters for analysis.
+        laparams = LAParams()
 
-    # Create a PDF interpreter object.
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
+        # Create a PDF page aggregator object.
+        device = PDFPageAggregator(rsrcmgr, laparams=laparams)
 
-    # Это словарь, где ключ - номер страницы
-    result = {}
+        # Create a PDF interpreter object.
+        interpreter = PDFPageInterpreter(rsrcmgr, device)
 
-    for n, page in enumerate(PDFPage.create_pages(doc)):
+        # Это словарь, где ключ - номер страницы
+        result = {}
 
-        # Вытаскиваем текст меток и составляем словарь:
-        # {'pssMO10_1': u'\u0412\u044b\u0432\u0435\u0434\u0435\u043d\u043e: Admin     Dominant 640,0 x 450,0',
-        #  'pssMO4_1': u'Magenta Cyan Yellow ',}
+        for n, page in enumerate(PDFPage.create_pages(doc)):
 
-        # read the page into a layout object
-        interpreter.process_page(page)
-        layout = device.get_result()
+            # Вытаскиваем текст меток и составляем словарь:
+            # {'pssMO10_1': u'\u0412\u044b\u0432\u0435\u0434\u0435\u043d\u043e: Admin     Dominant 640,0 x 450,0',
+            #  'pssMO4_1': u'Magenta Cyan Yellow ',}
 
-        # Create a dict with (Signa) Mark Objects
-        list_mo = find_mo_objects(layout)
+            # read the page into a layout object
+            interpreter.process_page(page)
+            layout = device.get_result()
 
-        # Iterate the dict recursively and find text for each Mark Object
-        text_dict = parse_mo_dict(list_mo)
+            # Create a dict with (Signa) Mark Objects
+            list_mo = find_mo_objects(layout)
 
-        # Это словарь, где ключ - название метки
-        current_page_mark_dict = {}
+            # Iterate the dict recursively and find text for each Mark Object
+            text_dict = parse_mo_dict(list_mo)
 
-        # Определяем соответствие XObject<->Markname и составляем окончательный словарь *для текущей страницы (n)*
-        resources = page.attrs['Resources'].resolve()['XObject']
+            # Это словарь, где ключ - название метки
+            current_page_mark_dict = {}
 
-        for xobject, value in resources.items():
-            if 'pssMO' in xobject:
-                #print '\n', key
-                CreationName = value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationName']
-                CreationType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationType']).translate(None, '/')  # I don't use it
-                SubType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['SubType']).translate(None, '/')
+            # Определяем соответствие XObject<->Markname и составляем окончательный словарь *для текущей страницы (n)*
+            resources = page.attrs['Resources'].resolve()['XObject']
 
-                current_page_mark_dict[CreationName] = (text_dict[xobject], xobject, SubType)
+            for xobject, value in resources.items():
+                if 'pssMO' in xobject:
+                    #print '\n', key
+                    CreationName = value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationName']
+                    CreationType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationType']).translate(None, '/')  # I don't use it
+                    SubType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['SubType']).translate(None, '/')
 
-        result[n] = current_page_mark_dict
+                    current_page_mark_dict[CreationName] = (text_dict[xobject], xobject, SubType)
+
+            result[n] = current_page_mark_dict
+            print('···ok, page {}'.format(n+1))
+
+    else:
+        print('···FAILED [possible non-signa file]')
+        result = None
 
     return result
 
 
 def detect_mark(list_of_available_marks, pdf_extracted_marks):
     """
-    Со временем названия и содержания сигна-меток, содержащих нужную информацию, может изменяться.
+    Со временем названия и содержания сигна-меток, содержащих нужную информацию, могут измениться.
     Все названия меток вместе с регулярками для извлечения находятся в settings.
-    Эта функция определяет, какая именно метка используется, и возвращает два значения - имя марки и regexю.
+    Эта функция определяет, какая именно метка используется, и возвращает два значения - имя марки и regexp.
 
     Так же предполагается, что название марки одинаково для всех страниц, и поэтому производится анализ только первой.
 
@@ -160,7 +179,6 @@ def detect_mark(list_of_available_marks, pdf_extracted_marks):
     :param pdf_extracted_marks: Извлеченные данные при помощи 'mark_extraction'
     :return: Кортеж из двух значений - имя марки и regex для ее извлечения
     """
-
 
     # Создаем кортеж, содержащий имена всех меток на первой странице
     pdf_marks = pdf_extracted_marks[0]

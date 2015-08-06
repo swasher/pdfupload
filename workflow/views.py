@@ -6,49 +6,42 @@
 #       detected within a document to stderr. (stderr is also used for the output from the bbox device.)
 #       For each spot color, the name of the color is printed preceded by '%%SeparationName: '. This provides a simple
 #       mechanism for users and external applications to be informed about the names of spot colors within a document.
-#TODO Что должно происходить, если форма не валидна? line 123
-#TODO Сделать отчеты по годам и месяцам
+#TODO Что должно происходить, если форма не валидна?
 #TODO Сделать кнопку 'перезалить на кинап'
 #TODO Аналогично кнопка run
 #TODO Ротация логов nginx
-#TODO Разобраться с джипегами при выполнении collectstatic. Они должны находится в $BASE_DIR/pdfupload/static_root/jpg
-#TODO Регулярный бекап базы кроном. Продумать куда, возможно мылом на dropbox: https://sendtodropbox.com
-#TODO Разобраться с багом, когда в названии файла русские буквы
-#TODO Есть такой интересный баг, при котором может произойти непрвильное определение MachinePress, если в пдф содержатся
-#    слова как названия печатных машин. Пример файла - 2012/0926_Mig, фраза 'Planetary Science от 17 января.'
+#TODO Разобраться с багом, когда в названии файла русские буквы. Но это уже при переходе на Python 3
 
-#import socket
-#from datetime import datetime
 
 import sys
-import os
-import shutil
-import tempfile
 import logging
 import datetime
 
-from os.path import dirname, splitext
 from django.conf import settings
-from django.shortcuts import RequestContext, HttpResponseRedirect, Http404, redirect, render_to_response
+from django.shortcuts import RequestContext, Http404, redirect, render_to_response
 from django.contrib.auth import login as django_login, authenticate, logout as django_logout
 from django.contrib import messages
 from django_rq import job
 from django.contrib.auth.decorators import login_required
-from subprocess import Popen, PIPE
-
-import smsc_api
-
-from forms import FilterForm
 from django.db.models import Q
 from django.db.models import Sum
-# deprecated   from pdfupload.settings import BASE_DIR
-from models import Grid, PrintingPress
-from django.utils import timezone
 
-from analyze import analyze_machine, analyze_complects, analyze_colorant, analyze_papersize, detect_outputter, \
-    analyze_inkcoverage, detect_preview_ftp, colorant_to_string, analyze_signastation, analyze_order
-from util import inks_to_multiline, dict_to_multiline, remove_outputter_title, crop, \
-    sendfile, error_text, fail, reduce_image
+from forms import FilterForm
+from models import Grid, PrintingPress
+from classes import PDF
+
+from analyze import analyze_inkcoverage
+
+from action import remove_outputter_title
+from action import crop
+from action import compress
+from action import generating_jpeg
+from action import custom_operations
+from action import upload_to_press
+from action import upload_to_outputter
+from action import send_sms
+from action import save_bd_record
+from action import cleaning_temps
 
 logger = logging.getLogger(__name__)
 
@@ -197,8 +190,6 @@ def delete(request, rowid):
 
 @job
 def processing(pdfName):
-    from pdfupload.settings import INPUT_PATH as inputpath
-    from pdfupload.settings import TEMP_PATH as tmppath
 
     # socket.setdefaulttimeout(10.0)
 
@@ -209,267 +200,41 @@ def processing(pdfName):
     except:
         pass
 
-    # remove quote added by incron for support whitespace-contained filenames
-    pdfName = pdfName.strip("'")
-
     print '\n\n'
     print 'START PROCESSING {}'.format(pdfName)
     print '─' * (len(pdfName) + 17)
 
-    #Move pdf to temp
-    #-----------------------------------------------------------------
+    pdf = PDF(pdfName)
 
-    tempdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
-    try:
-        shutil.move(inputpath + pdfName, tempdir + pdfName)
-    except Exception, e:
-        logging.error('{0}: Cant move to temp: {1}'.format(pdfName, e))
-        print e
-        exit()
-    pdf_abs_path = tempdir + pdfName
+    # Переименовываем - из названия PDF удаляется имя выводильщика
+    remove_outputter_title(pdf)
 
+    # Crop via PyPDF2 library
+    crop(pdf)
 
-    #Check if file is PDF
-    #-----------------------------------------------------------------
-    pdfcheck_command = "file {} | tr -s ':' | cut -f 2 -d ':'".format(pdf_abs_path)
-    result_strings = Popen(pdfcheck_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().split(',')[0].strip()
-    file_is_not_pdf_document = result_strings != 'PDF document'
-    print "File is a", result_strings
-
-    pdfExtension = pdf_abs_path.split('.')[-1]
-    if pdfExtension != "pdf" or file_is_not_pdf_document:
-        logging.error('{0} File is NOT PDF - exiting...'.format(pdfName))
-        os.unlink(pdf_abs_path)
-        os.removedirs(tempdir)
-        fail('{0} File is NOT PDF - exiting...'.format(pdfName))
-
-
-    #Check if file created with Signa
-    #-----------------------------------------------------------------
-    valid_signa = analyze_signastation(pdf_abs_path)
-
-    if valid_signa:
-        print 'File is a valid PrinectSignaStation file.'
-    else:
-        print 'File is NOT a valid PrinectSignaStation file.'
-        logging.warning('{} created with {}, not Signastation!'.format(pdfName, result_strings))
-
-    #Detect properties
-    ##----------------------------------------------------------------
-    # machine: plate for machine, it's an INSTANCE of PrintingPress class (AD, SM or PL)
-    # complects: number of complects
-    # plates: number of plates
-    # outputter: Кто выводит - leonov, korol, etc. - это объект типа FTP_server
-    # total_pages, total_plates, pdf_colors - страниц, плит, текстовый блок о красочности
-
-    machine = analyze_machine(pdf_abs_path)
-    if machine is None:
-        logging.error('Cant detect machine for {}'.format(pdfName))
-        os.unlink(pdf_abs_path)
-        os.removedirs(tempdir)
-        fail("Can't detect machine for {}".format(pdfName))
-    else:
-        print 'Machine sucessfully detected: {}'.format(machine.name)
-
-    complects = analyze_complects(pdf_abs_path)
-
-    # total_pages тут определяется по кол-ву строк, содержащих тэг HDAG_ColorantNames
-    if valid_signa:
-        total_plates, pdf_colors = analyze_colorant(pdf_abs_path)
-    else:
-        total_plates, pdf_colors = 0, ''
-
-    paper_sizes = analyze_papersize(pdf_abs_path)
-
-    outputter = detect_outputter(pdfName)
-    outputter_ftp = outputter.ftp_account
-    preview_ftp = detect_preview_ftp(machine)
-
-    # Переименовываем - из названия PDF удаляется имя выводильщика.
-    pdf_abs_path = remove_outputter_title(pdf_abs_path)
-
-    pdfPath, (pdfName, pdfExtension) = dirname(pdf_abs_path), splitext(os.path.basename(pdf_abs_path))
-
-    order = analyze_order(pdfName)
-
-    # Crop via PyPDF2 library and compress via Ghostscript
-    #----------------------------------------------------------------
-    croppedtempname = tempdir + pdfName + '.' + outputter.name + '.temp' + pdfExtension
-    preview_abs_path = tempdir + pdfName + '.' + outputter.name + pdfExtension
-
-    crop(pdf_abs_path, croppedtempname, paper_sizes)
-
-    gs_compress = "gs -sDEVICE=pdfwrite -dDownsampleColorImages=true " \
-                  "-dColorImageResolution=150 -dCompatibilityLevel=1.4 " \
-                  "-dNOPAUSE -dBATCH -sOutputFile={output} {input} | grep 'Page'" \
-                  .format(input=croppedtempname, output=preview_abs_path)
-
-    print '\n-->Starting PDF preview compression...'
-    os.system(gs_compress)
-    print 'Compression finished.'
-
+    # Compress via Ghostscript
+    compress(pdf)
 
     # Make JPEG preview for Grid (only first page)
-    # #----------------------------------------------------------------
-    #  Для этой операции используется созданный на предыдущем шаге кропленый документ
-
-    # TODO разрулить эти гвозди с годом
-    from datetime import datetime
-    currentYear = str(datetime.now().year)
-    proof_path = os.path.join('proof', currentYear)
-    if not os.path.exists(settings.MEDIA_ROOT + proof_path):
-        os.makedirs(settings.MEDIA_ROOT + proof_path)
-
-    jpeg = os.path.join(tempdir, pdfName + '.jpg')
-
-    proof = os.path.join(proof_path, pdfName + '.jpg')
-    thumb = os.path.join(proof_path, pdfName + '_thumb' + '.jpg')
-
-    # todo delete debug
-    # print('preview_abs_path', preview_abs_path)
-    # print('croppedtempname', croppedtempname)
-    # print('source', jpeg)
-    # print('proof', proof)
-    # print('thumb', thumb)
-
-    gs_compress = "gs -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -dJPEGQ=80 -r{resolution}"\
-                  "-dNOPAUSE -dBATCH -sOutputFile={output} {input} " \
-                  .format(resolution='200', input=croppedtempname, output=jpeg)
-
-    print '\n-->Starting Jpeg preview compression...'
-    print '·····make full resolution jpg'
-    os.system(gs_compress)
-    print '·····downsample to thumb'
-    reduce_image(jpeg, os.path.join(settings.MEDIA_ROOT + proof), 2500)
-    print '·····downsample to preview'
-    reduce_image(jpeg, os.path.join(settings.MEDIA_ROOT + thumb), 175)
-    print 'Compression finished.'
-    os.unlink(jpeg)
-
+    generating_jpeg(pdf)
 
     # Сalculating ink coverage
-    # #----------------------------------------------------------------
-    #  Снова используется созданный на предыдущем шаге кропленый документ, здесь он уничтожается.
-    inks = analyze_inkcoverage(croppedtempname)
-    os.unlink(croppedtempname)
+    pdf.inks = analyze_inkcoverage(pdf.cropped_file)
 
-
-    ### CUSTOM OPERATION DEPENDS ON OUTPUTTER
-    ##----------------------------------------------------------------
-    if outputter.name == 'Leonov':
-        if (machine.plate_w, machine.plate_h) == (1030, 770):
-            outputter_ftp.todir = '_1030x770'
-        elif (machine.plate_w, machine.plate_h) == (1010, 820):
-            outputter_ftp.todir = '_1010x820'
-        elif (machine.plate_w, machine.plate_h) == (740, 575):
-            outputter_ftp.todir = '_ADAST'
-        else:
-            outputter_ftp.todir = ''
-
-    if outputter.name == 'Korol':
-        # may be rotate90?
-
-        # add numper of plates to pdf name
-        colorstring = colorant_to_string(pdf_colors)
-
-        #add label representing paper width for Korol
-        #если файл не сигновский, то colorstring="", цвета не определяются
-        if colorstring:
-            newname = pdfName + '_' + str(machine.plate_w) + '_' + str(total_plates) + 'Plates' + colorstring + pdfExtension
-        else:
-            newname = pdfName + '_' + str(machine.plate_w) + pdfExtension
-
-        shutil.move(pdf_abs_path, tempdir + newname)
-        pdfname = newname
-        pdf_abs_path = tempdir + newname
-
+    # Custom operation depends on outputter
+    custom_operations(pdf)
 
     # Send Preview PDF to printing press FTP
-    ##----------------------------------------------------------------
-    if os.path.isfile(preview_abs_path):
-        if preview_ftp:
-            status_kinap, e_kinap = sendfile(preview_abs_path, preview_ftp)
-        else:
-            status_kinap, e_kinap = False, "Unknown press or no ftp"
-    else:
-        print 'Preview not found and not upload'
-        status_kinap, e_kinap = False, 'Preview not found'
-
+    upload_to_press(pdf)
 
     # Send Original PDF to Outputter
-    ##----------------------------------------------------------------
-    status_outputter, e_outputter = sendfile(pdf_abs_path, outputter_ftp)
-
+    upload_to_outputter(pdf)
 
     # Send SMS via http://smsc.ua/
-    ##----------------------------------------------------------------
-    try:
-        if status_outputter:
-            smsc = smsc_api.SMSC()
-            phone = outputter.sms_receiver.phone
-            message = '{} {} вывод {} пл.{}'.format(pdfName, machine.name, outputter.name, str(total_plates))
-            status = smsc.send_sms(phone, message)
-            #TODO вываливается эксепшн, если нет status'а. Временно тупо обернул в try
-            try:
-                print '\n--> SMS send to {} with status: {}'.format(outputter.sms_receiver.name, status)
-                print 'SMS text: {}'.format(message)
-            except Exception, e:
-                print 'error:', e
-    except Exception, e:
-        logging.error('Send sms exception: {0}'.format(e))
-        print '\nSend sms: probably, no phone number'
+    send_sms(pdf)
 
     # Запись в БД
-    ##----------------------------------------------------------------
-    contractor_error = error_text(status_outputter, e_outputter)
-    preview_error = error_text(status_kinap, e_kinap)
-    if not status_outputter:
-        bg = 'danger'
-    elif not status_kinap:
-        bg = 'warning'
-    else:
-        bg = 'default'
+    save_bd_record(pdf)
 
-    try:
-        row = Grid()
-        row.order = order
-        row.datetime = timezone.now()
-        row.pdfname = pdfName
-        row.machine = machine
-        row.total_pages = complects
-        row.total_plates = total_plates
-        row.contractor = outputter
-        row.contractor_error = contractor_error
-        row.preview_error = preview_error
-        row.colors = dict_to_multiline(pdf_colors)
-        row.inks = inks_to_multiline(inks)
-        row.bg = bg
-        row.proof = proof
-        row.thumb = thumb
-        # print 'row.order', row.order
-        # print 'row.datetime', row.datetime
-        # print 'row.pdfname', row.pdfname
-        # print 'row.machine', row.machine
-        # print 'row.total_pages', row.total_pages
-        # print 'row.total_plates', row.total_plates
-        # print 'row.contractor', row.contractor
-        # print 'row.contractor_error', row.contractor_error
-        # print 'row.preview_error', row.preview_error
-        # print 'row.colors', row.colors
-        # print 'row.inks', row.inks
-        # print 'row.bg', row.bg
-        # print 'row.proof', row.proof
-        # print 'row.thumb', row.thumb
-        row.save()
-    except Exception, e:
-        print 'ERROR row.save:', e
-
-    # Очистка и окончание выполнения
-    ##----------------------------------------------------------------
-    try:
-        os.unlink(pdf_abs_path)
-        os.unlink(preview_abs_path)
-        shutil.rmtree(tempdir)
-        print 'SUCCESSFULLY finish.'
-    except Exception, e:
-        print 'SUCCESSFULLY finish, but problem with cleaning:', e
+    # Удаление временных файлов
+    cleaning_temps(pdf)

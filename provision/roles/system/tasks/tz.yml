@@ -1,0 +1,6 @@
+---
+- name: Ensure right timezone
+  copy: >
+    src=/usr/share/zoneinfo/Europe/Kiev
+    dest=/etc/localtime
+  sudo: yes

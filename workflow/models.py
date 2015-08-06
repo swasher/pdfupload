@@ -62,5 +62,3 @@ class Grid(models.Model):
 
     def __unicode__(self):
         return self.pdfname
-
-

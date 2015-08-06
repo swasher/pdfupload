@@ -8,4 +8,5 @@
   with_items:
     - poppler-utils
     - ghostscript
+    - texlive-binaries  # for pdfcrop.pl
   sudo: yes

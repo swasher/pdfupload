@@ -7,13 +7,10 @@ import shutil
 import sys
 import logging
 import time
+from datetime import datetime
+from django.conf import settings
 
 from ftplib import FTP
-from os.path import join
-from PyPDF2 import PdfFileWriter, PdfFileReader
-
-from models import Outputter
-from models import PrintingPress
 
 
 def mm(points):
@@ -31,16 +28,6 @@ def pt(mm):
     :return: points (float)
     """
     return int(float(mm)*72/25.4)
-
-
-def fail(txt):
-    """
-    Help function to emergency exit with txt message
-    :param txt:
-    :return: none
-    """
-    print 'FAILED: {}'.format(txt)
-    exit()
 
 
 def dict_to_multiline(dic):
@@ -78,103 +65,6 @@ def inks_to_multiline(dic):
     return text
 
 
-def crop(pdf_in, pdf_out, papers):
-    """
-    Параметры
-    pdf_in - абсолютный путь к пдф
-    pdf_out - абсолютный путь для исходящего пдф
-    papers - Словарь с размерами бумаги для каждой страницы: {1: ('Speedmaster', 900, 640), 2: ('Dominant', 640, 450)}
-    :return: status
-    """
-
-    status = True
-
-    if papers == {}:
-        perl_crop = "perl pdfcrop.pl {} {}".format(pdf_in, pdf_out)
-        os.system(perl_crop)
-        return status
-
-    input = PdfFileReader(file(pdf_in, "rb"))
-    output = PdfFileWriter()
-
-    # Количество страниц
-    pages_qty = input.getNumPages()
-
-    for index in range(pages_qty):
-        paper_machine = papers[index+1][0]
-        paper_w = papers[index+1][1]
-        paper_h = papers[index+1][2]
-
-        # for m in PrintingPress._registry:
-        #     if paper_machine == m.name:
-        #         machine = m
-
-        machine = None
-        for i in PrintingPress.objects.all():
-            if paper_machine == i.name:
-                machine = i
-
-        plate_w = machine.plate_w
-        plate_h = machine.plate_h
-
-        page = input.getPage(index)
-
-        """ EXAMLE
-        # The resulting document has a trim box that is 200x200 points
-        # and starts at 25,25 points inside the media box.
-        # The crop box is 25 points inside the trim box.
-        print mm(page.mediaBox.getUpperRight_x()), mm(page.mediaBox.getUpperRight_y())
-        page.trimBox.lowerLeft = (25, 25)
-        page.trimBox.upperRight = (225, 225)
-        page.cropBox.lowerLeft = (50, 50)
-        page.cropBox.upperRight = (200, 200)
-        """
-
-        print 'Crop page {} to paper {}x{}'.format(index+1, paper_w, paper_h)
-        page.mediaBox.lowerLeft = ((pt(plate_w - paper_w)/2), pt(machine.klapan))  # отступ слева, отступ снизу
-        page.mediaBox.upperRight = (pt(paper_w + (plate_w - paper_w)/2), pt(paper_h + machine.klapan))  # ширина+отступ, высота+отступ
-
-        output.addPage(page)
-
-    outputstream = file(pdf_out, "wb")
-    output.write(outputstream)
-    outputstream.close()
-
-    return status
-
-
-def remove_outputter_title(pdfname):
-    """
-    Функция убирает подрядчика из имени файла (0537_Technoyug_Flier_Leonov.pdf -> 0537_Technoyug_Flier.pdf),
-    затем переименовывает сам файл, и возвращает:
-    :param pdfname: абсолютный путь к файлу
-    :return: pdfname(string) абсолютный путь к переименованному файлу
-    """
-
-    fpath, (fname, fext) = os.path.dirname(pdfname), os.path.splitext(os.path.basename(pdfname))
-
-    # Тут нужен unicode, потому что имя файла может содержать русские буквы,
-    # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
-    parts = fname.decode('UTF-8').split("_")
-
-    #for outputter in classes.FTP_server._dic.keys():
-    #    if outputter in parts:
-    #        parts.remove(outputter)
-
-    for outputter in Outputter.objects.all():
-        if outputter.name in parts:
-            parts.remove(outputter.name)
-
-    newname = join(fpath, '_'.join(parts)) + fext
-
-    # Если подрядчик не определен, то файл не переименовывается и не перемещается
-    #Для этой проверки сравнивается старое название с новым
-    if pdfname != newname:
-        shutil.move(pdfname, newname)
-
-    return newname
-
-
 def handle(block):
     global sizeWritten, totalSize
     sizeWritten += 1024
@@ -182,7 +72,7 @@ def handle(block):
     sys.stdout.write("{0} percent complete \r".format(percentComplete))
 
 
-def sendfile(pdf_abs_path, receiver):
+def sendfile(pdf, receiver):
     """
     Функция выполняет заливку на фтп
     :param pdf_abs_path:str Путь к файлу (абсолютный)
@@ -196,10 +86,8 @@ def sendfile(pdf_abs_path, receiver):
     status = True
     e = None
 
-    pdfname = os.path.basename(pdf_abs_path)
-
     sizeWritten = 0
-    totalSize = os.path.getsize(pdf_abs_path)
+    totalSize = os.path.getsize(pdf.abspath)
     #print 'name:',receiver.name
     #print 'ip:',receiver.ip
     #print 'port:',receiver.port,  type(receiver.port)
@@ -211,34 +99,36 @@ def sendfile(pdf_abs_path, receiver):
         ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
         ftp.login(receiver.login, receiver.passw)
     except Exception, e:
-        logging.error('{} upload to {}: {}'.format(pdfname, receiver.name, e))
+        logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
         print '···connect FAILED with error: {}'.format(e)
         status = False
         return status, e
     else:
         print '···connect passed'
-        localfile = open(pdf_abs_path, "rb")
+        localfile = open(pdf.abspath, "rb")
         try:
             ftp.set_pasv(True)
             ftp.cwd(receiver.todir)
-            print 'Start uploading {} to {} ...'.format(pdfname, receiver.name)
+            print 'Start uploading {} to {} ...'.format(pdf.name, receiver.name)
             start = time.time()
-            ftp.storbinary("STOR " + pdfname, localfile, 1024, handle)
+            if settings.TEST_MODE:
+                print('SKIPPING UPLOAD')
+            else:
+                ftp.storbinary("STOR " + pdf.name, localfile, 1024, handle)
             #print 'Size in kb ', totalSize/1024
             #print 'Time in s ', (time.time()-start)
             speed = totalSize / (time.time() - start) / 1024
-            print 'Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed,
-                                                                            speed * 8 / 1024)
+            print 'Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed, speed * 8 / 1024)
         except Exception, e:
-            logging.error('{} upload to {}: {}'.format(pdfname, receiver.name, e))
+            logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
             print 'upload FAILED with error: {}'.format(e)
             status = False
             return status, e
-            #siteecho(pdfname, receiver.name, 'FAILED', machine, complects, html_data)
+            #siteecho(pdf.name, receiver.name, 'FAILED', machine, complects, html_data)
         else:
-            logging.info('{} upload to {}: upload OK'.format(pdfname, receiver.name))
+            logging.info('{} upload to {}: upload OK'.format(pdf.name, receiver.name))
             print 'Upload finished OK'
-            #siteecho(pdfname, receiver.name, 'Upload OK', machine, complects, html_data)
+            #siteecho(pdf.name, receiver.name, 'Upload OK', machine, complects, html_data)
         finally:
             localfile.close()
     finally:
@@ -277,3 +167,67 @@ def reduce_image(infile, outfile, new_width):
             im.save(outfile)
         except IOError, e:
             print("cannot create thumbnail for {} with exception: {}".format(infile, e))
+
+
+def colorant_to_string(pdf_colors):
+    """
+    :param pdf_colors: Это словарь, ключ - номер страницы, значение - список из строк-названий красок
+    :return: short_colors: строка, краткий список красок на первом пейдже
+    """
+    if not pdf_colors :
+        return None
+
+    cmyk = ['Cyan', 'Magenta', 'Yellow', 'Black']
+
+    # colors == ['PANTONE_Reflex_Blue_C', 'Cyan', 'Magenta', 'PANTONE_246_C']
+    colors = pdf_colors[1]
+
+    #убираем из пантонов слово Pantone и знаки подчеркивания
+    inks = []
+    for separations in colors:
+        parts = separations.split("_")
+        if 'PANTONE' in parts:
+            parts.remove('PANTONE')
+        newcolor = ''.join(parts)
+        inks.append(newcolor)
+
+    # inks == ['ReflexBlueC', 'Cyan', 'Magenta', '246C']
+
+    replaced_colors = ''
+    #если краски - только CMYK
+    if set(inks) == set(cmyk):
+        #то возвращаем пустую строку - в название файла никакая инфа не добавится
+        # print 'only cmyk'
+        short_colors = ''
+    else:
+        #иначе заменяем краски Cyan Magenta Yellow Black на их заглавные буквы и ставим их в начало строки
+        print 'inks', inks
+        for ink in cmyk:
+            if ink in inks:
+                inks.remove(ink)
+                replaced_colors += ink[0]
+        if replaced_colors:
+            inks.insert(0, replaced_colors)
+
+        # inks == ['CM', 'ReflexBlueC', '246C']
+
+        # объеденяем список в строку через дефис и добавляем спереди подчеркивание
+        short_colors = '_' + '-'.join(inks)
+    return short_colors
+
+
+def get_jpeg_path():
+    """
+    Джипеги хранятся в директориях соответственно их году. Фунцкция убеждается, что эта директория существует,
+    и возвращает путь на нее
+    proof_subpath - путь от setting.MEDIA_ROOT - это значение сохраняется в базе
+    proof_path - абсолютный путь
+    :param pdf:
+    :return:
+    """
+    currentYear = str(datetime.now().year)
+    proof_subpath = os.path.join('proof', currentYear)
+    proof_path = os.path.join(settings.MEDIA_ROOT, proof_subpath)
+    if not os.path.exists(proof_path):
+        os.makedirs(proof_path)
+    return proof_subpath, proof_path

@@ -7,7 +7,7 @@
 
 - name: download smsc library
   get_url: >
-    url=http://smsc.ua/doc/api/smsc_api.py?SE=eb7cd386
+    url=http://smsc.ua/doc/api/smsc_api.py
     dest={{lib_path}}/smsc_api.py
     mode=0664
     force=yes

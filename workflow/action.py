@@ -278,7 +278,11 @@ def send_sms(pdf):
             smsc = smsc_api.SMSC()
             phone = pdf.outputter.sms_receiver.phone
             message = '{} {} вывод {} пл.{}'.format(pdf.name, pdf.machines[1].name, pdf.outputter.name, str(pdf.plates))
+
+            # возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной отправки
+            # либо массив (<id>, -<код ошибки>) в случае ошибки
             status = smsc.send_sms(phone, message)
+
             #TODO вываливается эксепшн, если нет status'а. Временно тупо обернул в try
             try:
                 print('····send to {} with status: {}'.format(pdf.outputter.sms_receiver.name, status))
@@ -287,9 +291,8 @@ def send_sms(pdf):
                 print 'error:', e
     except Exception, e:
         logging.error('Send sms exception: {0}'.format(e))
-        print '····FAILED. probably, no phone number. Error: {}'.format(e)
+        print '····FAILED. Error: {}'.format(e)
 
-    exit('stop!')
 
 def save_bd_record(pdf):
     """

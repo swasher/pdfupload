@@ -8,7 +8,6 @@ import subprocess
 import shutil
 import smsc_api
 import logging
-import time
 
 from subprocess import call
 from models import Outputter
@@ -278,19 +277,19 @@ def send_sms(pdf):
         if pdf.upload_to_outputter_status:
             smsc = smsc_api.SMSC()
             phone = pdf.outputter.sms_receiver.phone
-            message = '{} {} вывод {} пл.{}'.format(pdf.name, pdf.machine[1].name, pdf.outputter.name, str(pdf.plates))
+            message = '{} {} вывод {} пл.{}'.format(pdf.name, pdf.machines[1].name, pdf.outputter.name, str(pdf.plates))
             status = smsc.send_sms(phone, message)
             #TODO вываливается эксепшн, если нет status'а. Временно тупо обернул в try
             try:
-
                 print('····send to {} with status: {}'.format(pdf.outputter.sms_receiver.name, status))
                 print('····text: {}'.format(message))
             except Exception, e:
                 print 'error:', e
     except Exception, e:
         logging.error('Send sms exception: {0}'.format(e))
-        print '····FAILED. probably, no phone number'
+        print '····FAILED. probably, no phone number. Error: {}'.format(e)
 
+    exit('stop!')
 
 def save_bd_record(pdf):
     """
@@ -306,11 +305,6 @@ def save_bd_record(pdf):
         bg = 'warning'
     else:
         bg = 'default'
-
-    # a = timezone.now()
-    # print a
-    # print type(a)
-    # exit('stop')
 
     print('\n--> Save into database:')
 

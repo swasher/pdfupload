@@ -32,8 +32,6 @@ def remove_outputter_title(pdf):
     :return: none
     """
 
-    #fpath, (fname, fext) = os.path.dirname(pdf.abspath), os.path.splitext(os.path.basename(pdf.abspath))
-
     # Тут нужен unicode, потому что имя файла может содержать русские буквы,
     # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
     name, ext = os.path.splitext(pdf.name)
@@ -47,7 +45,6 @@ def remove_outputter_title(pdf):
     newpath = os.path.join(pdf.tmpdir, newname)
 
     # Если подрядчик в имени файла не обнаружен, то файл не переименовывается и не перемещается
-    # Для этой проверки сравнивается старое название с новым
     if pdf.name != newname:
         #.decode('UTF-8')
         print('-->Rename:')
@@ -135,9 +132,9 @@ def compress(pdf):
     try:
         retcode = call(gs_compress, shell=True, stdout=subprocess.PIPE)
         if retcode > 0:
-            print >>sys.stderr, "Compressing failed with error: {}".format(retcode)
+            print "Compressing failed with error: {}".format(retcode)
     except OSError as e:
-        print >>sys.stderr, "Compressing failed:", e
+        print "Compressing failed:", e
 
     print 'Compression ok.'
 
@@ -214,18 +211,10 @@ def custom_operations(pdf):
         """
         Король просит добавлять в имя файла названия красок.
         """
-
-        # add numper of plates to pdf name
         colorstring = colorant_to_string(pdf.colors)
-
-        print('colorstring=', colorstring)
-        print('pdf.machines=', pdf.machines)
-
-        #add label representing paper width for Korol
-        #если файл не сигновский, то colorstring=None, цвета не определяются
-
         name, ext = os.path.splitext(pdf.name)
 
+        #если файл не сигновский, то colorstring=None, цвета не определяются
         # TODO Тут объеденяется string и unicode. Не будет работать для русских названий файлов.
         if colorstring:
             newname = name + '_' + str(pdf.machines[1].plate_w) + '_' + str(pdf.plates) + 'Plates' + colorstring + ext
@@ -239,6 +228,7 @@ def custom_operations(pdf):
 # TODO Эти две функции - бесполезные обертки вокруг sendfile.
 # TODO Это надо отрефакторить, чтобы sendfile принимал нужные аргуметны (в частности, фтп), и возвращал статус
 # TODO и переписать код, чтобы статусы напрямую возвращалсиь из sendfile
+# TODO Так же эти проверки на присутствие файла, присутствие фтп тоже внедрить в sendfile
 
 def upload_to_press(pdf):
     """

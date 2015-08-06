@@ -167,6 +167,12 @@ def generating_jpeg(pdf):
     jpeg_proof = os.path.join(jpeg_path_abs, name + '.jpg')
     jpeg_thumb = os.path.join(jpeg_path_abs, name + '_thumb.jpg')
 
+    # если уже есть такие превьюхи - удаляем
+    if os.path.exists(jpeg_thumb):
+        os.unlink(jpeg_thumb)
+    if os.path.exists(jpeg_proof):
+        os.unlink(jpeg_proof)
+
     gs_compress = "gs -sDEVICE=jpeg -dFirstPage=1 -dLastPage=1 -dJPEGQ=80 -r{resolution}"\
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} " \
                   .format(resolution='200', input=pdf.compressed_file.name, output=jpeg_file.name)

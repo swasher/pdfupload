@@ -13,8 +13,8 @@ class Doska(models.Model):
     description = models.TextField(blank=True, verbose_name='Описание')
     maintenance = models.TextField(blank=True, verbose_name='Обслуживание', help_text='Тут должны быть описаны любые работы, проведенные с доской.')
     customer = models.TextField(blank=True, verbose_name='Заказчик', help_text='Кто платил, или типичные заказчики.')
-    spusk = models.ImageField(blank=True, null=True, upload_to='spusk', verbose_name='Спуск', help_text='Изображение печатного листа')
-    doska = models.ImageField(blank=True, null=True, upload_to='doska', verbose_name='Доска', help_text='Изображение доски')
+    spusk = models.ImageField(blank=True, null=True, upload_to='stanz/spusk', verbose_name='Спуск', help_text='Изображение печатного листа')
+    doska = models.ImageField(blank=True, null=True, upload_to='stanz/doska', verbose_name='Доска', help_text='Изображение доски')
 
     class Meta:
         verbose_name = 'Доска'
@@ -32,8 +32,8 @@ class Knife(models.Model):
     gabarit_a = models.PositiveSmallIntegerField(blank=True, null=True, help_text='Габарит ширина')
     gabarit_b = models.PositiveSmallIntegerField(blank=True, null=True, help_text='Габарит высота')
     gabarit_c = models.PositiveSmallIntegerField(blank=True, null=True, help_text='Габарит глубина')
-    knife = models.ImageField(blank=True, null=True, upload_to='knife', verbose_name='Нож, изобр.', help_text='Изображение ножа')
-    drawing = models.FileField(blank=True, null=True, upload_to='drawing', verbose_name='Чертеж, PDF', help_text='Файл чертежа (PDF)')
+    knife = models.ImageField(blank=True, null=True, upload_to='stanz/knife', verbose_name='Нож, изобр.', help_text='Изображение ножа')
+    drawing = models.FileField(blank=True, null=True, upload_to='stanz/drawing', verbose_name='Чертеж, PDF', help_text='Файл чертежа (PDF)')
 
     class Meta:
         verbose_name = 'Штанц'

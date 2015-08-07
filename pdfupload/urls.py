@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
+    url(r'^', include('accounts.urls')),
     url(r'^', include('workflow.urls')),
     url(r'^', include('stanzforms.urls')),
     url(r'^', include('technologichka.urls')),

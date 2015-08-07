@@ -19,8 +19,7 @@ class DoskaAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         """
-        Суть этого метода в том, что в инлайне "Технологические операции" в поле "Печатный лист" выводятся только
-        принадлежащие к текущему заказу печатные листы. Иначе Джанго пофиг на них - вываливает всю существующие printingsheet's
+        Отфильтровываем только изготовителей штампов
         """
         super(DoskaAdminForm, self).__init__(*args, **kwargs)
         if self.instance:

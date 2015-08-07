@@ -26,7 +26,7 @@ HOME_DIR = os.path.dirname(BASE_DIR)
 INPUT_PATH = HOME_DIR + '/input/'
 TEMP_PATH = HOME_DIR + '/tmp/'
 
-STATIC_ROOT = BASE_DIR + '/static_root/'
+STATIC_ROOT = HOME_DIR + '/static_root/'
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = HOME_DIR + '/media/'
@@ -60,6 +60,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             # insert your TEMPLATE_DIRS here
+            'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -81,6 +82,8 @@ TEMPLATES = [
 
 
 INSTALLED_APPS = (
+    'grappelli',
+    #'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -89,9 +92,13 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_rq',
     'bootstrap3_datetime',
-    'workflow',
     'django_rq_dashboard',
     'django_nvd3',
+    'crispy_forms',
+    'accounts',
+    'technologichka',
+    'stanzforms',
+    'workflow',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -128,20 +135,21 @@ RQ_QUEUES = {
     },
 }
 
-# Internationalization
+
+#
+# INTERNATIONALIZATION AND TZ
+#
+
 LANGUAGE_CODE = 'ru-RU'
 TIME_ZONE = 'Europe/Kiev'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-#USE_TZ = False
-
 
 
 #
 # LOGGING SETUP
 #
-
 
 import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
@@ -187,6 +195,44 @@ logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
 #         },
 #     }
 # }
+
+
+#
+# BATTARIES CONFIG
+#
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+SUIT_CONFIG = {
+    # header
+    'ADMIN_NAME': 'Технологичка онлайн',
+    # 'HEADER_DATE_FORMAT': 'l, j. F Y',
+    # 'HEADER_TIME_FORMAT': 'H:i',
+
+    # forms
+    # 'SHOW_REQUIRED_ASTERISK': True,  # Default True
+    # 'CONFIRM_UNSAVED_CHANGES': True, # Default True
+
+    # menu
+    # 'SEARCH_URL': '/admin/auth/user/',
+    # 'MENU_ICONS': {
+    #    'sites': 'icon-leaf',
+    #    'auth': 'icon-lock',
+    # },
+    # 'MENU_OPEN_FIRST_CHILD': True, # Default True
+    # 'MENU_EXCLUDE': ('auth.group',),
+    'MENU': (
+        #'sites',
+        {'app': 'rept', 'label': 'Технологички', 'icon': 'icon-cog', 'models': ('order',)},
+        '-',
+        {'label': 'Контрагенты', 'models': ('rept.customer', 'rept.contractor')},
+        {'label': 'Словари', 'models': ('rept.printingpress', 'rept.operationlist')},
+    ),
+
+    # misc
+    # 'LIST_PER_PAGE': 15
+}
+
 
 
 #

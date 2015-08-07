@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block table %}
+
+{% load staticfiles %}
+{% load admin_urls %}
+
+<div class="container-fluid">
+    <table class="table table-striped table-hover table-bordered">
+            <tr>
+                <th>Изображение</th>
+                <th>Наименование</th>
+                <th>Развертка, ширина, мм</th>
+                <th>Развертка, высота, мм</th>
+                <th>Габариты, a</th>
+                <th>Габариты, b</th>
+                <th>Габариты, c</th>
+                <th>Чертеж, PDF</th>
+                <th>Edit</th>
+            </tr>
+        {% for knife in knives %}
+            <tr>
+                <td><a href="{{ knife.knife.url }}"><img src="{{ knife.knife.url }}" height=120px></a></td>
+                <td>{{ knife.name }}</td>
+                <td>{{ knife.razvertka_w }}</td>
+                <td>{{ knife.razvertka_h }}</td>
+                <td>{{ knife.gabarit_a }}</td>
+                <td>{{ knife.gabarit_b }}</td>
+                <td>{{ knife.gabarit_c }}</td>
+                <td><a href="{{ knife.drawing.url }}">Скачать</a></td>
+                <td><a href="{% url 'admin:stanzforms_doska_change' knife.pk %}">Edit</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

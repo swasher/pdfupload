@@ -24,12 +24,16 @@ class Ftp(models.Model):
 
 
 class PrintingPress(models.Model):
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=150, verbose_name='Наименование', help_text='Название печатного пресса')
     uploadtarget = models.ForeignKey('Ftp', blank=True, null=True)
-    plate_w = models.IntegerField()
-    plate_h = models.IntegerField()
-    klapan = models.IntegerField()
+    plate_w = models.IntegerField(verbose_name='Ширина пластины, мм')
+    plate_h = models.IntegerField(verbose_name='Высота пластины, мм')
+    klapan = models.IntegerField(verbose_name='Клапан', help_text='Расстояние от нижнего края пластины до края бумаги')
     cost = models.IntegerField(blank=True, null=True, help_text='Cost of one plate')
+
+    class Meta:
+        verbose_name = 'Машина'
+        verbose_name_plural = 'Машины'
 
     def __unicode__(self):
         return self.name

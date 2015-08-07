@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block table %}
+{% load staticfiles %}
+
+<div class="container col-md-5 col-md-offset-4">
+
+<div class="well well-lg">
+    <h4>Great technology used in this project</h4>
+</div>
+
+<table class="table">
+    <tr>
+        <td><img src="{% static 'logo/python.jpg' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="https://www.python.org/" role="button" target="_blank">Python</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/django.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="https://www.djangoproject.com/" role="button" target="_blank">Django</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/HTML5.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="https://ru.wikipedia.org/wiki/HTML5" role="button" target="_blank">HTML5</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/css.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="https://ru.wikipedia.org/wiki/CSS" role="button" target="_blank">CSS3</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/Pycharm.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="https://www.jetbrains.com/pycharm/" role="button" target="_blank">PyCharm</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/ubuntu.png' %}" height="30px"></td>
+        <td><a class="btn btn-default" href="http://www.ubuntu.com/" role="button" target="_blank">Ubuntu</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/github.png' %}" height="30px"></td>
+        <td><a class="btn btn-default" href="https://github.com/" role="button" target="_blank">Github</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/fabric.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="http://www.fabfile.org/" role="button" target="_blank">Fabric</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/fabtools.png' %}" height="25px"></td>
+        <td><a class="btn btn-default" href="http://fabtools.readthedocs.org/" role="button" target="_blank">Fabtools</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/Nginx.png' %}" height="30px"></td>
+        <td><a class="btn btn-default" href="http://nginx.org/ru/" role="button" target="_blank">Nginx</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/supervisor.png' %}" height="25px"></td>
+        <td><a class="btn btn-default" href="http://supervisord.org/" role="button" target="_blank">Supervisor</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/sqlite.gif' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="https://www.sqlite.org/" role="button" target="_blank">SqLite</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/bootstrap2.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="http://getbootstrap.com/" role="button" target="_blank">Bootstrap</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/jquery.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="https://jquery.com/" role="button" target="_blank">Jquery</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/bower.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="http://bower.io/" role="button" target="_blank">Bower</a></td>
+    </tr>
+    <tr>
+        <td><img src="{% static 'logo/JSON.gif' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="http://json.org/" role="button" target="_blank">Json</a></td>
+    </tr>
+
+    <tr>
+        <td><img src="{% static 'logo/grappelli.png' %}" height="40px"></td>
+        <td><a class="btn btn-default" href="http://grappelliproject.com/" role="button" target="_blank">Grappelli</a></td>
+    </tr>
+</table>
+</div>
+
+{% endblock %}

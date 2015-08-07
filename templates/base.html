@@ -2,6 +2,7 @@
 <html>
     <head>
         {% load static %}
+        {% load admin_urls %}
         {% get_static_prefix as STATIC_URL %}
 
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -22,6 +23,13 @@
                 $("[data-toggle='tooltip']").tooltip();
             });
         </script>
+
+        {#  iprint  #}
+        <style type="text/css">
+            table {
+               font-size: 12px !important;
+            }
+        </style>
 
         <title>UPLOAD LOG</title>
         {% block head %}  {% endblock %}
@@ -48,21 +56,45 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
             <ul class="nav navbar-nav">
-                <li><a href="{% url 'log' %}"><span class="glyphicon glyphicon-stats"></span>
-                    View system log</a></li>
-            </ul>
-            <ul class="nav navbar-nav">
-                <li><a href="{% url 'report' %}"><span class="glyphicon glyphicon-list"></span>
-                    Report</a></li>
-            </ul>
-            <ul class="nav navbar-nav">
-                <li><a href="{% url 'usersettings' %}"><span class="glyphicon glyphicon-cog"></span>
-                    Settings</a></li>
+                <li><a href="{% url 'admin:technologichka_order_add' %}"><span class="glyphicon glyphicon-stats"></span>
+                    Новый заказ</a></li>
             </ul>
 
-            <ul class="nav navbar-nav"> {#9181#}
-                <li><a href="{{ request.get_host }}:9181" target="_blank"><span class="glyphicon glyphicon-dashboard"></span>
-                    rq-dashboard</a></li>
+            <ul class="nav navbar-nav">
+                <li><a href="{% url 'technologichka.views.orders' %}"><span class="glyphicon glyphicon-stats"></span>
+                    Заказы</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav">
+                <li><a href="{% url 'stanzforms.views.doska_list' %}"><span class="glyphicon glyphicon-list"></span>
+                    Штанцы</a></li>
+            </ul>
+
+
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'log' %}"><span class="glyphicon glyphicon-stats"></span>
+                            View system log</a></li>
+
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'report' %}"><span class="glyphicon glyphicon-list"></span>
+                            Report</a></li>
+
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'usersettings' %}"><span class="glyphicon glyphicon-cog"></span>
+                            Settings</a></li>
+
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{{ request.get_host }}:9181" target="_blank"><span class="glyphicon glyphicon-dashboard"></span>
+                            rq-dashboard</a></li>
+
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'about' %}"><span class="glyphicon glyphicon-tag"></span>
+                            About</a></li>
+                    </ul>
+                </li>
             </ul>
 
             {% comment %}
@@ -80,10 +112,10 @@
                     <a href="{% url 'admin:index' %}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-wrench"></span>Admin</a>
                     <button type="button" class="btn btn-info"><span class="glyphicon glyphicon-user"></span> User '{{ user.username }}' is authenticated.</button>
 {#                    <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-log-in"></span> Logout</button>#}
-                    <a href="{% url 'logout' %}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
+                    <a href="{% url 'accounts:logout' %}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
                 </div>
             {% else %}
-                <form name='AuthenticationForm' method="post" action="{% url 'login' %}" class="navbar-form navbar-right" role="form" >
+                <form name='AuthenticationForm' method="post" action="{% url 'accounts:login' %}" class="navbar-form navbar-right" role="form" >
                     {% csrf_token %}
                     <div class="form-group">
                         <label class="sr-only" for="exampleInputUsername2">Login</label>
@@ -102,14 +134,13 @@
                 </form>
             {% endif %}
 
-{% comment %}            <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">Link3</a></li>
+            {% comment %}
+            <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Link3</a></li>
             </ul>{% endcomment %}
 
         </div>
-        <!-- /.navbar-collapse -->
     </div>
-    <!-- /.container-fluid -->
 </nav>
 
 {% if messages %}

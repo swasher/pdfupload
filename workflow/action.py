@@ -9,10 +9,10 @@ import shutil
 import smsc_api
 import logging
 
+from django.conf import settings
 from subprocess import call
 from models import Outputter
 from PyPDF2 import PdfFileWriter, PdfFileReader
-from django.utils import timezone
 from util import pt
 from util import reduce_image
 from util import get_jpeg_path
@@ -105,8 +105,10 @@ def crop(pdf):
         perl_crop = "perl pdfcrop.pl {} {}".format(pdf.abspath, pdf.cropped_file.name)
         status = os.system(perl_crop)
 
-    if not status:
-        print('Cropping failed with status: {}'.format(status))
+        if status == 0:
+            print '····cropping via crop.pl is OK'
+        else:
+            print('Cropping failed with status: {}'.format(status))
 
     return status
 
@@ -269,26 +271,29 @@ def send_sms(pdf):
     :return:
     """
     print('\n--> SMS:')
-    try:
-        if pdf.upload_to_outputter_status:
-            smsc = smsc_api.SMSC()
-            phone = pdf.outputter.sms_receiver.phone
-            message = '{} {} вывод {} пл.{}'.format(pdf.name, pdf.machines[1].name, pdf.outputter.name, str(pdf.plates))
+    if settings.TEST_MODE:
+        print('····skipping due testing mode')
+    else:
+        try:
+            if pdf.upload_to_outputter_status:
+                smsc = smsc_api.SMSC()
+                phone = pdf.outputter.sms_receiver.phone
+                message = '{} {} вывод {} пл.{}'.format(pdf.name, pdf.machines[1].name, pdf.outputter.name, str(pdf.plates))
 
-            # возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной отправки
-            # либо массив (<id>, -<код ошибки>) в случае ошибки
-            status = smsc.send_sms(phone, message)
+                # возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной отправки
+                # либо массив (<id>, -<код ошибки>) в случае ошибки
+                status = smsc.send_sms(phone, message)
 
-            if len(status) == 4:
-                print('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
-                print('····sms text: {}'.format(message))
-            elif len(status) == 2:
-                print('····sms FAILED with error: {}'.format(status[1]))
-                print('····more info: https://smsc.ru/api/http/#answer')
+                if len(status) == 4:
+                    print('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
+                    print('····sms text: {}'.format(message))
+                elif len(status) == 2:
+                    print('····sms FAILED with error: {}'.format(status[1]))
+                    print('····more info: https://smsc.ru/api/http/#answer')
 
-    except Exception, e:
-        logging.error('SMS FAILED: {0}'.format(e))
-        print '····FAILED. Error: {}'.format(e)
+        except Exception, e:
+            logging.error('SMS FAILED: {0}'.format(e))
+            print '····FAILED. Error: {}'.format(e)
 
 
 def save_bd_record(pdf):
@@ -311,7 +316,7 @@ def save_bd_record(pdf):
     try:
         row = Grid()
         row.order = pdf.order
-        row.datetime = timezone.now()
+        row.datetime = pdf.created
         row.pdfname = os.path.splitext(pdf.name)[0]
         row.machine = pdf.machines[1]
         row.total_pages = pdf.complects

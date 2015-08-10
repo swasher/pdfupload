@@ -165,7 +165,6 @@ def delete(request, rowid):
 
 @job
 def processing(pdfName):
-
     # socket.setdefaulttimeout(10.0)
 
     try:

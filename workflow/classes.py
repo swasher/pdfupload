@@ -15,12 +15,14 @@ from analyze import analyze_colorant
 from analyze import analyze_papersize
 from analyze import detect_outputter
 from analyze import analyze_order
+from analyze import analyze_date
 from signamarks import mark_extraction
 
 
 class PDF:
 
     name = ''            # имя pdf-файла
+    created = ''         # дата (или now(), или дата создания файла, зависит от IMPORT_MODE)
     order = ''           # номер заказа
     tmpdir = ''          # абс. путь к временной директории
     abspath = ''         # @property aбс. пусть к pdf во временной директории
@@ -49,6 +51,7 @@ class PDF:
 
     def __init__(self, pdfName):
         self.name = pdfName.strip("'") # Remove quote added by incron. Through quotes whitespace-contained filenames are supported.
+        self.created = analyze_date(os.path.join(inputpath, self.name))
         self.tmpdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
         self.move_to_temp()
         self.is_pdf, self.filetype = detect_is_pdf(self)

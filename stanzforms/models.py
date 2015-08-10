@@ -1,20 +1,43 @@
 # coding: utf-8
 
-import uuid
 import os
 from django.db import models
 from technologichka.models import Contractor
 
+# subdirectory in MEDIA_ROOT for stanz picture storing
+STANZ = 'stanz'
 
 def get_spusk_file_path(instance, filename):
-    f, ext = os.path.splitext(filename)
-    filename = "{}_{}.{}".format(f, uuid.uuid4(), ext)
-    return os.path.join(instance.directory_spusk, filename)
+    try:
+        filename.lower().index('spusk', 0, 5)
+    except ValueError:
+        filename = 'spusk_' + filename
+    filename = "{}_{}".format(instance.articul, filename)
+    return os.path.join(STANZ, filename)
 
 def get_doska_file_path(instance, filename):
-    f, ext = os.path.splitext(filename)
-    filename = "{}_{}.{}".format(f, uuid.uuid4(), ext)
-    return os.path.join(instance.directory_doska, filename)
+    try:
+        filename.lower().index('doska', 0, 5)
+    except ValueError:
+        filename = 'doska_' + filename
+    filename = "{}_{}".format(instance.articul, filename)
+    return os.path.join(STANZ, filename)
+
+def get_knife_file_path(instance, filename):
+    try:
+        filename.lower().index('knife', 0, 5)
+    except ValueError:
+        filename = 'knife_' + filename
+    filename = "{}_{}".format(instance.doska.articul, filename)
+    return os.path.join(STANZ, filename)
+
+def get_drawing_file_path(instance, filename):
+    try:
+        filename.lower().index('drawing', 0, 7)
+    except ValueError:
+        filename = 'drawing_' + filename
+    filename = "{}_{}".format(instance.doska.articul, filename)
+    return os.path.join(STANZ, filename)
 
 
 class Doska(models.Model):
@@ -26,12 +49,8 @@ class Doska(models.Model):
     description = models.TextField(blank=True, verbose_name='Описание')
     maintenance = models.TextField(blank=True, verbose_name='Обслуживание', help_text='Тут должны быть описаны любые работы, проведенные с доской.')
     customer = models.TextField(blank=True, verbose_name='Заказчик', help_text='Кто платил, или типичные заказчики.')
-    #spusk = models.ImageField(blank=True, null=True, upload_to='stanz/spusk', verbose_name='Спуск', help_text='Изображение печатного листа')
     spusk = models.ImageField(blank=True, null=True, upload_to=get_spusk_file_path, verbose_name='Спуск', help_text='Изображение печатного листа')
-    directory_spusk = 'stanz/spusk'
-    #doska = models.ImageField(blank=True, null=True, upload_to='stanz/doska', verbose_name='Доска', help_text='Изображение доски')
     doska = models.ImageField(blank=True, null=True, upload_to=get_doska_file_path, verbose_name='Доска', help_text='Изображение доски')
-    directory_doska = 'stanz/doska'
 
     class Meta:
         verbose_name = 'Доска'
@@ -49,8 +68,8 @@ class Knife(models.Model):
     gabarit_a = models.PositiveSmallIntegerField(blank=True, null=True, help_text='Габарит ширина')
     gabarit_b = models.PositiveSmallIntegerField(blank=True, null=True, help_text='Габарит высота')
     gabarit_c = models.PositiveSmallIntegerField(blank=True, null=True, help_text='Габарит глубина')
-    knife = models.ImageField(blank=True, null=True, upload_to='stanz/knife', verbose_name='Нож, изобр.', help_text='Изображение ножа')
-    drawing = models.FileField(blank=True, null=True, upload_to='stanz/drawing', verbose_name='Чертеж, PDF', help_text='Файл чертежа (PDF)')
+    knife = models.ImageField(blank=True, null=True, upload_to=get_knife_file_path, verbose_name='Нож, изобр.', help_text='Изображение ножа')
+    drawing = models.FileField(blank=True, null=True, upload_to=get_drawing_file_path, verbose_name='Чертеж, PDF', help_text='Файл чертежа (PDF)')
 
     class Meta:
         verbose_name = 'Штанц'

@@ -136,7 +136,7 @@
             </tr>
         {% for row in table %}
            <tr class={{ row.bg }}>
-               <td>{{ row.order }}</td>
+               <td>{{ row.order|stringformat:"04d" }}</td>
                <td>{{ row.datetime|date:"d M Y, D H.i" }}</td>
                <td>{{ row.pdfname }}</td>
                <td>{{ row.machine.name }}</td>

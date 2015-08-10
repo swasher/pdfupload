@@ -4,10 +4,12 @@
 import os
 import logging
 import re
+import datetime
 
 from subprocess import Popen, PIPE
 from models import PrintingPress, Outputter
 from django.conf import settings
+from django.utils import timezone
 from signamarks import detect_mark
 from PyPDF2 import PdfFileReader
 from util import mm
@@ -302,3 +304,11 @@ def analyze_order(pdf):
     order = order[0] if order else None
     return order
 
+
+def analyze_date(pdf):
+    if settings.IMPORT_MODE:
+        modified = os.path.getmtime(pdf)
+        dt = datetime.datetime.fromtimestamp(modified)
+    else:
+        dt = timezone.now()
+    return dt

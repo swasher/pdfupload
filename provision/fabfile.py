@@ -60,11 +60,12 @@ def deploy():
     with cd(env.project_path):
         run('git fetch origin')
         run('git reset --hard origin/master')
+        run('bower install')
         run('sudo pip install -r requirements.txt')
+        run('python manage.py collectstatic --noinput --clear ')
         run('python manage.py migrate')
         run('touch /tmp/pdfupload.reload')
 
-        # after pip install, run collectstatic
 
         # then run test
         #run('python manage.py test myapp')

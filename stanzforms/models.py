@@ -1,7 +1,20 @@
 # coding: utf-8
 
+import uuid
+import os
 from django.db import models
 from technologichka.models import Contractor
+
+
+def get_spusk_file_path(instance, filename):
+    f, ext = os.path.splitext(filename)
+    filename = "{}_{}.{}".format(f, uuid.uuid4(), ext)
+    return os.path.join(instance.directory_spusk, filename)
+
+def get_doska_file_path(instance, filename):
+    f, ext = os.path.splitext(filename)
+    filename = "{}_{}.{}".format(f, uuid.uuid4(), ext)
+    return os.path.join(instance.directory_doska, filename)
 
 
 class Doska(models.Model):
@@ -13,8 +26,12 @@ class Doska(models.Model):
     description = models.TextField(blank=True, verbose_name='Описание')
     maintenance = models.TextField(blank=True, verbose_name='Обслуживание', help_text='Тут должны быть описаны любые работы, проведенные с доской.')
     customer = models.TextField(blank=True, verbose_name='Заказчик', help_text='Кто платил, или типичные заказчики.')
-    spusk = models.ImageField(blank=True, null=True, upload_to='stanz/spusk', verbose_name='Спуск', help_text='Изображение печатного листа')
-    doska = models.ImageField(blank=True, null=True, upload_to='stanz/doska', verbose_name='Доска', help_text='Изображение доски')
+    #spusk = models.ImageField(blank=True, null=True, upload_to='stanz/spusk', verbose_name='Спуск', help_text='Изображение печатного листа')
+    spusk = models.ImageField(blank=True, null=True, upload_to=get_spusk_file_path, verbose_name='Спуск', help_text='Изображение печатного листа')
+    directory_spusk = 'stanz/spusk'
+    #doska = models.ImageField(blank=True, null=True, upload_to='stanz/doska', verbose_name='Доска', help_text='Изображение доски')
+    doska = models.ImageField(blank=True, null=True, upload_to=get_doska_file_path, verbose_name='Доска', help_text='Изображение доски')
+    directory_doska = 'stanz/doska'
 
     class Meta:
         verbose_name = 'Доска'

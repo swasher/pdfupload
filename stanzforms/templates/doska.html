@@ -23,7 +23,7 @@
             </tr>
         {% for doska in table %}
             <tr>
-                <td><a href="{{ doska.doska.url }}"><img src="{{ doska.doska.url }}" height=120px></a></td>
+                <td><a href="{% if doska.doska %}{{ doska.doska.url }}{% endif %}"><img src="{% if doska.doska %}{{ doska.doska.url }}{% endif %}" height=120px></a></td>
                 <td>{{ doska.make_date|date:"d N Y" }}</td>
                 <td>{{ doska.articul }}</td>
                 <td>{{ doska.name }}</td>

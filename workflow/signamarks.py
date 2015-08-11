@@ -94,9 +94,9 @@ def mark_extraction(pdf):
     print m[page][signa-mark-name][(0|1|2)(mark_text|xobject|SubType)]
 
     """
+    print '\n--> Mark extraction'
     if pdf.is_signastation:
 
-        print '\n--> Mark extraction'
         fp = open(pdf.abspath, 'rb')
 
         # Create a PDF parser object associated with the file object.
@@ -158,10 +158,10 @@ def mark_extraction(pdf):
                     current_page_mark_dict[CreationName] = (text_dict[xobject], xobject, SubType)
 
             result[n] = current_page_mark_dict
-            print('···ok, page {}'.format(n+1))
+            print('····ok, page {}'.format(n+1))
 
     else:
-        print('···FAILED [possible non-signa file]')
+        print('····FAILED [non-signa file]')
         result = None
 
     return result

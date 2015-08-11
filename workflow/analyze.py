@@ -86,6 +86,7 @@ def analyze_machine(pdf):
     :return: machine - словарь или None, если не удалось определить
     """
 
+    print '\n--> Detect machine'
     machines = {}
     if pdf.marks:
         machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, pdf.marks)
@@ -99,7 +100,7 @@ def analyze_machine(pdf):
             try:
                 machine_mark_text = re.findall(machine_mark_regex, piece_info[machine_mark_name][0])[0]
             except KeyError:
-                print('Страница {} не содержит cигновской метки {}'.format(page_number, machine_mark_name))
+                print('····Страница {} не содержит cигновской метки {}'.format(page_number, machine_mark_name))
                 machine = None
 
             if 'machine_mark_text' in locals():
@@ -112,7 +113,7 @@ def analyze_machine(pdf):
             else:
                 machines[page_number] = None
     else:
-        print('Trying detect machine by plate size...')
+        print('····signa mark missed, trying detect by plate size')
         # Если первый способ провалился, пробуем определить машину, основываясь на размере пластины.
 
         # Тут есть проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?

@@ -14,7 +14,7 @@
 #TODO Цена на пластины должна быть дробной
 #TODO Переделать нумерацию страниц во всех analyze, чтобы начиналась не с первой, а с нулевой. Большая кропотливая работа. ХЗ надо ли вообще
 
-
+import os
 import sys
 import logging
 import datetime
@@ -149,6 +149,12 @@ def delete(request, rowid):
         row = Grid.objects.get(pk=rowid)
     except row.DoesNotExist:
         raise Http404
+
+    # deleting jpegs linked to db record
+    if os.path.isfile(row.proof.path):
+        os.unlink(row.proof.path)
+    if os.path.isfile(row.thumb.path):
+        os.unlink(row.thumb.path)
 
     Grid.objects.get(pk=rowid).delete()
 

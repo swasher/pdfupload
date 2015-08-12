@@ -13,7 +13,7 @@ from django.conf import settings
 from subprocess import call
 from models import Outputter
 from PyPDF2 import PdfFileWriter, PdfFileReader
-from util import pt
+from util import pt, mm
 from util import reduce_image
 from util import get_jpeg_path
 from util import colorant_to_string
@@ -21,6 +21,7 @@ from util import sendfile
 from util import error_text
 from util import dict_to_multiline
 from util import inks_to_multiline
+from util import get_bbox
 
 from models import Grid
 
@@ -55,25 +56,21 @@ def remove_outputter_title(pdf):
 
 def crop(pdf):
     """
-    Кропит страницы pdf до размеров бумаги. Если размеры бумаги неизвестны, кропит пустые поля.
-    Объект типа файл схраняется в свойство pdf.cropped_file.
+    Кропит страницы pdf до размеров бумаги. Если размеры бумаги неизвестны, то высчитывает поля с помощью
+    ghostscript bbox. Объект типа файл схраняется в свойство pdf.cropped_file.
     :param pdf: объект pdf
-    :return: status
+    :return:
     """
-    status = True
     pdf.cropped_file = tempfile.NamedTemporaryFile(mode='w+b', dir=pdf.tmpdir, suffix='.pdf', delete=False)
 
-    print('\n-->Cropping:')
+    input = PdfFileReader(file(pdf.abspath, "rb"))
+    output = PdfFileWriter()
 
     if pdf.paper_sizes:
-        input = PdfFileReader(file(pdf.abspath, "rb"))
-        output = PdfFileWriter()
-
+        print('\n--> Cropping [using signa paper]:')
         for index in range(1, pdf.complects + 1):
-            paper_machine = pdf.paper_sizes[index][0]
             paper_w = pdf.paper_sizes[index][1]
             paper_h = pdf.paper_sizes[index][2]
-
             plate_w = pdf.machines[index].plate_w
             plate_h = pdf.machines[index].plate_h
 
@@ -90,27 +87,38 @@ def crop(pdf):
             page.cropBox.upperRight = (200, 200)
             """
 
+            x1 = pt((plate_w - paper_w)/2)                  # отступ слева
+            y1 = pt(pdf.machines[index].klapan)             # отступ снизу
+            x2 = pt(paper_w + (plate_w - paper_w)/2)        # ширина бумаги + отступ слева
+            y2 = pt(paper_h + pdf.machines[index].klapan)   # высота бумаги + отступ снизу
+
+            page.mediaBox.lowerLeft = (x1, y1)
+            page.mediaBox.upperRight = (x2, y2)
+
             print '····page {} to paper {}x{}'.format(index, paper_w, paper_h)
-            page.mediaBox.lowerLeft = ((pt(plate_w - paper_w)/2), pt(pdf.machines[index].klapan))  # отступ слева, отступ снизу
-            page.mediaBox.upperRight = (pt(paper_w + (plate_w - paper_w)/2), pt(paper_h + pdf.machines[index].klapan))  # ширина+отступ, высота+отступ
 
             output.addPage(page)
 
-        outputstream = file(pdf.cropped_file.name, "wb")
-        output.write(outputstream)
-        outputstream.close()
-        pdf.cropped_file.close()
-
     else:
-        perl_crop = "perl pdfcrop.pl {} {}".format(pdf.abspath, pdf.cropped_file.name)
-        status = os.system(perl_crop)
+        print('\n--> Cropping [using gs bbox]:')
+        bbox = get_bbox(pdf.abspath)
+        for index in range(1, pdf.complects + 1):
 
-        if status == 0:
-            print '····cropping via crop.pl is OK'
-        else:
-            print('Cropping failed with status: {}'.format(status))
+            page = input.getPage(index-1)
 
-    return status
+            page.mediaBox.lowerLeft = (bbox[index][0], bbox[index][1])
+            page.mediaBox.upperRight = (bbox[index][2], bbox[index][3])
+
+            paper_w = mm(bbox[index][2] - bbox[index][0])
+            paper_h = mm(bbox[index][3] - bbox[index][1])
+            print '····page {} to paper {}x{}'.format(index, paper_w, paper_h)
+
+            output.addPage(page)
+
+    outputstream = file(pdf.cropped_file.name, "wb")
+    output.write(outputstream)
+    outputstream.close()
+    pdf.cropped_file.close()
 
 
 def compress(pdf):
@@ -152,6 +160,9 @@ def generating_jpeg(pdf):
     :param pdf:
     :return:
     """
+    PROOF_WIDTH = 2500
+    THUMB_WIDTH = 175
+
     name, _ = os.path.splitext(pdf.name)
 
     # Относительный (от settings.MEDIA_ROOT) и абсулютный путь, куда сохранять джипеги
@@ -179,11 +190,10 @@ def generating_jpeg(pdf):
     print '\n-->Starting Jpeg preview compression'
     print '····make full resolution jpg'
     os.system(gs_compress)
-    print '····downsample to thumb'
-    reduce_image(jpeg_file.name, jpeg_proof, 2500)
-    print '····downsample to preview'
-    reduce_image(jpeg_file.name, jpeg_thumb, 175)
-    print 'compression finished.'
+    print '····downsample to {}px'.format(PROOF_WIDTH)
+    reduce_image(jpeg_file.name, jpeg_proof, PROOF_WIDTH)
+    print '····downsample to {}px'.format(THUMB_WIDTH)
+    reduce_image(jpeg_file.name, jpeg_thumb, THUMB_WIDTH)
     os.unlink(jpeg_file.name)
 
 

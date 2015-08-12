@@ -18,6 +18,7 @@ __pycache__/
 
 # Статика
 test/**
+test/*
 static/**
 
 

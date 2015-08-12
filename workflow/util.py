@@ -6,6 +6,7 @@ import os
 import sys
 import logging
 import time
+import subprocess
 
 from datetime import datetime
 from django.conf import settings
@@ -230,3 +231,31 @@ def get_jpeg_path():
     if not os.path.exists(proof_path):
         os.makedirs(proof_path)
     return proof_subpath, proof_path
+
+
+def get_bbox(fname):
+    """
+    Функция определяет координаты значимого изображения. С помощью этих координат можно обрезать белые поля.
+    Функция возвращает словарь, где ключ - номер страницы, значения - список bbox [x1, y1, x2, y2] -
+    координаты нижнего левого и верхнего правого углов изображения в пунктах.
+    """
+    args = ["gs"]
+    args += ["-o", "%stdout%"]
+    args += ["-dQUIET"]
+    args += ["-sDEVICE=bbox"]
+    args += ["-f", fname]
+
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (stdout_data, stderr_data) = p.communicate(None)
+
+    # remove %%BoundingBox, retain only %%HiResBoundingBox
+    gs_result = stderr_data.splitlines()
+    cleaned_result = [x for x in gs_result if '%%HiResBoundingBox' in x]
+
+    bbox = {}
+    for num, line in enumerate(cleaned_result, 1):
+        data = line.split()
+        if data[0] == "%%HiResBoundingBox:":
+            bbox[num] = [ float(s) for s in data[1:5] ]
+
+    return bbox

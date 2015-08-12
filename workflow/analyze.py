@@ -138,7 +138,7 @@ def analyze_machine(pdf):
     #Check if machine detected
     #-----------------------------------------------------------------
     if machines:
-        print 'Machine detected [1st page]: {}'.format(machines[1].name)
+        print '····Detected [by 1st page]: {}'.format(machines[1].name)
     else:
         logging.error('Cant detect machine for {}'.format(pdf.name))
         os.unlink(pdf.abspath)

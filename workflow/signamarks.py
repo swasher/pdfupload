@@ -161,7 +161,7 @@ def mark_extraction(pdf):
             print('····ok, page {}'.format(n+1))
 
     else:
-        print('····FAILED [non-signa file]')
+        print('····SKIP [non-signa file]')
         result = None
 
     return result

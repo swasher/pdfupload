@@ -334,8 +334,8 @@ def save_bd_record(pdf):
         row.contractor = pdf.outputter
         row.contractor_error = contractor_error
         row.preview_error = preview_error
-        row.colors = dict_to_multiline(pdf.colors)
-        row.inks = inks_to_multiline(pdf.inks)
+        row.colors = dict_to_multiline(pdf.colors)[:500]
+        row.inks = inks_to_multiline(pdf.inks)[:500]
         row.bg = bg
         row.proof = pdf.jpeg_proof
         row.thumb = pdf.jpeg_thumb

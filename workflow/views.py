@@ -12,7 +12,7 @@
 #TODO Ротация логов nginx
 #TODO Разобраться с багом, когда в названии файла русские буквы. Но это уже при переходе на Python 3
 #TODO Цена на пластины должна быть дробной
-#TODO Вынести login-logout в отдельное приложение, потому что щас обслуживается в workflow
+#TODO Переделать нумерацию страниц во всех analyze, чтобы начиналась не с первой, а с нулевой. Большая кропотливая работа. ХЗ надо ли вообще
 
 
 import sys
@@ -21,8 +21,6 @@ import datetime
 
 from django.conf import settings
 from django.shortcuts import RequestContext, Http404, redirect, render_to_response
-#from django.contrib.auth import login as django_login, authenticate, logout as django_logout
-#from django.contrib import messages
 from django_rq import job
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q

@@ -279,10 +279,10 @@ def analyze_inkcoverage(pdf):
     :return: inks(dict)
     """
 
-    print '\n-->Starting ink coverage calculating...'
+    print '\n--> Starting ink coverage calculating'
     gs_command = r"gs -q -o - -sProcessColorModel=DeviceCMYK -sDEVICE=ink_cov {}".format(pdf.name)
     stdout = Popen(gs_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
-    print '···finish'
+    print '····done'
 
     inks = {}
 

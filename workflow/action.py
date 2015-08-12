@@ -2,7 +2,6 @@
 # -- coding: utf-8 --
 
 import os
-import sys
 import tempfile
 import subprocess
 import shutil
@@ -233,6 +232,7 @@ def custom_operations(pdf):
         else:
             newname = name + '_' + str(pdf.machines[1].plate_w) + ext
 
+        print('Renaming: {} --> {}'.format(pdf.name, newname))
         shutil.move(pdf.abspath, os.path.join(pdf.tmpdir, newname))
         pdf.name = newname
 

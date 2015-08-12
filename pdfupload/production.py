@@ -4,7 +4,7 @@ from .settings import *
 
 DEBUG = False
 TEMPLATE_DEBUG = False
-IMPORT_MODE = True
+IMPORT_MODE = False
 TEST_MODE = False
 
 ALLOWED_HOSTS = ['*']

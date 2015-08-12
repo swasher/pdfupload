@@ -6,6 +6,7 @@
     <table class="table table-striped table-bordered tab table-condensed">
             <tr>
               <th>Дата</th>
+              <th>№</th>
               <th>Имя файла</th>
               <th>Машина</th>
 {#              <th>Комплекты</th>#}
@@ -15,6 +16,7 @@
         {% for row in table %}
            <tr>
                <td>{{ row.datetime|date:"d.m.Y" }}</td>
+               <td>{{ row.order|stringformat:"04d" }}</td>
                <td>{{ row.pdfname }}</td>
                <td>{{ row.machine.name }}</td>
 {#               <td>{{ row.total_pages }} компл.</td>#}

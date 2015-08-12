@@ -47,7 +47,7 @@ def remove_outputter_title(pdf):
     # Если подрядчик в имени файла не обнаружен, то файл не переименовывается и не перемещается
     if pdf.name != newname:
         #.decode('UTF-8')
-        print('-->Rename:')
+        print('\n-->Rename:')
         print('····{} --> {}'.format(os.path.basename(pdf.name), os.path.basename(newpath)))
         os.rename(pdf.abspath, newpath)
         pdf.name = newname
@@ -141,11 +141,11 @@ def compress(pdf):
     try:
         retcode = call(gs_compress, shell=True, stdout=subprocess.PIPE)
         if retcode > 0:
-            print "Compressing failed with error: {}".format(retcode)
+            print "····Compressing FAILED: {}".format(retcode)
     except OSError as e:
-        print "Compressing failed:", e
-
-    print 'Compression ok.'
+        print "····Compressing FAILED:", e
+    else:
+        print '····done'
 
 
 def generating_jpeg(pdf):
@@ -186,7 +186,7 @@ def generating_jpeg(pdf):
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} " \
                   .format(resolution='200', input=pdf.compressed_file.name, output=jpeg_file.name)
 
-    print '\n-->Starting Jpeg preview compression'
+    print '\n--> Starting Jpeg preview compression'
     print '····make full resolution jpg'
     os.system(gs_compress)
     print '····downsample to {}px'.format(PROOF_WIDTH)
@@ -232,7 +232,7 @@ def custom_operations(pdf):
         else:
             newname = name + '_' + str(pdf.machines[1].plate_w) + ext
 
-        print('Renaming: {} --> {}'.format(pdf.name, newname))
+        print('\n--> Renaming: {} --> {}'.format(pdf.name, newname))
         shutil.move(pdf.abspath, os.path.join(pdf.tmpdir, newname))
         pdf.name = newname
 
@@ -327,7 +327,7 @@ def save_bd_record(pdf):
         row = Grid()
         row.order = pdf.order
         row.datetime = pdf.created
-        row.pdfname = os.path.splitext(pdf.name)[0]
+        row.pdfname = pdf.ordername
         row.machine = pdf.machines[1]
         row.total_pages = pdf.complects
         row.total_plates = pdf.plates
@@ -354,7 +354,7 @@ def save_bd_record(pdf):
         # print 'row.proof', row.proof
         # print 'row.thumb', row.thumb
         row.save()
-        print '····ok'
+        print '····done'
     except Exception, e:
         print('····FAILED: {}'.format(e))
 
@@ -371,6 +371,6 @@ def cleaning_temps(pdf):
         os.unlink(pdf.cropped_file.name)
         os.unlink(pdf.compressed_file.name)
         shutil.rmtree(pdf.tmpdir)
-        print '····ok'
+        print '····done'
     except Exception, e:
         print '····FAILED: {}'.format(e)

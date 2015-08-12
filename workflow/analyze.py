@@ -229,6 +229,7 @@ def detect_outputter(pdf):
     :param pdf: объект pdf
     :return: outputter (instance of FTP_server)
     """
+    print('--> Detect outputter')
     try:
         #
         # Try detect via signa marks
@@ -262,10 +263,10 @@ def detect_outputter(pdf):
                 outputter = company
 
     if 'outputter' in locals():
-        print 'Outputter successfully detected: {}\n'.format(outputter)
+        print '····detected: {}\n'.format(outputter)
     else:
-        print 'Outputter cant detected.\nExit!'
-        logging.error('Outputter is UNKNOWN for {0}'.format(pdf.name))
+        print '····FAILED: Outputter cant be detected.\nExit!'
+        logging.error('····Outputter is UNKNOWN for {0}'.format(pdf.name))
         exit()
 
     return outputter
@@ -278,15 +279,14 @@ def analyze_inkcoverage(pdf):
     :param pdf: объект pdf
     :return: inks(dict)
     """
-
     print '\n--> Starting ink coverage calculating'
     gs_command = r"gs -q -o - -sProcessColorModel=DeviceCMYK -sDEVICE=ink_cov {}".format(pdf.name)
-    stdout = Popen(gs_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
+    result = Popen(gs_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
     print '····done'
 
     inks = {}
 
-    for index, s in enumerate(stdout, 1):
+    for index, s in enumerate(result, 1):
         args = s.split()[0:4]
         args = [float(x) for x in args]
         inks[index] = args
@@ -307,9 +307,30 @@ def analyze_order(pdf):
 
 
 def analyze_date(pdf):
+    """
+    Если установлен режим импорта, то дата берется как дата создания файла, иначе - now()
+    :param pdf: объект pdf
+    :return: объект datetime
+    """
     if settings.IMPORT_MODE:
         modified = os.path.getmtime(pdf)
         dt = datetime.datetime.fromtimestamp(modified)
     else:
         dt = timezone.now()
     return dt
+
+
+def analyze_ordername(pdf):
+    name, ext = os.path.splitext(pdf.name)
+    parts = name.decode('UTF-8').split("_")
+
+    for outputter in Outputter.objects.all():
+        if outputter.name in parts:
+            parts.remove(outputter.name)
+
+    if parts[0].isdigit():
+        del parts[0]
+
+    ordername = '_'.join(parts)
+    return ordername
+

@@ -243,11 +243,11 @@ SUIT_CONFIG = {
 # LOAD SERVER-DEPENDING SETTINGS
 #
 
-ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
+SERVER_TYPE = os.getenv('SERVER_TYPE')
 
-DEV_ENV  = ENVIRONMENT == 'development'
-TEST_ENV = ENVIRONMENT == 'staging'
-PROD_ENV = ENVIRONMENT == 'production'
+DEV_ENV  = SERVER_TYPE == 'development'
+TEST_ENV = SERVER_TYPE == 'staging'
+PROD_ENV = SERVER_TYPE == 'production'
 
 if PROD_ENV:
     from production import *
@@ -255,3 +255,4 @@ elif TEST_ENV:
     from staging import *
 elif DEV_ENV:
     from development import *
+

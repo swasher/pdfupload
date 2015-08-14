@@ -179,6 +179,9 @@ def processing(pdfName):
     except:
         pass
 
+    ENVIRONMENT = os.getenv('SERVER_TYPE')  #, 'development')
+    print('SERVER_TYPE={}'.format(ENVIRONMENT))
+
     print '\n\n'
     print 'START PROCESSING {}'.format(pdfName)
     print '─' * (len(pdfName) + 17)

@@ -11,6 +11,7 @@ import logging
 from django.conf import settings
 from subprocess import call
 from models import Outputter
+from models import Grid
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from util import pt, mm
 from util import reduce_image
@@ -22,7 +23,6 @@ from util import dict_to_multiline
 from util import inks_to_multiline
 from util import get_bbox
 
-from models import Grid
 
 def remove_outputter_title(pdf):
     """

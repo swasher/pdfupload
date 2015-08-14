@@ -31,6 +31,7 @@ attach-daemon = python %(chdir)/manage.py rqworker default
 attach-daemon = rq-dashboard
 
 env=DJANGO_SETTINGS_MODULE={{project_name}}.settings
+env=SERVER_TYPE={{group_names[0]}}
 
 #module = django.core.handlers.wsgi:WSGIHandler()
 module = django.core.wsgi:get_wsgi_application()

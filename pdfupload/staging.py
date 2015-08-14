@@ -5,6 +5,8 @@ TEMPLATE_DEBUG = False
 IMPORT_MODE = True
 TEST_MODE = True
 
+ALLOWED_HOSTS = ['*']
+
 INSTALLED_APPS += (
     'debug_toolbar',
 )

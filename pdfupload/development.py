@@ -2,8 +2,8 @@ from .settings import *
 
 DEBUG = True
 TEMPLATE_DEBUG = True
-IMPORT_MODE = True
-TEST_MODE = False
+IMPORT_MODE = False
+TEST_MODE = True
 
 INSTALLED_APPS += (
     'debug_toolbar',

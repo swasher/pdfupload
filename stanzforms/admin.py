@@ -27,6 +27,11 @@ class DoskaAdminForm(forms.ModelForm):
 
 
 class DoskaAdmin(admin.ModelAdmin):
+
+    # Кастомный datapicker позволяет начать неделю с понедельника
+    class Media:
+        js = ("grappelli_custom_datepicker.js",)
+
     save_as = True
 
     # В форме редактирование возле "плюсика" появляется "карандашик" (Django 1.8)

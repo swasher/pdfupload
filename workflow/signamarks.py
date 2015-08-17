@@ -55,7 +55,7 @@ def recurse_iterate(lt_objs):
         if isinstance(lt_obj, LTChar):
             txt += lt_obj.get_text()
         elif isinstance(lt_obj, LTFigure):
-            # TODO может быть, тут должно быть просто else???
+            # может быть, тут должно быть просто else?
             recurse_iterate(lt_obj)  # Recursive
     return txt
 

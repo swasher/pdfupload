@@ -124,10 +124,6 @@ def analyze_machine(pdf):
 
         # Теперь сравниваем полученные размеры с известными, для каждой странцы
         for page, plate in pdf.platesize.items():
-            # todo delete debug output
-            # print('--------------')
-            # print('page=', page)
-            # print('plate=', plate)
             for press in primary_machines:
                 # print('press.plate_w={}, pdf.platesize[page][0]={}, press.plate_h={}, pdf.platesize[page][1]={}'.format(press.plate_w, pdf.platesize[page][0], press.plate_h, pdf.platesize[page][1] ))
                 if (press.plate_w == pdf.platesize[page][0]) and (press.plate_h == pdf.platesize[page][1]):
@@ -255,7 +251,6 @@ def detect_outputter(pdf):
 
         # Тут нужен unicode, потому что имя файла может содержать русские буквы,
         # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
-        # TODO лажа все равно происходит!!!
         parts = fname.decode('UTF-8').lower().split("_")
 
         for company in Outputter.objects.all():

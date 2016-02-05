@@ -93,7 +93,7 @@ def sendfile(pdf, receiver):
     # print 'port:',receiver.port,  type(receiver.port)
     # print 'login:',receiver.login
     # print 'pass:',receiver.passw
-    # print '\n-->Try connect to {}...'.format(receiver.name)
+    print '\n-->Try connect to {}...'.format(receiver.name)
     try:
         ftp = FTP()
         if receiver.name == 'TakiSpravy':

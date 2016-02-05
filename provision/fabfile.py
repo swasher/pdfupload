@@ -84,10 +84,10 @@ def restore_staging():
     run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/static_root', '~'))
 
     # раскомментировать, если нужно скопировать БД и ресурсы с prod на staging
-    #run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/media', '~'))
-    #run('sudo -u postgres dropdb --if-exists pdfuploaddb')
-    #run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
-    #run('pg_dump -h production pdfuploaddb | psql pdfuploaddb')
+    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/media', '~'))
+    run('sudo -u postgres dropdb --if-exists pdfuploaddb')
+    run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
+    run('pg_dump -h production pdfuploaddb | psql pdfuploaddb')
 
     run('touch /tmp/pdfupload')
 

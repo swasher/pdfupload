@@ -88,14 +88,18 @@ def sendfile(pdf, receiver):
 
     sizeWritten = 0
     totalSize = os.path.getsize(pdf.abspath)
-    #print 'name:',receiver.name
-    #print 'ip:',receiver.ip
-    #print 'port:',receiver.port,  type(receiver.port)
-    #print 'login:',receiver.login
-    #print 'pass:',receiver.passw
-    print '\n-->Try connect to {}...'.format(receiver.name)
+    # print 'name:',receiver.name
+    # print 'ip:',receiver.ip
+    # print 'port:',receiver.port,  type(receiver.port)
+    # print 'login:',receiver.login
+    # print 'pass:',receiver.passw
+    # print '\n-->Try connect to {}...'.format(receiver.name)
     try:
         ftp = FTP()
+        if receiver.name == 'TakiSpravy':
+            ftp.set_pasv(False)  #<-- This puts connection into ACTIVE mode.
+        else:
+            ftp.set_pasv(True)
         ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
         ftp.login(receiver.login, receiver.passw)
     except Exception, e:
@@ -107,7 +111,7 @@ def sendfile(pdf, receiver):
         print '···connect passed'
         localfile = open(pdf.abspath, "rb")
         try:
-            ftp.set_pasv(True)
+            #ftp.set_pasv(True)
             ftp.cwd(receiver.todir)
             print 'Start uploading {} to {} ...'.format(pdf.name, receiver.name)
             start = time.time()

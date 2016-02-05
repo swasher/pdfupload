@@ -13,4 +13,4 @@ django-debug-toolbar
 django-grappelli
 django-crispy-forms
 Pillow
-
+reportlab

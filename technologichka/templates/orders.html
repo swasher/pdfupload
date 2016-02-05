@@ -79,10 +79,11 @@
                         <span class="glyphicon glyphicon-remove-circle text-danger big-icon" data-toggle='tooltip' title='{{ row.preview_error }}'></span>
                    {% endif %}
                 </td>
-                <td><a type="button" class="btn-sm btn-default" href="{% url 'print_order' row.pk %}">
+                <td>
+                    {#<a type="button" class="btn-sm btn-default" href="{% url 'print_order' row.pk %}">#}
+                    {#<span class="glyphicon glyphicon-print"></span></a>#}
+                    <a type="button" class="btn-sm btn-default" href="{% url 'print_pdf_order' row.pk %}">
                     <span class="glyphicon glyphicon-print"></span></a>
-                    <a type="button" class="btn-sm btn-default" href="{% url 'print_pdf' row.pk %}">
-                    <span class="glyphicon glyphicon-bell"></span></a>
                     <a type="button" class="btn-sm btn-default" href="{% url 'copy_order' row.pk %}">
                     <span class="glyphicon glyphicon-copy"></span></a>
                 </td>

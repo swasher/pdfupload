@@ -1,11 +1,14 @@
 # coding: utf-8
 
 import sys
+from io import BytesIO
 from django.shortcuts import render, redirect, render_to_response, RequestContext, Http404
 from django.http import HttpResponse
 from django.template import RequestContext
 from technologichka.models import Order, PrintSheet, Operation, Detal
 from technologichka.forms import NewOrderForm
+from reporting import MyPrint
+from reporting import printpdf
 
 
 def create_new_order(request):
@@ -26,54 +29,15 @@ def orders(request):
     return render_to_response('orders.html', {'table': table}, context_instance)
 
 
-def print_order(request, orderid):
-    context = RequestContext(request)
-    try:
-        order = Order.objects.get(pk=orderid)
-    except order.DoesNotExist:
-        raise Http404
-
-    return render_to_response('order_print.html', {'order': order})
-
-
-def print_pdf(request, orderid):
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.units import mm
-    from reportlab.pdfgen import canvas
-
-    # Create the HttpResponse object with the appropriate PDF headers.
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'filename="somefilename.pdf"'
-
-    # Create the PDF object, using the response object as its "file."
-    p = canvas.Canvas(response, bottomup=1, pagesize=A4)
-
-    # Draw things on the PDF. Here's where the PDF generation happens.
-    # See the ReportLab documentation for the full list of functionality.
-
-    #p.translate(mm, mm)
-    p.drawString(100*mm, 100*mm, "Hello world.")
-
-    p.setLineWidth(.3)
-    p.setFont('Helvetica', 12)
-    
-    p.drawString(30,750,'OFFICIAL COMMUNIQUE')
-    p.drawString(30,735,'OF ACME INDUSTRIES')
-    p.drawString(500,750,"12/12/2010")
-    p.line(480,747,580,747)
-    
-    p.drawString(275,725,'AMOUNT OWED:')
-    p.drawString(500,725,"$1,000.00")
-    p.line(378,723,580,723)
-    
-    p.drawString(30,703,'RECEIVED BY:')
-    p.line(120,700,580,700)
-    p.drawString(120,703,"JOHN DOE")
-
-    # Close the PDF object cleanly, and we're done.
-    p.showPage()
-    p.save()
-    return response
+# DEPRECATED
+# def print_html_order(request, orderid):
+#     context = RequestContext(request)
+#     try:
+#         order = Order.objects.get(pk=orderid)
+#     except order.DoesNotExist:
+#         raise Http404
+#
+#     return render_to_response('order_print.html', {'order': order})
 
 
 def copy_order(request, orderid):
@@ -128,3 +92,15 @@ def copy_order(request, orderid):
     return redirect('/')
 
 
+def print_pdf_order(request, orderid):
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="My Users.pdf"'
+
+    buffer = BytesIO()
+
+    report = MyPrint(buffer, 'A4')
+    pdf = report.printpdf()
+
+    response.write(pdf)
+    return response

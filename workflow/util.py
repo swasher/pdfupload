@@ -115,14 +115,16 @@ def sendfile(pdf, receiver):
             ftp.cwd(receiver.todir)
             print 'Start uploading {} to {} ...'.format(pdf.name, receiver.name)
             start = time.time()
-            if settings.TEST_MODE:
-                print('SKIPPING UPLOAD')
-            else:
+            if not settings.TEST_MODE:
                 ftp.storbinary("STOR " + pdf.name, localfile, 1024, handle)
-            #print 'Size in kb ', totalSize/1024
-            #print 'Time in s ', (time.time()-start)
-            speed = totalSize / (time.time() - start) / 1024
-            print 'Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed, speed * 8 / 1024)
+                #print 'Size in kb ', totalSize/1024
+                #print 'Time in s ', (time.time()-start)
+                speed = totalSize / (time.time() - start) / 1024
+                print 'Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed, speed * 8 / 1024)
+            else:
+                print('SKIPPING UPLOAD')
+                status = False
+                e = 'Skipping upload due test mode'
         except Exception, e:
             logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
             print 'upload FAILED with error: {}'.format(e)

@@ -19,6 +19,7 @@ import os
 import sys
 import logging
 import datetime
+import shelve
 
 from django.conf import settings
 from django.shortcuts import RequestContext, Http404, redirect, render_to_response
@@ -65,6 +66,16 @@ def log(request):
 
 
 def grid(request, mode=''):
+
+    # d = shelve.open('tuneup.data')
+    # d['IMPORT_MODE'] = False
+    # d['SKIP_UPLOAD_MODE'] = True
+    # d.close()
+
+    d = shelve.open('tuneup.data')
+    import_mode = d['IMPORT_MODE']
+    skip_upload_mode = d['SKIP_UPLOAD_MODE']
+    d.close()
 
     try:
         sys.stdout = open(settings.TTY, 'w')
@@ -138,7 +149,7 @@ def grid(request, mode=''):
         if total['total_plates__sum']:
             sum_plates[m.name] = total['total_plates__sum']
 
-    return render_to_response(shablon, {'table': table, 'form': form, 'sum_plate': sum_plates}, context)
+    return render_to_response(shablon, {'table': table, 'form': form, 'sum_plate': sum_plates, 'import_mode': import_mode, 'skip_upload_mode': skip_upload_mode}, context)
 
 
 @login_required

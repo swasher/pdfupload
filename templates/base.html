@@ -1,39 +1,39 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        {% load static %}
-        {% load admin_urls %}
-        {% get_static_prefix as STATIC_URL %}
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    {% load static %}
+    {% load admin_urls %}
+    {% get_static_prefix as STATIC_URL %}
 
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        {#        <META http-equiv='refresh' content='60'>#}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    {#        <META http-equiv='refresh' content='60'>#}
 
-        <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
-        <script src="{% static "bootstrap/dist/js/bootstrap.min.js" %}"></script>
-        <link rel="stylesheet" href="{% static "bootstrap/dist/css/bootstrap.min.css" %}">
-        <link rel="stylesheet" href="{% static "bootstrap/dist/css/bootstrap-theme.min.css" %}">
+    <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
+    <script src="{% static "bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "bootstrap/dist/css/bootstrap.min.css" %}">
+    {#        <link rel="stylesheet" href="{% static "bootstrap/dist/css/bootstrap-theme.min.css" %}">#}
 
-        <link rel="stylesheet" href="{% static "bootstrap-select/dist/css/bootstrap-select.min.css" %}">
-        <script src="{% static "bootstrap-select/dist/js/bootstrap-select.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "bootstrap-select/dist/css/bootstrap-select.min.css" %}">
+    <script src="{% static "bootstrap-select/dist/js/bootstrap-select.min.js" %}"></script>
 
-        <link rel="stylesheet" href="{% static "style.css" %}">
+    <link rel="stylesheet" href="{% static "style.css" %}">
 
-        <script>
-            $(function () {
-                $("[data-toggle='tooltip']").tooltip();
-            });
-        </script>
+    <script>
+        $(function () {
+            $("[data-toggle='tooltip']").tooltip();
+        });
+    </script>
 
-        {#  iprint  #}
-{#        <style type="text/css">#}
-{#            table {#}
-{#               font-size: 12px !important;#}
-{#            }#}
-{#        </style>#}
+    {#  iprint  #}
+    {#        <style type="text/css">#}
+    {#            table {#}
+    {#               font-size: 12px !important;#}
+    {#            }#}
+    {#        </style>#}
 
-        <title>UPLOAD LOG</title>
-        {% block head %}  {% endblock %}
-    </head>
+    <title>UPLOAD LOG</title>
+    {% block head %}  {% endblock %}
+</head>
 
 <body>
 
@@ -97,6 +97,7 @@
                 </li>
             </ul>
 
+{% csrf_token %}
 
             {% if user.is_authenticated %}
                 <div class="navbar-form navbar-right btn-group">
@@ -105,11 +106,107 @@
 {#                    <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-log-in"></span> Logout</button>#}
                     <a href="{% url 'accounts:logout' %}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
                 </div>
+
+                <script>
+
+                {% comment %}
+                    // кусок кода типа для имплементации кроссбраузерной защиты, но работает и без него
+                    $.ajaxSetup({
+                         beforeSend: function(xhr, settings) {
+                             function getCookie(name) {
+                                 var cookieValue = null;
+                                 if (document.cookie && document.cookie != '') {
+                                     var cookies = document.cookie.split(';');
+                                     for (var i = 0; i < cookies.length; i++) {
+                                         var cookie = jQuery.trim(cookies[i]);
+                                         // Does this cookie string begin with the name we want?
+                                         if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                             break;
+                                         }
+                                     }
+                                 }
+                                 return cookieValue;
+                             }
+                             if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                                 // Only send the token to relative URLs i.e. locally.
+                                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                             }
+                         }
+                    });
+                {% endcomment %}
+
+                var importid = "#import";
+                var skipuploadid = "#skipupload";
+
+                $(document).ready(function() {
+
+                    // устанавливаем значение во время загрузки страницы
+                    {% if import_mode %}
+                        $(importid).html('Import mode: ON');
+                        $(importid).addClass('label-danger');
+                    {% else %}
+                        $(importid).html('Import mode: OFF');
+                        $(importid).addClass('label-success');
+                    {% endif %}
+                    {% if skip_upload_mode %}
+                        $(skipuploadid).html('Skip upload mode: ON');
+                        $(skipuploadid).addClass('label-danger');
+                    {% else %}
+                        $(skipuploadid).html('Skip upload mode: OFF');
+                        $(skipuploadid).addClass('label-success');
+                    {% endif %}
+
+
+                    // по нажитию выполняем вьюху, и изменяем цвет и текст в соответствии с
+                    // возвращенным из вььхи значением [для Import mode]
+                    $(importid).click( function() {
+                        $.getJSON("/change_import/", function(json) {
+                            // aaa = json['import_mode'];
+                            $(importid).html('Import mode: ' + json['import_mode']);
+                            if (json['import_mode']) {
+                                $(importid).html('Import mode: ON');
+                                $(importid).removeClass('label-success');
+                                $(importid).addClass('label-danger');
+                            } else {
+                                $(importid).html('Import mode: OFF');
+                                $(importid).removeClass('label-danger');
+                                $(importid).addClass('label-success');
+                            }
+                        });
+                    });
+
+                    // по нажитию выполняем вьюху, и изменяем цвет и текст в соответствии с
+                    // возвращенным из вььхи значением [для Skip Upload Mode]
+                    $(skipuploadid).click(function () {
+                        $.getJSON("/change_skipupload/", function(json) {
+                            $(importid).html('Skip upload mode: ' + json['skipupload_mode']);
+                            if (json['skipupload_mode']) {
+                                $(skipuploadid).html('Skip upload mode: ON');
+                                $(skipuploadid).removeClass('label-success');
+                                $(skipuploadid).addClass('label-danger');
+                            } else {
+                                $(skipuploadid).html('Skip upload mode: OFF');
+                                $(skipuploadid).removeClass('label-danger');
+                                $(skipuploadid).addClass('label-success');
+                            }
+                        });
+                    });
+                })
+                </script>
+
+                <div class="navbar-text pull-right">
+                    <a href="#" class="label" id="import"></a>
+                    <a href="#" class="label" id="skipupload"></a>
+                </div>
+
+
+{% comment %}
                 <p class="navbar-text pull-right">
                     {% if import_mode %}
-                        <a href="#" class="label label-danger">Import: enabled</a>
+                        <a href="#" class="label label-danger" id="import1">Import: enabled</a>
                     {% else %}
-                        <a href="#" class="label label-success">Import: disabled</a>
+                        <a href="#" class="label label-success" id="import1">Import: disabled</a>
                     {% endif %}
 
                     {% if skip_upload_mode %}
@@ -118,6 +215,9 @@
                         <a href="#" class="label label-success">Skip upload: disabled</a>
                     {% endif %}
                 </p>
+{% endcomment %}
+
+
             {% else %}
                 <form name='AuthenticationForm' method="post" action="{% url 'accounts:login' %}" class="navbar-form navbar-right" role="form" >
                     {% csrf_token %}

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from workflow.views import grid, log, delete, usersettings, about
+from workflow.views import grid, log, delete, usersettings, about, change_import, change_skipupload
 from workflow.report import report
 
 
@@ -13,6 +13,6 @@ urlpatterns = patterns('',
     url(r'^log/$', log, name='log'),
     url(r'^usersettings/$', usersettings, name='usersettings'),
     url(r'^delete/(?P<rowid>\d+)/$', delete, name='delete'),
+    url(r'^change_import/$', change_import, name='change_import'),
+    url(r'^change_skipupload/$', change_skipupload, name='change_skipupload'),
 )
-
-

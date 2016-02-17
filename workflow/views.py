@@ -20,13 +20,17 @@ import sys
 import logging
 import datetime
 import shelve
+import json
 
 from django.conf import settings
 from django.shortcuts import RequestContext, Http404, redirect, render_to_response
+from django.shortcuts import HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from django_rq import job
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models import Sum
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from forms import FilterForm
 from models import Grid, PrintingPress
@@ -65,8 +69,41 @@ def log(request):
     return render_to_response('log.html')
 
 
+@ensure_csrf_cookie
+def change_import(request):
+    d = shelve.open('tuneup.data')
+    import_mode = d['IMPORT_MODE']
+
+    if request.is_ajax():
+        import_mode = d['IMPORT_MODE'] = not import_mode
+
+    results = {'import_mode': import_mode}
+    d.close()
+    return JsonResponse(results)
+
+@ensure_csrf_cookie
+def change_skipupload(request):
+    d = shelve.open('tuneup.data')
+    skipupload_mode = d['SKIP_UPLOAD_MODE']
+
+    if request.is_ajax():
+        skipupload_mode = d['SKIP_UPLOAD_MODE'] = not skipupload_mode
+
+    results = {'skipupload_mode': skipupload_mode}
+    d.close()
+    return JsonResponse(results)
+
+
 def grid(request, mode=''):
 
+    try:
+        sys.stdout = open(settings.TTY, 'w')
+        sys.stderr = open(settings.TTY, 'w')
+        #sys.stdout.write('filename'+'\n')
+    except:
+        pass
+
+    # This code can create 'tuneup.data' if it absent
     # d = shelve.open('tuneup.data')
     # d['IMPORT_MODE'] = False
     # d['SKIP_UPLOAD_MODE'] = True
@@ -77,12 +114,8 @@ def grid(request, mode=''):
     skip_upload_mode = d['SKIP_UPLOAD_MODE']
     d.close()
 
-    try:
-        sys.stdout = open(settings.TTY, 'w')
-        sys.stderr = open(settings.TTY, 'w')
-        #sys.stdout.write('filename'+'\n')
-    except:
-        pass
+    print '\nImport Mode = {}'.format(import_mode)
+    print 'Skip Upload Mode = {}'.format(skip_upload_mode)
 
     context = RequestContext(request)
     #table = Grid.objects.all().order_by('datetime').reverse()

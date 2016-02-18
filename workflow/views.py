@@ -116,9 +116,6 @@ def grid(request, mode=''):
     skip_upload_mode = d['SKIP_UPLOAD_MODE']
     d.close()
 
-    print '\nImport Mode = {}'.format(import_mode)
-    print 'Skip Upload Mode = {}'.format(skip_upload_mode)
-
     context = RequestContext(request)
     #table = Grid.objects.all().order_by('datetime').reverse()
 

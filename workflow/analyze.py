@@ -309,7 +309,7 @@ def analyze_date(pdf):
     :return: объект datetime
     """
 
-    d = shelve.open('tuneup.data')
+    d = shelve.open('shelve.db')
     import_mode = d['IMPORT_MODE']
     d.close()
 

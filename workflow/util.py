@@ -87,7 +87,7 @@ def sendfile(pdf, receiver):
     status = True
     e = None
 
-    d = shelve.open('tuneup.data')
+    d = shelve.open('shelve.db')
     import_mode = d['IMPORT_MODE']
     d.close()
 

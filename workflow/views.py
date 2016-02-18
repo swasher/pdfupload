@@ -71,7 +71,7 @@ def log(request):
 
 @ensure_csrf_cookie
 def change_import(request):
-    d = shelve.open('tuneup.data')
+    d = shelve.open('shelve.db')
     import_mode = d['IMPORT_MODE']
 
     if request.is_ajax():
@@ -91,13 +91,13 @@ def grid(request, mode=''):
     except:
         pass
 
-    # This code can create 'tuneup.data' if it absent. You need uncoment code and reload page. `tuneup.data`
-    # will be created
-    # d = shelve.open('tuneup.data')
+    # This code can create 'shelve.db' if it absent. You need uncoment code and
+    # reload page. So 'shelve.db' will be created
+    # d = shelve.open('shelve.db')
     # d['IMPORT_MODE'] = False
     # d.close()
 
-    d = shelve.open('tuneup.data')
+    d = shelve.open('shelve.db')
     import_mode = d['IMPORT_MODE']
     d.close()
 

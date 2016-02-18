@@ -88,7 +88,7 @@ def sendfile(pdf, receiver):
     e = None
 
     d = shelve.open('tuneup.data')
-    skip_upload_mode = d['SKIP_UPLOAD_MODE']
+    import_mode = d['IMPORT_MODE']
     d.close()
 
     sizeWritten = 0
@@ -98,54 +98,58 @@ def sendfile(pdf, receiver):
     # print 'port:',receiver.port,  type(receiver.port)
     # print 'login:',receiver.login
     # print 'pass:',receiver.passw
-    print '\n-->Try connect to {}...'.format(receiver.name)
-    try:
-        ftp = FTP()
-        #TODO сделать в базе фтп поле активный/пассивный
-        if receiver.name == 'TakiSpravy':
-            ftp.set_pasv(False)  #<-- This puts connection into ACTIVE mode.
-        else:
-            ftp.set_pasv(True)
-        ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
-        ftp.login(receiver.login, receiver.passw)
-    except Exception, e:
-        logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
-        print '···connect FAILED with error: {}'.format(e)
-        status = False
-        return status, e
-    else:
-        print '···connect passed'
-        localfile = open(pdf.abspath, "rb")
+    print '\n--> Try connect to {}'.format(receiver.name)
+
+    if not import_mode:
         try:
-            #ftp.set_pasv(True)
-            ftp.cwd(receiver.todir)
-            print 'Start uploading {} to {} ...'.format(pdf.name, receiver.name)
-            start = time.time()
-            if not skip_upload_mode:
+            # пытается прилогинтся
+            ftp = FTP()
+            #TODO сделать в базе фтп поле активный/пассивный
+            if receiver.name == 'TakiSpravy':
+                ftp.set_pasv(False)  #<-- This puts connection into ACTIVE mode.
+            else:
+                ftp.set_pasv(True)
+            ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
+            ftp.login(receiver.login, receiver.passw)
+        except Exception, e:
+            logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
+            print '···connect FAILED with error: {}'.format(e)
+            status = False
+            return status, e
+        else:
+            # если коннект и логин прошли удачно, выполняется эта секция
+            print '···connect passed'
+            localfile = open(pdf.abspath, "rb")
+            try:
+                ftp.cwd(receiver.todir)
+                print '···Start uploading {} to {} ...'.format(pdf.name, receiver.name)
+                start = time.time()
                 ftp.storbinary("STOR " + pdf.name, localfile, 1024, handle)
                 #print 'Size in kb ', totalSize/1024
                 #print 'Time in s ', (time.time()-start)
                 speed = totalSize / (time.time() - start) / 1024
-                print 'Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed, speed * 8 / 1024)
-            else:
-                print('SKIPPING UPLOAD')
+                print '···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed, speed * 8 / 1024)
+            except Exception, e:
+                logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
+                print '···upload FAILED with error: {}'.format(e)
                 status = False
-                e = 'Skipping upload due test mode'
-        except Exception, e:
-            logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
-            print 'upload FAILED with error: {}'.format(e)
-            status = False
-            return status, e
-            #siteecho(pdf.name, receiver.name, 'FAILED', machine, complects, html_data)
-        else:
-            logging.info('{} upload to {}: upload OK'.format(pdf.name, receiver.name))
-            print 'Upload finished OK'
-            #siteecho(pdf.name, receiver.name, 'Upload OK', machine, complects, html_data)
-        finally:
-            localfile.close()
-    finally:
-        ftp.close()
+                return status, e
+                #siteecho(pdf.name, receiver.name, 'FAILED', machine, complects, html_data)
+            else:
+                # нифига эта строка не привильная - в эту секцию выполнение попадает полюбому, файл же не обязательно был залит
+                # logging.info('{} upload to {}: upload OK'.format(pdf.name, receiver.name))
 
+                print '···Upload finished OK'
+
+                #siteecho(pdf.name, receiver.name, 'Upload OK', machine, complects, html_data)
+            finally:
+                localfile.close()
+        finally:
+            ftp.close()
+    else:
+        print('····skipping upload due import mode')
+        status = False
+        e = 'Skipping upload due import mode'
     return status, e
 
 

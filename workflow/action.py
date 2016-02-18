@@ -282,33 +282,62 @@ def send_sms(pdf):
     :return:
     """
     d = shelve.open('tuneup.data')
-    skip_upload_mode = d['SKIP_UPLOAD_MODE']
+    import_mode = d['IMPORT_MODE']
     d.close()
 
+    # print('\n--> SMS:')
+    # if import_mode:
+    #     print('····skipping mode')
+    # else:
+    #     try:
+    #         if pdf.upload_to_outputter_status:
+    #             smsc = smsc_api.SMSC()
+    #             phone = pdf.outputter.sms_receiver.phone
+    #             message = '{} {} вывод {} пл.{}'.format(pdf.name, pdf.machines[1].name, pdf.outputter.name, str(pdf.plates))
+    #
+    #             # возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной отправки
+    #             # либо массив (<id>, -<код ошибки>) в случае ошибки
+    #             # status = smsc.send_sms(phone, message)
+    #
+    #             if len(status) == 4:
+    #                 print('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
+    #                 print('····sms text: {}'.format(message))
+    #             elif len(status) == 2:
+    #                 print('····sms FAILED with error: {}'.format(status[1]))
+    #                 print('····more info: https://smsc.ru/api/http/#answer')
+    #
+    #     except Exception, e:
+    #         logging.error('SMS FAILED: {0}'.format(e))
+    #         print '····FAILED. Error: {}'.format(e)
+
     print('\n--> SMS:')
-    if skip_upload_mode:
-        print('····skipping due testing mode')
-    else:
+    if pdf.upload_to_outputter_status:
+        smsc = smsc_api.SMSC()
         try:
-            if pdf.upload_to_outputter_status:
-                smsc = smsc_api.SMSC()
-                phone = pdf.outputter.sms_receiver.phone
-                message = '{} {} вывод {} пл.{}'.format(pdf.name, pdf.machines[1].name, pdf.outputter.name, str(pdf.plates))
+            phone = pdf.outputter.sms_receiver.phone
+        except:
+            print('····skip send sms due no phone for outputter')
+        else:
+            message = '{} {} {}->{} {}'.format(pdf.order, pdf.ordername, str(pdf.plates), pdf.machines[1].name, pdf.outputter.name)
 
-                # возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной отправки
-                # либо массив (<id>, -<код ошибки>) в случае ошибки
+            # smsc.send_sms возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной
+            # отправки, либо массив (<id>, -<код ошибки>) в случае ошибки
+            if not import_mode:
                 status = smsc.send_sms(phone, message)
+            else:
+                status = []
 
-                if len(status) == 4:
-                    print('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
-                    print('····sms text: {}'.format(message))
-                elif len(status) == 2:
-                    print('····sms FAILED with error: {}'.format(status[1]))
-                    print('····more info: https://smsc.ru/api/http/#answer')
-
-        except Exception, e:
-            logging.error('SMS FAILED: {0}'.format(e))
-            print '····FAILED. Error: {}'.format(e)
+            if len(status) == 4:
+                print('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
+                print('····sms text: {}'.format(message))
+            elif len(status) == 2:
+                print('····sms FAILED with error: {}'.format(status[1]))
+                print('····more info: https://smsc.ru/api/http/#answer')
+            else:
+                print('····skip send sms [possible import mode on]')
+    else:
+        # если по какой-то причине у нас не софрмирован upload_to_outputter_status
+        print('····skip send sms due failed uploading')
 
 
 def save_bd_record(pdf):

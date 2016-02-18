@@ -82,19 +82,6 @@ def change_import(request):
     return JsonResponse(results)
 
 
-@ensure_csrf_cookie
-def change_skipupload(request):
-    d = shelve.open('tuneup.data')
-    skipupload_mode = d['SKIP_UPLOAD_MODE']
-
-    if request.is_ajax():
-        skipupload_mode = d['SKIP_UPLOAD_MODE'] = not skipupload_mode
-
-    results = {'skipupload_mode': skipupload_mode}
-    d.close()
-    return JsonResponse(results)
-
-
 def grid(request, mode=''):
 
     try:
@@ -108,13 +95,13 @@ def grid(request, mode=''):
     # will be created
     # d = shelve.open('tuneup.data')
     # d['IMPORT_MODE'] = False
-    # d['SKIP_UPLOAD_MODE'] = True
     # d.close()
 
     d = shelve.open('tuneup.data')
     import_mode = d['IMPORT_MODE']
-    skip_upload_mode = d['SKIP_UPLOAD_MODE']
     d.close()
+
+    #print '\nImport Mode = {}'.format(import_mode)
 
     context = RequestContext(request)
     #table = Grid.objects.all().order_by('datetime').reverse()
@@ -181,7 +168,7 @@ def grid(request, mode=''):
         if total['total_plates__sum']:
             sum_plates[m.name] = total['total_plates__sum']
 
-    return render_to_response(shablon, {'table': table, 'form': form, 'sum_plate': sum_plates, 'import_mode': import_mode, 'skip_upload_mode': skip_upload_mode}, context)
+    return render_to_response(shablon, {'table': table, 'form': form, 'sum_plate': sum_plates, 'import_mode': import_mode}, context)
 
 
 @login_required

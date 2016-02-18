@@ -107,36 +107,7 @@
                 </div>
 
                 <script>
-
-                {% comment %}
-                    // кусок кода типа для имплементации кроссбраузерной защиты, но работает и без него
-                    $.ajaxSetup({
-                         beforeSend: function(xhr, settings) {
-                             function getCookie(name) {
-                                 var cookieValue = null;
-                                 if (document.cookie && document.cookie != '') {
-                                     var cookies = document.cookie.split(';');
-                                     for (var i = 0; i < cookies.length; i++) {
-                                         var cookie = jQuery.trim(cookies[i]);
-                                         // Does this cookie string begin with the name we want?
-                                         if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                             break;
-                                         }
-                                     }
-                                 }
-                                 return cookieValue;
-                             }
-                             if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                                 // Only send the token to relative URLs i.e. locally.
-                                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                             }
-                         }
-                    });
-                {% endcomment %}
-
                 var importid = "#import";
-                var skipuploadid = "#skipupload";
 
                 $(document).ready(function() {
 
@@ -148,14 +119,6 @@
                         $(importid).html('Import mode: OFF');
                         $(importid).addClass('label-success');
                     {% endif %}
-                    {% if skip_upload_mode %}
-                        $(skipuploadid).html('Skip upload mode: ON');
-                        $(skipuploadid).addClass('label-danger');
-                    {% else %}
-                        $(skipuploadid).html('Skip upload mode: OFF');
-                        $(skipuploadid).addClass('label-success');
-                    {% endif %}
-
 
                     // по нажитию выполняем вьюху, и изменяем цвет и текст в соответствии с
                     // возвращенным из вььхи значением [для Import mode]
@@ -173,29 +136,11 @@
                             }
                         });
                     });
-
-                    // по нажитию выполняем вьюху, и изменяем цвет и текст в соответствии с
-                    // возвращенным из вььхи значением [для Skip Upload Mode]
-                    $(skipuploadid).click(function () {
-                        $.getJSON("/change_skipupload/", function(json) {
-                            $(importid).html('Skip upload mode: ' + json['skipupload_mode']);
-                            if (json['skipupload_mode']) {
-                                $(skipuploadid).html('Skip upload mode: ON');
-                                $(skipuploadid).removeClass('label-success');
-                                $(skipuploadid).addClass('label-danger');
-                            } else {
-                                $(skipuploadid).html('Skip upload mode: OFF');
-                                $(skipuploadid).removeClass('label-danger');
-                                $(skipuploadid).addClass('label-success');
-                            }
-                        });
-                    });
                 })
                 </script>
 
                 <div class="navbar-text pull-right">
                     <a href="#" class="label" id="import"></a>
-                    <a href="#" class="label" id="skipupload"></a>
                 </div>
             {% else %}
                 <form name='AuthenticationForm' method="post" action="{% url 'accounts:login' %}" class="navbar-form navbar-right" role="form" >

@@ -20,11 +20,9 @@ import sys
 import logging
 import datetime
 import shelve
-import json
 
 from django.conf import settings
 from django.shortcuts import RequestContext, Http404, redirect, render_to_response
-from django.shortcuts import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
 from django_rq import job
 from django.contrib.auth.decorators import login_required

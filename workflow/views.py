@@ -81,6 +81,7 @@ def change_import(request):
     d.close()
     return JsonResponse(results)
 
+
 @ensure_csrf_cookie
 def change_skipupload(request):
     d = shelve.open('tuneup.data')
@@ -103,7 +104,8 @@ def grid(request, mode=''):
     except:
         pass
 
-    # This code can create 'tuneup.data' if it absent
+    # This code can create 'tuneup.data' if it absent. You need uncoment code and reload page. `tuneup.data`
+    # will be created
     # d = shelve.open('tuneup.data')
     # d['IMPORT_MODE'] = False
     # d['SKIP_UPLOAD_MODE'] = True

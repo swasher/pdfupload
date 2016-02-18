@@ -7,6 +7,7 @@ import subprocess
 import shutil
 import smsc_api
 import logging
+import shelve
 
 from django.conf import settings
 from subprocess import call
@@ -280,8 +281,12 @@ def send_sms(pdf):
     :param pdf:
     :return:
     """
+    d = shelve.open('tuneup.data')
+    skip_upload_mode = d['SKIP_UPLOAD_MODE']
+    d.close()
+
     print('\n--> SMS:')
-    if settings.TEST_MODE:
+    if skip_upload_mode:
         print('····skipping due testing mode')
     else:
         try:

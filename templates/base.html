@@ -70,7 +70,6 @@
                     Штанцы</a></li>
             </ul>
 
-
             <ul class="nav navbar-nav">
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>
@@ -97,13 +96,13 @@
                 </li>
             </ul>
 
-{% csrf_token %}
 
+            {% csrf_token %}
             {% if user.is_authenticated %}
                 <div class="navbar-form navbar-right btn-group">
                     <a href="{% url 'admin:index' %}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-wrench"></span>Admin</a>
                     <button type="button" class="btn btn-info"><span class="glyphicon glyphicon-user"></span> User '{{ user.username }}' is authenticated.</button>
-{#                    <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-log-in"></span> Logout</button>#}
+                    {#<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-log-in"></span> Logout</button>#}
                     <a href="{% url 'accounts:logout' %}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
                 </div>
 
@@ -141,7 +140,7 @@
 
                 $(document).ready(function() {
 
-                    // устанавливаем значение во время загрузки страницы
+                    // устанавливаем первоначальные значения во время загрузки страницы
                     {% if import_mode %}
                         $(importid).html('Import mode: ON');
                         $(importid).addClass('label-danger');
@@ -162,7 +161,6 @@
                     // возвращенным из вььхи значением [для Import mode]
                     $(importid).click( function() {
                         $.getJSON("/change_import/", function(json) {
-                            // aaa = json['import_mode'];
                             $(importid).html('Import mode: ' + json['import_mode']);
                             if (json['import_mode']) {
                                 $(importid).html('Import mode: ON');
@@ -199,25 +197,6 @@
                     <a href="#" class="label" id="import"></a>
                     <a href="#" class="label" id="skipupload"></a>
                 </div>
-
-
-{% comment %}
-                <p class="navbar-text pull-right">
-                    {% if import_mode %}
-                        <a href="#" class="label label-danger" id="import1">Import: enabled</a>
-                    {% else %}
-                        <a href="#" class="label label-success" id="import1">Import: disabled</a>
-                    {% endif %}
-
-                    {% if skip_upload_mode %}
-                        <a href="#" class="label label-danger">Skip upload: enabled</a>
-                    {% else %}
-                        <a href="#" class="label label-success">Skip upload: disabled</a>
-                    {% endif %}
-                </p>
-{% endcomment %}
-
-
             {% else %}
                 <form name='AuthenticationForm' method="post" action="{% url 'accounts:login' %}" class="navbar-form navbar-right" role="form" >
                     {% csrf_token %}
@@ -237,10 +216,6 @@
                     </button>
                 </form>
             {% endif %}
-
-
-
-
 
             {% comment %}
             <ul class="nav navbar-nav navbar-right">

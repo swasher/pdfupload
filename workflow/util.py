@@ -7,6 +7,7 @@ import sys
 import logging
 import time
 import subprocess
+import shelve
 
 from datetime import datetime
 from django.conf import settings
@@ -86,6 +87,10 @@ def sendfile(pdf, receiver):
     status = True
     e = None
 
+    d = shelve.open('tuneup.data')
+    skip_upload_mode = d['SKIP_UPLOAD_MODE']
+    d.close()
+
     sizeWritten = 0
     totalSize = os.path.getsize(pdf.abspath)
     # print 'name:',receiver.name
@@ -96,6 +101,7 @@ def sendfile(pdf, receiver):
     print '\n-->Try connect to {}...'.format(receiver.name)
     try:
         ftp = FTP()
+        #TODO сделать в базе фтп поле активный/пассивный
         if receiver.name == 'TakiSpravy':
             ftp.set_pasv(False)  #<-- This puts connection into ACTIVE mode.
         else:
@@ -115,7 +121,7 @@ def sendfile(pdf, receiver):
             ftp.cwd(receiver.todir)
             print 'Start uploading {} to {} ...'.format(pdf.name, receiver.name)
             start = time.time()
-            if not settings.TEST_MODE:
+            if not skip_upload_mode:
                 ftp.storbinary("STOR " + pdf.name, localfile, 1024, handle)
                 #print 'Size in kb ', totalSize/1024
                 #print 'Time in s ', (time.time()-start)

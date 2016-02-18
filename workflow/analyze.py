@@ -5,6 +5,7 @@ import os
 import logging
 import re
 import datetime
+import shelve
 
 from subprocess import Popen, PIPE
 from models import PrintingPress, Outputter
@@ -307,7 +308,12 @@ def analyze_date(pdf):
     :param pdf: объект pdf
     :return: объект datetime
     """
-    if settings.IMPORT_MODE:
+
+    d = shelve.open('tuneup.data')
+    import_mode = d['IMPORT_MODE']
+    d.close()
+
+    if import_mode:
         modified = os.path.getmtime(pdf)
         dt = datetime.datetime.fromtimestamp(modified)
     else:

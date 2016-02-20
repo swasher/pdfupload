@@ -53,8 +53,6 @@
     </div>
 </div>{% endcomment %}
 
-
-
 <div class="container-fluid">
 <div class="well">
 
@@ -72,24 +70,6 @@
     <form id="id_datetime" class="form-inline" role="form" method="post">
         {% csrf_token %}
 {#        {{ form.non_field_errors }}#}
-
-        {% comment %}
-        <div class="form-group">
-            {{ form.from_date.errors }}
-            {{ form.from_date }}
-        </div>
-        <div class="form-group">
-            {{ form.to_date.errors }}
-            {{ form.to_date }}
-        </div>
-        <div class="form-group">
-            {{ form.contractor.errors }}
-            {{ form.contractor }}
-        </div>
-        <div class="form-group">
-            {{ form.machine.errors }}
-            {{ form.machine }}
-        </div>{% endcomment %}
 
         {% for field in form.visible_fields %}
             <div class="form-group">

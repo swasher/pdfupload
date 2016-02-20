@@ -8,10 +8,10 @@ from bootstrap3_datetime.widgets import DateTimePicker
 
 
 class FilterForm(forms.ModelForm):
+
     from_date = forms.DateField(
         widget=DateTimePicker(options={"format": "DD.MM.YYYY",
-                                       "pickTime": False,
-                                       "showToday": True,
+                                       "locale": 'ru'
                                        }
                               ),
         required=False
@@ -19,8 +19,7 @@ class FilterForm(forms.ModelForm):
 
     to_date = forms.DateField(
         widget=DateTimePicker(options={"format": "DD.MM.YYYY",
-                                       "pickTime": False,
-                                       "showToday": True
+                                       "locale": 'ru'
                                        }
                               ),
         required=False

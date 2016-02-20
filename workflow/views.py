@@ -99,8 +99,6 @@ def grid(request, mode=''):
     import_mode = d['IMPORT_MODE']
     d.close()
 
-    #print '\nImport Mode = {}'.format(import_mode)
-
     context = RequestContext(request)
     #table = Grid.objects.all().order_by('datetime').reverse()
 

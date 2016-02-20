@@ -38,6 +38,7 @@ MEDIA_URL = "/media/"
 
 LOGIN_URL = '/login_redirect'
 
+
 #
 # ENVIRONMENT SETUP
 #
@@ -51,8 +52,6 @@ MARKS_OUTPUTTER = marks.MARKS_OUTPUTTER
 SMSC_LOGIN = secrets.SMSC_LOGIN
 SMSC_PASSWORD = secrets.SMSC_PASSWORD
 
-#DEBUG = True
-#TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
 
 #
@@ -84,8 +83,7 @@ TEMPLATES = [
     },
 ]
 
-
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'grappelli',
     #'suit',
     'django.contrib.admin',
@@ -103,9 +101,10 @@ INSTALLED_APPS = (
     'technologichka',
     'stanzforms',
     'workflow',
-)
+]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -114,7 +113,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware'
-)
+]
 
 ROOT_URLCONF = 'pdfupload.urls'
 

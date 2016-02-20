@@ -23,6 +23,6 @@
     "jquery": "~2.1.4",
     "bootstrap": "~3.3.5",
     "bootstrap-select": "~1.7.3",
-    "eonasdan-bootstrap-datetimepicker": "~4.15.35"
+    "eonasdan-bootstrap-datetimepicker": "^4.17.37"
   }
 }

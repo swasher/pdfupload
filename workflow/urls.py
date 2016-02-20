@@ -1,17 +1,16 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from workflow.views import grid, log, delete, usersettings, about, change_import
-from workflow.report import report
+import views
+import report
 
-
-urlpatterns = patterns('',
-    url(r'^$', grid),
-    url(r'^grid/$', grid, name='grid'),
-    url(r'^grid/(?P<mode>\w+)/$', grid, name='grid'),
-    url(r'^about/$', about, name='about'),
-    url(r'^report/$', report, name='report'),
-    url(r'^log/$', log, name='log'),
-    url(r'^usersettings/$', usersettings, name='usersettings'),
-    url(r'^delete/(?P<rowid>\d+)/$', delete, name='delete'),
-    url(r'^change_import/$', change_import, name='change_import'),
-)
+urlpatterns = [
+    url(r'^$', views.grid),
+    url(r'^grid/$', views.grid, name='grid'),
+    url(r'^grid/(?P<mode>\w+)/$', views.grid, name='grid'),
+    url(r'^about/$', views.about, name='about'),
+    url(r'^report/$', report.report, name='report'),
+    url(r'^log/$', views.log, name='log'),
+    url(r'^usersettings/$', views.usersettings, name='usersettings'),
+    url(r'^delete/(?P<rowid>\d+)/$', views.delete, name='delete'),
+    url(r'^change_import/$', views.change_import, name='change_import'),
+]

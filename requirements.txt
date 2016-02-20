@@ -6,7 +6,7 @@ rq-dashboard==0.3.4
 django-rq-dashboard==0.2.9
 django-bootstrap3==6.2.2
 fabric==1.10.2
-django-bootstrap3-datetimepicker-2=2.4.2
+django-bootstrap3-datetimepicker-2==2.4.2
 django-nvd3==0.8.2
 pdfminer==20140328
 django-debug-toolbar==1.4

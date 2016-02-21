@@ -11,9 +11,9 @@ Installation
 Установка производится с помощью менеджера конфигурций Ansible. Ключи создаются вручную. Для доступа от production до
 backup используется ключ без пасс-фразы.
 
-Директория provision содержит все необходимое для автоматического провижиона с помощью Ansible.
+Директория provision содержит все необходимое для автоматического развертывания с помощью Ansible.
 Файл provision/provision.yml содержит подробные инструкции, как создать staging/production систему
-или окружение для разработки.
+или окружение для разработки (development).
 
 >Внимание:
 >При запуске ansible локальные файлы не используются, все файлы берутся с гита! Поэтому перед
@@ -30,7 +30,7 @@ Playbook requirements:
 Перед использованием Ansible нужно установить переменные:
 
 - адреса [user, ip, port] машин устанавливаются в roles/system/vars/main.yml. Этот файл находится под ansible-vault. При
-  развертывании эти данные разворачиваются в ~/.ssh/config и /etc/hosts. Таким образом, машины могут резольвить имена
+  развертывании эти данные прописываются в ~/.ssh/config и /etc/hosts. Таким образом, машины могут резольвить имена
   друг друга и обращаться по ssh.
 - в group_vars/* FQDN и имя пользователя, от которого будет происходить развертывание (пользователь должен существовать)
 - в secret_vars - логин/пароль для отправки смс, для суперюзера джанго, подробнее см. `secret_vars_template.yml` 
@@ -46,25 +46,24 @@ The trick:
 Именно такие константы используются в навании Ansible groups, в fabric, в настройках django-settings, 
 в файле [ssh]config для запуска Ansible, etc. 
 
-Steps to reproduce new server:
+Steps to reproduce new [staging|developing] server:
 
 - create fresh ubuntu machine on ESXi (testing on 15.04). During install select `OpenSSH Server`.
 - set up custom ssh port in /etc/ssh/sshd-config
 - on router assign appropriate static IP for new machine
 - reboot machine
-- on ansible machine, enter the connection data into roles/system/vars/main.yml
-- on ansible machine, copy ssh key to target machine: ssh-copy-id [staging|developing]
+- on develping machine, write the connection data to roles/system/vars/main.yml
+- on develping machine, copy ssh key to target machine: ssh-copy-id [staging|developing]
 - Note: Provision assumes, that pdfupload machine is dedicated server, so we do not use virtual environment.
         This is due high load on file system during pdf processing.
-
 
 Steps to recreate local development environment
 
 - BUG 1: невозможно создать файл в шаред фолдер
 - BUG 2: невозможно использовать интерактивный ввод-вывод при работе плейбука
 
-- install pycharm, git for windows, virtualbox, vagrant with ubuntu/vivid64
-- download box with Ubuntu 15.04: `vagrant box add ubuntu/vivid64`
+- install pycharm, git for windows, virtualbox, vagrant with latest ubuntu server
+- download latest box with Ubuntu, for example 15.04: `vagrant box add ubuntu/vivid64`
 - clone project from github: `git clone https://github.com/swasher/pdfupload.git`
 - using PowerShell, start vagrant box from project dir: `vagrant up`
 
@@ -75,6 +74,12 @@ Steps to recreate local development environment
 - start provision: `cd pdfupload/provision && fab developing provision`
 
 - generate keys: `ssh-keygen -t rsa`
+
+Steps to update vagrant box
+
+- vagrant halt
+- vagrant box update
+- vagrant up
 
 Development tools tunung:
 
@@ -141,23 +146,6 @@ Install by hand
 В корень проекта необходимо положить библиотеку для отправки sms. Используется smsc.ua, файл API по адресу http://smsc.ua/api/python/
 нужно положить в workflow/smsc_api.py
 
-Для отрисовки графиков нужно поставить nvd3. Можно через bowler, но я ставил руками:
-
-    pip install sudo pip install django-nvd3
-    --> Successfully installed django-nvd3 python-nvd3 python-slugify Unidecode
-
-settings.py
-    
-    INSTALLED_APPS = (
-        'django_nvd3',
-        )
-
-Далее c http://nvd3.org/ скачиваем архив и копируем:
-
-    src -> static_root/nvd3/src
-    lib/d3.v2.min.js -> static_root/d3/d3.min.js
-
-Тут нужно переименовать, django-nvd3 видимо использовал первую версию.
 
 ##### Запись в tty
 

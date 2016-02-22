@@ -8,7 +8,7 @@ django-bootstrap3==6.2.2
 
 #django-grappelli==2.7.3
 #for version 2.8.1 with django 1.9 support
-git+git://github.com/sehmaschine/django-grappelli==2.8.1
+git+git://github.com/sehmaschine/django-grappelli
 
 django-bootstrap3-datetimepicker-2==2.4.2
 django-crispy-forms==1.6.0

@@ -165,6 +165,13 @@
                         <i class="icon-user icon-white"></i> Log in
                     </button>
                 </form>
+                    <div class="navbar-text pull-right">
+                        {% if import_mode %}
+                            <span class="label label-danger">Import mode: ON</span>
+                        {% else %}
+                            <span class="label label-success">Import mode: OFF</span>
+                        {% endif %}
+                    </div>
             {% endif %}
 
             {% comment %}

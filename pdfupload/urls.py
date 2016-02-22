@@ -17,8 +17,8 @@ urlpatterns = [
     url(r'^', include('stanzforms.urls')),
     url(r'^', include('technologichka.urls')),
 
-    url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
-    url(r'^admin/rq/', include('django_rq_dashboard.urls')),
+    url(r'^grappelli/', include('grappelli.urls')),
+    #url(r'^admin/rq/', include('django_rq_dashboard.urls')),
 ]
 
 # хз для чего это. вроде как чтобы media работало в dev time

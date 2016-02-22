@@ -4,8 +4,10 @@ __author__ = 'Алексей'
 
 import os
 import sys
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pdfupload.settings")
-#from django.conf import settings
+import django
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'pdfupload.settings'
+django.setup()
 
 import django_rq
 import workflow.views

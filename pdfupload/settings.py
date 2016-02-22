@@ -94,7 +94,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_rq',
     'bootstrap3_datetime',
-    'django_rq_dashboard',
+    #'django_rq_dashboard',
     'django_nvd3',
     'crispy_forms',
     'accounts',

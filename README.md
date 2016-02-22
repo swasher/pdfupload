@@ -2,7 +2,7 @@ Requirements
 --------------------------
 
 - PyPDF2==1.24
-- fabri- c==1.10.2
+- fabric==1.10.2
 - Django==1.9.2
 - django-debug-toolbar==1.4
 - django-bootstrap3==6.2.2

@@ -1,3 +1,22 @@
+Requirements
+--------------------------
+
+PyPDF2==1.24
+fabric==1.10.2
+Django==1.9.2
+django-debug-toolbar==1.4
+django-bootstrap3==6.2.2
+git+git://github.com/sehmaschine/django-grappelli #2.8.1
+django-bootstrap3-datetimepicker-2==2.4.2
+django-crispy-forms==1.6.0
+rq==0.5.6
+rq-dashboard==0.3.6
+django-rq==0.9.0
+pillow==3.1.1
+django-nvd3==0.9.7
+reportlab==3.3.0
+pdfminer==20140328
+
 Installation
 --------------------------
 

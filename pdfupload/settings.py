@@ -36,7 +36,8 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = HOME_DIR + '/media/'
 MEDIA_URL = "/media/"
 
-LOGIN_URL = '/login_redirect'
+#LOGIN_URL = '/login_redirect'
+#LOGIN_URL = '/login'
 
 
 #

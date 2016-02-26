@@ -107,8 +107,7 @@
                 <div class="navbar-form navbar-right btn-group">
                     <a href="{% url 'admin:index' %}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-wrench"></span>Admin</a>
                     <button type="button" class="btn btn-info"><span class="glyphicon glyphicon-user"></span> User '{{ user.username }}' is authenticated.</button>
-                    {#<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-log-in"></span> Logout</button>#}
-                    <a href="{% url 'accounts:logout' %}" class="btn btn-default" role="button"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
+                    <a href="{% url 'logout' %}?next=/" class="btn btn-default" role="button"><span class="glyphicon glyphicon-log-in"></span> Logout</a>
                 </div>
 
                 <script>

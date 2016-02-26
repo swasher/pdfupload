@@ -89,7 +89,9 @@ def grid(request, mode=''):
     except:
         pass
 
-    # This code can create 'shelve.db' if it absent. You need uncoment code and
+    print settings.LOGIN_REDIRECT_URL  #TEST
+
+    # This code will create 'shelve.db' if it absent. You need uncoment code and
     # reload page. So 'shelve.db' will be created
     # d = shelve.open('shelve.db')
     # d['IMPORT_MODE'] = False
@@ -100,7 +102,6 @@ def grid(request, mode=''):
     d.close()
 
     context = RequestContext(request)
-    #table = Grid.objects.all().order_by('datetime').reverse()
 
     logger.debug("this is a debug message!")
     logger.error("this is an error message!!")

@@ -1,11 +1,9 @@
+# coding: utf-8
 from django.conf.urls import url
-
-from accounts import views
+from accounts.views import login
+from accounts.views import login_redirect
 
 urlpatterns = [
-    url(r'^login/$', views.login, name='login'),
-    #url(r'^login/(?P<next>\w+)/$', views.login, name='login'),
-    url(r'^logout/$', views.logout, name='logout'),
-    #url(r'^login_redirect/$', views.login_redirect, name='login_redirect'),
-    url(r'^login_redirect/(?P<next>\w+)/$', views.login_redirect, name='login_redirect'),
+    url(r'^login/$', login, name='login'),
+    url(r'^login_redirect(?P<next>\w+)/$', login_redirect, name='login_redirect'),
 ]

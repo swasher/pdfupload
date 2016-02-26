@@ -1,10 +1,14 @@
 # coding: utf-8
 
+import calendar
+
 from django.shortcuts import render_to_response
 from django.db.models import Sum, Min, Max
-from models import Grid
 from django.contrib.auth.decorators import login_required
-import sys
+from django.shortcuts import RequestContext
+
+from models import Grid
+from models import PrintingPress
 
 # Какие хочу графики:
 # - всего плит/месяц и м2/месяц
@@ -13,8 +17,8 @@ import sys
 
 @login_required()
 def report(request):
-    import calendar
-    from models import PrintingPress
+
+    context = RequestContext(request)
 
     class chart():
         def __init__(self, year, chartdata, charttype, chartcontainer, extra):
@@ -185,4 +189,4 @@ def report(request):
     #     print k.chartcontainer
     #     pprintpp.pprint(k.chartdata, width=150)
 
-    return render_to_response('report.html', {'chart1':chart1, 'chart2':chart2, 'chart3':chart3})
+    return render_to_response('report.html', {'chart1':chart1, 'chart2':chart2, 'chart3':chart3}, context)

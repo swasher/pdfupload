@@ -4,15 +4,13 @@ from django.shortcuts import render_to_response
 from django.shortcuts import redirect
 from django.shortcuts import RequestContext
 from django.contrib import messages
-from django.contrib.auth import login as django_login, authenticate, logout as django_logout
+from django.contrib.auth import login as django_login, authenticate
 
 
 def login(request):
     context = RequestContext(request)
     if request.method == 'POST':
         username, password = request.POST['username'], request.POST['password']
-        print('username', username)
-        print('pass', password)
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
@@ -32,6 +30,6 @@ def login_redirect(request):
     return redirect('/')
 
 
-def logout(request):
-    django_logout(request)
-    return redirect('/')
+# def logout(request):
+#     django_logout(request)
+#     return redirect('/')

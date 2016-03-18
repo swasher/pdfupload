@@ -11,11 +11,11 @@
     mode=0600
     owner=root
     group=root
-  sudo: yes
+  become: yes
 
 
 - name: Create tmpdir right now
   shell: systemd-tmpfiles --create {{tmpfilesd_template}}
   args:
     chdir: /etc/tmpfiles.d
-  sudo: yes
+  become: yes

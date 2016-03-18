@@ -4,7 +4,7 @@
     name={{www_owner}}
     group={{tty_group}}
     append=yes
-  sudo: yes
+  become: yes
 
 #- file: path=/etc/test state=absent
 #- file: path=/etc/test state=directory
@@ -13,7 +13,7 @@
 #  file: >
 #    path='{{terminal}}'
 #    owner='{{www_owner}}'
-#  sudo: yes
+#  become: yes
 
 #- name: testing skip
 #  file: >

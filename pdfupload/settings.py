@@ -15,7 +15,7 @@ from os.path import join
 # BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # look discussion here - https://code.djangoproject.com/ticket/21409 (espesially comment 5 and 6)
 # and here - http://stackoverflow.com/a/7116925/1334825
-# but probably it will be work fine in python3
+# but probably it will work fine in python3
 
 p = os.path
 BASE_DIR = p.abspath(p.normpath(p.join(p.dirname(__file__), p.pardir)))

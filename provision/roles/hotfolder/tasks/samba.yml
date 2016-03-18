@@ -7,18 +7,18 @@
     cache_valid_time={{ apt_cache_valid_time }}
   with_items:
     - samba
-  sudo: yes
+  become: yes
 
 - name: Copy samba share template
   template: >
     src=samba.ini.j2
     dest={{samba_include}}
-  sudo: yes
+  become: yes
 
 - name: Include template
   lineinfile: dest=/etc/samba/smb.conf
               line='include = {{samba_include}}'
-  sudo: yes
+  become: yes
 
 
 
@@ -26,28 +26,28 @@
   lineinfile: dest=/etc/samba/smb.conf
               line='local master = no'
               insertafter="\[global\]"
-  sudo: yes
+  become: yes
 
 
 - name: set os level -> 1
   lineinfile: dest=/etc/samba/smb.conf
               line='os level = 1'
               insertafter="\[global\]"
-  sudo: yes
+  become: yes
 
 
 - name: set domain master -> no
   lineinfile: dest=/etc/samba/smb.conf
               line='domain master = no'
               insertafter="\[global\]"
-  sudo: yes
+  become: yes
 
 
 - name: set preffered master -> no
   lineinfile: dest=/etc/samba/smb.conf
               line='preferred master = no'
               insertafter="\[global\]"
-  sudo: yes
+  become: yes
 
 
 - name: change workgroup
@@ -55,5 +55,5 @@
            regexp='(\s+workgroup = )\w+(\n)'
            replace='\1{{workgroup}}\2'
   notify: restart samba
-  sudo: yes
+  become: yes
 

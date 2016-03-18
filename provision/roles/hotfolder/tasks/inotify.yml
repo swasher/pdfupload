@@ -7,7 +7,7 @@
     cache_valid_time={{ apt_cache_valid_time }}
   with_items:
     - incron
-  sudo: yes
+  become: yes
 
 
 - name: Allow user using incrontab
@@ -15,7 +15,7 @@
     dest=/etc/incron.allow
     line='{{remote_user}}'
     state=present
-  sudo: yes
+  become: yes
 
 
 #string must be in
@@ -35,4 +35,4 @@
               group=incron
               mode=0600
   notify: restart incron
-  sudo: yes
+  become: yes

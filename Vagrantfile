@@ -4,7 +4,7 @@
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "ubuntu/vivid64"
+  config.vm.box = "ubuntu/wily64"
 
   config.vm.provider :virtualbox do |v|
     v.name = "pdfdevelop"
@@ -49,9 +49,39 @@ Vagrant.configure(2) do |config|
   # for supress "stdin: is not a tty error"
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  config.vm.provision "shell", inline: "sudo apt-get update -qq && sudo apt-get install python-dev libpython2.7-dev libyaml-dev mc -y -q"
-  config.vm.provision "shell", inline: "curl -s https://bootstrap.pypa.io/get-pip.py | sudo python -"
-  config.vm.provision "shell", inline: "sudo pip install ansible fabric"
-  config.vm.provision "shell", privileged: false, inline: "cd pdfupload/provision && fab development provision"
+  #   config.vm.provision "shell", inline: "sudo apt-get update -qq && sudo apt-get install python-dev libpython2.7-dev libyaml-dev mc -y -q"
+  #   config.vm.provision "shell", inline: "curl -s https://bootstrap.pypa.io/get-pip.py | sudo python -"
+  #   config.vm.provision "shell", inline: "sudo pip install ansible fabric"
+  #   config.vm.provision "shell", privileged: false, inline: "cd pdfupload/provision && fab development provision"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    export DEBIAN_FRONTEND=noninteractive
+    sudo apt-get update -qq && sudo apt-get install python-dev libpython2.7-dev libyaml-dev mc -y -q
+    curl -s https://bootstrap.pypa.io/get-pip.py | sudo python -
+    sudo pip install ansible==1.9.4 fabric
+  SHELL
+
+
+    ###########
+    #
+    # OLD way
+
+  config.vm.provision "shell", privileged: false,  inline: <<-SHELL
+    cd pdfupload/provision && fab development provision
+  SHELL
+
+
+    ###########
+    #
+    # NEW way to launch provision - via ansible local
+    # But due bug this is do not work until Vagrant 1.8.2 is come out
+
+#   config.vm.provision "ansible_local" do |ansible|
+#     ansible.playbook        = "provision/provision.yml"
+#     ansible.inventory_path  = "provision/inventories/all"
+#     ansible.skip_tags       = "vagrant_skip"
+#     ansible.limit           = "development"
+#   end
+
 
 end

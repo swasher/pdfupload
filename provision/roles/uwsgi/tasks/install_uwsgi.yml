@@ -10,7 +10,7 @@
     name=uwsgi
     state=latest
     extra_args='--quiet'
-  sudo: yes
+  become: yes
 
 
 - name: Making sure uwsgi config directories are there
@@ -18,7 +18,7 @@
   with_items:
     - uwsgi
     - uwsgi/vassals
-  sudo: yes
+  become: yes
 
 
 - name: Copy emperor template
@@ -28,13 +28,13 @@
     mode=0644
     owner=root
     group=root
-  sudo: yes
+  become: yes
 
 
 # FOR UPSTART
 #- name: Setup upstart job for the emperor NOT TESTING - MAY NOT WORK
 #  copy: src=upstart.conf dest=/etc/init/uwsgi.conf mode=0644 owner=root group=root
-#  sudo: yes
+#  become: yes
 
 
 - name: Setup systemd SERVICE file for the emperor
@@ -42,12 +42,12 @@
   when: >
       (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
       or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
-  sudo: yes
+  become: yes
 
 - name: Setup systemd SOCKET file for the emperor
   template: src=systemd.socket dest=/etc/systemd/system/{{emperor_socket}} mode=0644 owner=root group=root
   when: >
       (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
       or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
-  sudo: yes
+  become: yes
 

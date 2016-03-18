@@ -1,5 +1,14 @@
 ---
 
+
+# DEPRECATED
+
+# Тут нужно подумать. База изменяется, старые фикстуры негодятся...
+# И нужны ли они вобще? Проще сделать копирование данных с живой базы на тестовую,
+# используя fabric. Пока отметил как deprecated и убрал из провижена.
+
+
+
 # Handling fixtures makeing by unusual way because Ansible don't support copy with decrypt: https://github.com/ansible/ansible/issues/10349
 #
 # So we encrypt file by hand, then ansible can decrypt it at server side using vault store password
@@ -50,4 +59,4 @@
     command=loaddata
     app_path={{ project_root }}
     fixtures=initial_data.json
-  when: group_names[0] != "production" and group_names[0] != "staging"
+  when: group_names[0] == "developing"

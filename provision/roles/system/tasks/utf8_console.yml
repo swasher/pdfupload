@@ -6,7 +6,7 @@
   lineinfile: >
     dest=/etc/initramfs-tools/initramfs.conf
     line=FRAMEBUFFER=Y
-  sudo: yes
+  become: yes
 
 
 - name: Set UTF-8 charmap
@@ -14,7 +14,7 @@
     dest=/etc/default/console-setup
     regexp=CHARMAP=
     line=CHARMAP=\"UTF-8\"
-  sudo: yes
+  become: yes
 
 
 - name: Run setupcon at boot
@@ -23,5 +23,5 @@
     section=Service
     option=ExecStart
     value=/bin/setupcon
-  sudo: yes
+  become: yes
 

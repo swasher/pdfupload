@@ -4,14 +4,14 @@
   file: >
     path=/etc/nginx/sites-enabled/default
     state=absent
-  sudo: yes
+  become: yes
 
 
 - name: Install nginx configuration file
   template: >
     src=nginx.conf.j2
     dest=/etc/nginx/sites-available/{{project_name}}
-  sudo: yes
+  become: yes
 
 
 - name: Enable virtual host
@@ -20,4 +20,4 @@
     src=/etc/nginx/sites-available/{{project_name}}
     dest=/etc/nginx/sites-enabled/{{project_name}}
     state=link
-  sudo: yes
+  become: yes

@@ -39,7 +39,7 @@ def provision():
     # Do you want verbose output from ansible? Uncomment it.
     # additional_params += ' -vvv'
 
-    local('ansible-playbook -i inventories/all --ask-become-pass {additional_params} --limit {target} '
+    local('ansible-playbook -v -i inventories/all --ask-become-pass {additional_params} --limit {target} '
           'provision.yml'.format(target=env.hosts[0], additional_params=additional_params))
 
 

@@ -4,6 +4,8 @@
 import os, sys, django
 sys.path.append('{{project_root}}')
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{project_name}}.settings")
+
+django.setup()
 from django.contrib.auth.models import User
 
 try:

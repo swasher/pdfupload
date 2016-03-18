@@ -11,7 +11,7 @@
 
 - name: install pip
   command: "{{ python }} {{ pip_download_dest }}/get-pip.py"
-  sudo: yes
+  become: yes
   when: pip_is_installed.rc != 0
 
 - name: delete get-pip.py

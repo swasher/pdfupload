@@ -8,4 +8,4 @@
   with_items:
     - build-essential
     - nginx
-  sudo: yes
+  become: yes

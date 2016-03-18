@@ -2,6 +2,7 @@
 
 [development]
 #local:2222  ansible_connection=local
+default ansible_connection=local
 
 [production]
 production

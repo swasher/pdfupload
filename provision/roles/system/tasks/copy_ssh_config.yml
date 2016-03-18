@@ -13,11 +13,11 @@
     owner={{remote_user}}
     group={{remote_user}}
     mode=0600
-  sudo: yes
+  become: yes
 
 - name: Ensure machines will resolve his names
   lineinfile: >
     dest=/etc/hosts
     line="{{item.ip}} {{item.name}}"
   with_items: "{{servers}}"
-  sudo: yes
+  become: yes

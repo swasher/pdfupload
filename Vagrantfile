@@ -49,11 +49,6 @@ Vagrant.configure(2) do |config|
   # for supress "stdin: is not a tty error"
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  #   config.vm.provision "shell", inline: "sudo apt-get update -qq && sudo apt-get install python-dev libpython2.7-dev libyaml-dev mc -y -q"
-  #   config.vm.provision "shell", inline: "curl -s https://bootstrap.pypa.io/get-pip.py | sudo python -"
-  #   config.vm.provision "shell", inline: "sudo pip install ansible fabric"
-  #   config.vm.provision "shell", privileged: false, inline: "cd pdfupload/provision && fab development provision"
-
   config.vm.provision "shell", inline: <<-SHELL
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update -qq && sudo apt-get install python-dev libpython2.7-dev libyaml-dev mc -y -q

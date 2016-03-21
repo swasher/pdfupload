@@ -65,8 +65,7 @@ def deploy():
         run('python manage.py collectstatic --noinput --clear ')
         run('python manage.py migrate')
         run('touch /tmp/pdfupload.reload')
-
-
+        run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
         # then run test
         #run('python manage.py test myapp')
 

@@ -16,6 +16,7 @@ __pycache__/
 .idea/
 .vagrant/
 stamp
+provision.retry
 
 
 # Статика

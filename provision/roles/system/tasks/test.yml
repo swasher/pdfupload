@@ -1,13 +1,20 @@
 ---
-- debug: msg="Variable USER is {{ lookup('env','USER') }}"
-- debug: msg="Variable HOME is {{ lookup('env','HOME') }}"
-
+- debug: msg="Environment variable USER is {{ lookup('env','USER') }}"
+- debug: msg="Environment variable HOME is {{ lookup('env','HOME') }}"
 
 - debug: msg="USER HOME is {{user_home}}"
 - debug: msg="PROJECT ROOT is {{project_root}}"
 - debug: msg="remote_user is {{remote_user}}"
 - debug: msg="ansible_ssh_user is {{ansible_ssh_user}}"
 
+#- debug: msg="test_var is {{test_var}}"
+- debug: msg="smsc_login is {{smsc_login}}"
+- debug: msg="smsc_password is {{smsc_password}}"
+- debug: msg="secret_key is {{secret_key}}"
+- debug: msg="passphrase is {{passphrase}}"
+#- debug: msg="vartest is {{vartest}}"
+
+- fail: msg="Halt due testing purpose."
 
 #- debug: msg="hostvars is {{hostvars}}"
 - debug: msg="groups.all is {{groups['all']}}"

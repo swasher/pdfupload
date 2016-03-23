@@ -18,6 +18,11 @@ class Ftp(models.Model):
     login = models.CharField(max_length=30)
     passw = models.CharField(max_length=30)     # пароль хранится в открытом виде
     todir = models.CharField(max_length=150, blank=True, null=True)    # папка для заливки
+    passive_mode = models.BooleanField(blank=True, default=True)
+
+    class Meta:
+        verbose_name = 'ФТП'
+        verbose_name_plural = 'ФТП'
 
     def __unicode__(self):
         return self.name

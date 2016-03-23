@@ -1,12 +1,49 @@
 ---
-project_repo: http://github.com/swasher/pdfupload.git
-project_name: pdfupload
-#user_home: "{{ lookup('env','HOME') }}"
-user_home: "/home/{{remote_user}}"
-project_root: "{{user_home}}/pdfupload"
-ansible_ssh_user: "{{ remote_user }}"
-log_dir: "{{ user_home }}/log"
-input_dir: "{{ user_home }}/input"
+project_repo:       http://github.com/swasher/pdfupload.git
+project_name:       pdfupload
+user_home:         "/home/{{remote_user}}"
+project_root:      "{{user_home}}/pdfupload"
+ansible_user:      "{{ remote_user }}"
+log_dir:           "{{ user_home }}/log"
+input_dir:         "{{ user_home }}/input"
 
-ram_dir: "/run/uwsgi"
-socket: "{{ram_dir}}/{{project_name}}.socket"
+ram_dir:           "/run/uwsgi"
+socket:            "{{ram_dir}}/{{project_name}}.socket"
+
+
+
+# credentials for http://smsc.ua/
+smsc_login:        "{{ vault_smsc_login }}"
+smsc_password:     "{{ vault_smsc_password }}"
+
+# django secret key
+secret_key:        "{{ vault_secret_key }}"
+
+# for decrypt ssl-encrypted files (like fixtures or ssh-config)
+passphrase:        "{{ vault_passphrase }}"
+
+# for create django superuser
+superusername:     "{{ vault_vault_superusername }}"
+superuserpassword: "{{ vault_vault_superuserpassword }}"
+superuseremail:    "{{ vault_vault_superuseremail }}"
+
+# for create postgresql database
+db_name:           "{{ vault_vault_db_name }}"
+db_user:           "{{ vault_vault_db_user }}"
+db_password:       "{{ vault_vault_db_password }}"
+
+
+# for create ~/.ssh/config on every machine.
+# So machines can know how connect by ssh to each other.
+
+production_ip:     "{{ vault_production_ip }}"
+production_port:   "{{ vault_production_port }}"
+production_user:   "{{ vault_production_user }}"
+
+staging_ip:        "{{ vault_staging_ip }}"
+staging_port:      "{{ vault_staging_port }}"
+staging_user:      "{{ vault_staging_user }}"
+
+backup_ip:         "{{ vault_backup_ip }}"
+backup_port:       "{{ vault_backup_port }}"
+backup_user:       "{{ vault_backup_user }}"

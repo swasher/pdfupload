@@ -15,7 +15,7 @@
     mode=0600
   become: yes
 
-- name: Ensure machines will resolve his names
+- name: Ensure machine's names can be resolved
   lineinfile: >
     dest=/etc/hosts
     line="{{item.ip}} {{item.name}}"

@@ -51,7 +51,7 @@ Playbook requirements:
 - адреса [user, ip, port] машин устанавливаются в roles/system/vars/main.yml. Этот файл находится под ansible-vault. При
   развертывании эти данные прописываются в ~/.ssh/config и /etc/hosts. Таким образом, машины могут резольвить имена
   друг друга и обращаться по ssh.
-- в group_vars/* FQDN и имя пользователя, от которого будет происходить развертывание (пользователь должен существовать)
+- в group_vars/* FQDN и имя пользователя, от которого будет происходить развертывание (пользователь на удаленном сервере должен существовать)
 - в secret_vars - логин/пароль для отправки смс, для суперюзера джанго, подробнее см. `secret_vars_template.yml` 
 - {{remote_user}} должен быть одинаковый на всех серверах (кроме development, там имя пользователя vagrant)
 
@@ -65,14 +65,18 @@ The trick:
 Именно такие константы используются в навании Ansible groups, в fabric, в настройках django-settings, 
 в файле [ssh]config для запуска Ansible, etc. 
 
-Steps to reproduce new [staging|developing] server:
+Steps to reproduce new [staging|production] server:
 
 - create fresh ubuntu machine on ESXi (testing on 15.04). During install select `OpenSSH Server`.
-- set up custom ssh port in /etc/ssh/sshd-config
-- on router assign appropriate static IP for new machine
+- [optional] set up custom ssh port in /etc/ssh/sshd-config
+- [optional] if using DHCP, setting up static IP for new server (on router)
+- setup FQDN resolution for name of new server in local network (via router or hosts file). Name must be [staging|production]
 - reboot machine
-- on develping machine, write the connection data to roles/system/vars/main.yml
-- on develping machine, copy ssh key to target machine: ssh-copy-id [staging|developing]
+- on develping machine, write the connection data to provision/roles/system/vars/main.yml. There is example template along.
+
+        $ ansible-vault edit provision/roles/system/vars/main.yml
+
+- on develping machine, copy ssh key to target machine: ssh-copy-id [staging|production]
 - Note: Provision assumes, that pdfupload machine is dedicated server, so we do not use virtual environment.
         This is due high load on file system during pdf processing.
 
@@ -87,7 +91,7 @@ Steps to recreate local development environment
 - using PowerShell, start vagrant box from project dir: `vagrant up`
 
 - due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision.
-- --- Folk: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3) [two](https://github.com/mitchellh/vagrant/issues/2924) [and at last](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)"
+- --- Folk: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3), [two](https://github.com/mitchellh/vagrant/issues/2924), [and at last](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)"
 - --- so we connect to box via ssh first, and then start provision INSIDE the vagrant box. 
 - enter vagrant box: `vagrant ssh`
 - start provision: `cd pdfupload/provision && fab developing provision`
@@ -423,10 +427,10 @@ Install by hand
 USE CASE
 ----------------------
 
-Две кнопки в шапке меняют режимы работы. Лоигика у них такая:
+Кнопка в шапке меняют режимы работы. При включении `import mode` получаемые файлы
+обрабатываются и заносятся в базу, но на фтп не отсылаются, а дата заливки берется как
+дата создания файла.
 
-- IMPORT MODE - получаемые файлы только вносятся в базу, не отсылаются, дата заливки берется как дата создания файла.
-- SKIP UPLOAD MODE - dry-run, файлы полностью обрабатываются, заносятся в базу, но не отсылаются на фтп
 
 Важные TODO
 -----------------------

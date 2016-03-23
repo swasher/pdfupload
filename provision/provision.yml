@@ -1,7 +1,7 @@
 ---
 - hosts: all
   vars_files:
-    - group_vars/secret_vars.yml
+    - group_vars/vault.yml
 
   roles:
     - system

@@ -39,12 +39,12 @@ def provision():
     # Do you want verbose output from ansible? Uncomment it.
     # additional_params += ' -vvv'
 
-    local('ansible-playbook -v -i inventories/all --ask-become-pass {additional_params} --limit {target} '
+    local('ansible-playbook -v -i inventories/all --limit {target} --ask-become-pass {additional_params}  '
           'provision.yml'.format(target=env.hosts[0], additional_params=additional_params))
 
 
 def testing():
-    local('ansible-playbook -i inventories/{target} --ask-become-pass -vv testing.yml'.format(target=env.hosts[0]))
+    local('ansible-playbook -i inventories/all --limit {target} -vv testing.yml'.format(target=env.hosts[0]))
 
 def test():
     run('hostname -f')
@@ -96,7 +96,7 @@ def restore_db():
     Restore DB from latest backup.
 
     Usage:
-    fab [staging|production] restore_db
+    fab [staging|production|development] restore_db
     """
 
     prompt('\nV E R Y   D A N G E R O U S!!!\n==============================\n'
@@ -114,3 +114,13 @@ def restore_db():
 
     with hide('output'):
         run('ssh backup cat /home/swasher/pdfupload/{} | psql pdfuploaddb'.format(latest_backup))
+
+
+def replicate_db(source, destination):
+    """
+    Replicate database from source to destination
+    :param source:
+    :param destination:
+    :return:
+    """
+    pass

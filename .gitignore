@@ -7,6 +7,7 @@ db.sqlite3
 workflow/fixtures/initial_data.json
 test/**
 test.py
+vault_password
 
 
 # Файлы, создаваемые приложением
@@ -30,6 +31,5 @@ workflow/templates/test.html
 workflow/templates/info.html
 TODO.md
 rebuild_db.sh
-fabfile.py
 PDFSOFTWARE.md
 pdfupload/settings_secret.py

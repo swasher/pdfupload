@@ -8,7 +8,7 @@
     src=create_superuser.py.j2
     dest=/tmp/create_superuser.py
 
-- name: Start script to create superuser
+- name: Launch script to create superuser
   command: python /tmp/create_superuser.py
   args:
     chdir: "{{project_root}}"

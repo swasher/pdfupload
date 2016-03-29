@@ -5,10 +5,11 @@
 
   roles:
     - system
-    - backup
-    - pdf
+    - cron-backup
+    - pdf-utils
     - python
     - git
+    - get-source
     - smsc
     - nginx
     - redis

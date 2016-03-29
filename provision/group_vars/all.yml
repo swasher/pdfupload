@@ -23,14 +23,14 @@ secret_key:        "{{ vault_secret_key }}"
 passphrase:        "{{ vault_passphrase }}"
 
 # for create django superuser
-superusername:     "{{ vault_vault_superusername }}"
-superuserpassword: "{{ vault_vault_superuserpassword }}"
-superuseremail:    "{{ vault_vault_superuseremail }}"
+superusername:     "{{ vault_superusername }}"
+superuserpassword: "{{ vault_superuserpassword }}"
+superuseremail:    "{{ vault_superuseremail }}"
 
 # for create postgresql database
-db_name:           "{{ vault_vault_db_name }}"
-db_user:           "{{ vault_vault_db_user }}"
-db_password:       "{{ vault_vault_db_password }}"
+db_name:           "{{ vault_db_name }}"
+db_user:           "{{ vault_db_user }}"
+db_password:       "{{ vault_db_password }}"
 
 
 # for create ~/.ssh/config on every machine.

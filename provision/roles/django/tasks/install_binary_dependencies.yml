@@ -1,10 +1,10 @@
 ---
-- name: Install python
+- name: Install binary dependencies
   apt: >
     pkg={{item}}
     state=installed
     update-cache=yes
     cache_valid_time={{ apt_cache_valid_time }}
   with_items:
-    - libjpeg-dev
+    - libjpeg-dev #for pillow
   become: yes

@@ -203,4 +203,3 @@ admin.site.register(Customer, CustomerAdmin)
 admin.site.register(Contractor, ContractorAdmin)
 admin.site.register(OperationList)
 admin.site.register(PrintSheet, PrintSheetAdmin)
-

@@ -37,14 +37,14 @@ def provision():
     additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
 
     # Do you want verbose output from ansible? Uncomment it.
-    # additional_params += ' -vvv'
+    additional_params += ' -vv'
 
-    local('ansible-playbook -v -i inventories/all --limit {target} --ask-become-pass {additional_params}  '
+    local('ansible-playbook -i inventories/all --limit {target} --ask-become-pass {additional_params}  '
           'provision.yml'.format(target=env.hosts[0], additional_params=additional_params))
 
 
 def testing():
-    local('ansible-playbook -i inventories/all --limit {target} -vv testing.yml'.format(target=env.hosts[0]))
+    local('ansible-playbook -i inventories/all --limit {target} -vv --ask-become-pass testing.yml'.format(target=env.hosts[0]))
 
 def test():
     run('hostname -f')

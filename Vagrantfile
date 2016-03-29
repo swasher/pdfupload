@@ -53,7 +53,7 @@ Vagrant.configure(2) do |config|
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update -qq && sudo apt-get install python-dev libpython2.7-dev libyaml-dev mc -y -q
     curl -s https://bootstrap.pypa.io/get-pip.py | sudo python -
-    sudo pip install ansible==1.9.4 fabric
+    sudo pip install ansible==1.9.5 fabric
   SHELL
 
 
@@ -62,6 +62,8 @@ Vagrant.configure(2) do |config|
     # OLD way
 
   config.vm.provision "shell", privileged: false,  inline: <<-SHELL
+    git config --global user.name "swasher"
+    git config --global user.email "mr.swasher@gmail.com"
     cd pdfupload/provision && fab development provision
   SHELL
 

@@ -1,5 +1,5 @@
 ---
 - name: Set server type
   lineinfile: dest=/etc/environment
-              line='DJANGO_ENVIRONMENT={{group_names[0]}}'
+              line='SERVER_TYPE={{group_names[0]}}'
   become: yes

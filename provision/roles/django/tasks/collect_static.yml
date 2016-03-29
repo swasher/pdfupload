@@ -7,5 +7,5 @@
 
 - name: Collecting static
   django_manage: >
-    command=collectstatic
+    command="collectstatic --noinput --verbosity 0"
     app_path={{project_root}}

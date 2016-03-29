@@ -8,10 +8,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{project_name}}.settings")
 django.setup()
 from django.contrib.auth.models import User
 
+username = '{{superusername}}'
+password = '{{superuserpassword}}'
+email = '{{superuseremail}}'
+
 try:
     superuser = User.objects.get(username='{{superusername}}')
     print('Superuser already exist with email {}'.format(superuser.email))
 except Exception as e:
-    #print e
-    print('Superuser dont exist, create him')
-    User.objects.create_superuser(username='{{superusername}}', password='{{superuserpassword}}', email='{{superuseremail}}')
+    User.objects.create_superuser(username=username, password=password, email=email)

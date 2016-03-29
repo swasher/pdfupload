@@ -12,6 +12,9 @@
 - debug: msg="smsc_password is {{smsc_password}}"
 - debug: msg="secret_key is {{secret_key}}"
 - debug: msg="passphrase is {{passphrase}}"
+- debug: msg="superusername is {{superusername}}"
+- debug: msg="superuserpassword is {{superuserpassword}}"
+- debug: msg="superuseremail is {{superuseremail}}"
 #- debug: msg="vartest is {{vartest}}"
 
 - fail: msg="Halt due testing purpose."

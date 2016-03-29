@@ -47,30 +47,22 @@ Playbook requirements:
 Ansible variables
 -------------------------------
 
-Перед использованием Ansible нужно установить переменные:
-
-- адреса [user, ip, port] машин устанавливаются в roles/system/vars/main.yml. Этот файл находится под ansible-vault. При
-  развертывании эти данные прописываются в ~/.ssh/config и /etc/hosts. Таким образом, машины могут резольвить имена
-  друг друга и обращаться по ssh.
-- в group_vars/* FQDN и имя пользователя, от которого будет происходить развертывание (пользователь на удаленном сервере должен существовать)
-- в secret_vars - логин/пароль для отправки смс, для суперюзера джанго, подробнее см. `secret_vars_template.yml` 
-- {{remote_user}} должен быть одинаковый на всех серверах (кроме development, там имя пользователя vagrant)
-
 Перед развертывание нужно произвести настройку переменных в папке group_vars. Она содержит следующие файлы:
 
-- all.yml - основной файл с настройками. Приватные данные указаны как ссылки на vault
-- vault.yml - приватные данные, хранящиеся в VCS в зашифрованном виде
-- production,
-- staging,
-- development - эти файлы содержат FQDN и remote_user для соотв. узлов.
+- `all.yml` - основной файл с настройками. Приватные данные указаны как ссылки на `vault.yml`
+- `vault.yml` - приватные данные, хранящиеся в VCS в зашифрованном виде
+- `production`,
+- `staging`,
+- `development` - эти файлы содержат FQDN и remote_user для соотв. узлов.
 
-Пароль для
+
 
 
 The trick:
 Так как Ansible не работает под Microsoft Windows, плейбук запускается ВНУТРИ поднятого vagrant-бокса.
 
-> TODO cделать отдельно - развертывание из среды разработки и развертывание только с гитхаба
+> TODO Когда выйдет vagrant 1.8.2, можно будет попробовать запускать провизию через новый плагин ansible-local
+> В версии 1.8.1 имеется критический баг
 
 Есть некая условность (hardcoded) в именовании машин - они должны называться production, staging, developing 
 и backup соответственно.
@@ -84,13 +76,11 @@ Steps to reproduce new [staging|production] server:
 - [optional] if using DHCP, setting up static IP for new server (on router)
 - setup FQDN resolution for name of new server in local network (via router or hosts file). Name must be [staging|production]
 - reboot machine
-- on develping machine, write the connection data to provision/roles/system/vars/main.yml. There is example template along.
-
-        $ ansible-vault edit provision/roles/system/vars/main.yml
-
+- on develping machine, write the connection data to provision/group_vars/all.yml. Please attention, that there is many variables stored
+in crypted vault `vault.yml`
 - on develping machine, copy ssh key to target machine: ssh-copy-id [staging|production]
-- Note: Provision assumes, that pdfupload machine is dedicated server, so we do not use virtual environment.
-        This is due high load on file system during pdf processing.
+- start provision: `fab staging provision`
+- deploy code: `fan staging deploy`
 
 Steps to recreate local development environment
 
@@ -192,28 +182,6 @@ Install by hand
     
 После этого, пользователь должен перелогинится. Кроме того, пользователь должен быть обязательно прилогинен к
 терминалу tty1 (например, в консоли vSphere).
-
-Настройка конфигов
---------------------
-
-В `settings.py` проверяем настройки базы, менеджера очередей rq, а также наличие SECRET_KEY
-
-    from settings_secret import *
-
-    INSTALLED_APPS = (
-        ...
-        'django_rq',
-    )
-
-    ...
-
-    RQ_QUEUES = {
-         'default': {
-         'HOST': 'localhost',
-         'PORT': 6379,
-         'DB': 0,
-         },
-    }
 
 
 Хотфолдер и обработчик incrontab
@@ -347,7 +315,9 @@ Install by hand
     
 приведет к перезапуску uWSGI сервера.
 
-##### Supervisor DEPRECATED; use uwsgi emperor instead
+##### Supervisor
+
+##### DEPRECATED: use uwsgi emperor instead
 
 В конфиг `supervisord.conf` изменения вносить не нужно. Создаем только файл конфигурации для нашего 
 питон-приложения `/etc/supervisor/conf.d/pdfupload.conf`:
@@ -433,7 +403,7 @@ Install by hand
     - Параметр: Размер бумаги
     - Использование: Для кропа превью
     - Signa: тестовая метка, сожержащая размеры бумаги; пропадает при пересохранении документа
-    - Non-Signa: по границам найденных объектов; утилитой pdfcrop.pl
+    - Non-Signa: None; однако затем crop() использует размер на основе ghostscript -sDEVICE=bbox
 
 
 USE CASE

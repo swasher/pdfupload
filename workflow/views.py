@@ -51,9 +51,10 @@ logger = logging.getLogger(__name__)
 
 
 def about(request):
-    with open('stamp', 'r') as f:
-        stamp = f.read()
-    return render_to_response('about.html', {'stamp': stamp})
+    context = RequestContext(request)
+    with open('timestamp', 'r') as f:
+        timestamp = f.read()
+    return render_to_response('about.html', {'timestamp': timestamp}, context)
 
 
 @login_required

@@ -108,7 +108,7 @@ That's all!
 Due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision.
 Thread: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3),
 [two](https://github.com/mitchellh/vagrant/issues/2924),
-[three](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)"
+[three](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)".
 So we connect to box via ssh first, and then start provision INSIDE the vagrant box.
 
 Creating [staging|production] server:
@@ -384,12 +384,6 @@ USE CASE
 обрабатываются и заносятся в базу, но на фтп не отсылаются, а дата заливки берется как
 дата создания файла.
 
-
-Важные TODO
------------------------
-
-По неизвестной причине не удалось научить юзера www-data писать в tty1, хотя обычный юзер пишет туда замечательно после
-внесения его в группу tty. Поэтому uwsgi запускается от обычного непривилегированного пользователя, а не от www-data.
 
 TROUBLESHOOTING
 -----------------------

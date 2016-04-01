@@ -34,6 +34,8 @@ Overview
 Файл provision/provision.yml содержит подробные инструкции, как создать staging/production систему
 или окружение для разработки (development).
 
+Все операции проводятся внутри vagrant.
+
 >Внимание:
 >При запуске ansible локальные файлы не используются, все файлы берутся с гита! Поэтому перед
 >запуском provision нужно не забыть сделать push!
@@ -65,7 +67,7 @@ The trick:
 > TODO Когда выйдет vagrant 1.8.2, можно будет попробовать запускать провизию через новый плагин ansible-local
 > В версии 1.8.1 имеется критический баг
 
-Есть некая условность (hardcoded) в именовании машин - они должны называться production, staging, developing
+Есть некая условность (hardcoded) в именовании узлов - они должны называться production, staging, developing
 и backup соответственно.
 Именно такие константы используются в навании Ansible groups, в fabric, в настройках django-settings,
 в файле [ssh]config для запуска Ansible, etc.
@@ -80,7 +82,36 @@ Create keys on master node
 
 Эта пара ключей будет доставлена на все узлы.
 
-Steps to reproduce new [staging|production] server:
+Provision
+====================================
+
+Creating development node
+---------------------------------------
+
+Clone project from github:
+
+    $ git clone https://github.com/swasher/pdfupload.git
+
+Start vagrant box from project dir:
+
+    $ vagrant up
+
+Connect to vagrant and generate ssh keys:
+
+    $ vahrant ssh
+    $ ssh-keygen -t rsa
+
+That's all!
+
+**Some details:**
+
+Due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision.
+Thread: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3),
+[two](https://github.com/mitchellh/vagrant/issues/2924),
+[three](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)"
+So we connect to box via ssh first, and then start provision INSIDE the vagrant box.
+
+Creating [staging|production] server:
 ---------------------------------------------------------
 
 - create fresh ubuntu machine on ESXi (testing on 15.10). During install select `OpenSSH Server`.
@@ -94,43 +125,7 @@ in crypted vault `vault.yml`
 - start provision: `fab staging provision`
 - deploy code: `fan staging deploy`
 
-Steps to recreate local development environment
 
-- BUG 1: невозможно создать файл в шаред фолдер
-- BUG 2: невозможно использовать интерактивный ввод-вывод при работе плейбука
-
-- install pycharm, git for windows, virtualbox, vagrant with latest ubuntu server
-- download latest box with Ubuntu, for example 15.04: `vagrant box add ubuntu/vivid64`
-- clone project from github: `git clone https://github.com/swasher/pdfupload.git`
-- using PowerShell, start vagrant box from project dir: `vagrant up`
-
-- due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision.
-- --- Folk: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3), [two](https://github.com/mitchellh/vagrant/issues/2924), [and at last](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)"
-- --- so we connect to box via ssh first, and then start provision INSIDE the vagrant box. 
-- enter vagrant box: `vagrant ssh`
-- start provision: `cd pdfupload/provision && fab developing provision`
-
-- generate keys: `ssh-keygen -t rsa`
-
-Steps to update vagrant box
-
-- vagrant halt
-- vagrant box update
-- vagrant up
-
-Development tools tunung:
-
-- git
---- ensure `C:\Program Files (x86)\Git\etc\gitconfig` have `autocrlf = false` (git doesn't process files)
-- pycharm
---- settings -> editor -> file encodings -> project and default encoding -> utf-8
---- settings -> editor -> code style -> line separator -> unix and osx
-
-- add string to your hosts file or adjustment your router: [machine-ip] [machine-fqdn], where fqdn from group_vars
-- vault magic word hint: b-0
-
-TODOes and temporary solution:
-- owner of uwsgi process set to normal user, not www-data, due www-data can't write to tty1, even it is in tty group
 
 Deploy
 ======================================

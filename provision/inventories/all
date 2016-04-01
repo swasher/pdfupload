@@ -1,4 +1,4 @@
-# Your servers must be configured in ~/.ssh/config
+# Servers must be configured in ~/.ssh/config on master node for name resolving
 
 [development]
 #local:2222  ansible_connection=local

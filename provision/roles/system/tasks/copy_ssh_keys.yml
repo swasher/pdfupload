@@ -1,25 +1,28 @@
 ---
 
 - name: Import secret variable file
-  include_vars: "vault_ssh_keys.yml"
+  include_vars: "group_vars/vault_ssh_keys.yml"
   no_log: true
 
 - name: Copy staging private key
   copy:
     content: "{{staging_private_key_content}}"
     dest: "/home/{{remote_user}}/.ssh/id_rsa"
-    owner: {{remote_user}}
-    group: {{remote_user}}
+    owner: "{{remote_user}}"
+    group: "{{remote_user}}"
     mode: 0600
   when: group_names[0]=="staging"
   no_log: true
+  become: true
+
 
 - name: Copy staging public key
   copy:
     content: "{{staging_public_key_content}}"
     dest: "/home/{{remote_user}}/.ssh/id_rsa.pub"
-    owner: {{remote_user}}
-    group: {{remote_user}}
+    owner: "{{remote_user}}"
+    group: "{{remote_user}}"
     mode: 0644
-  no_log: true
   when: group_names[0]=="staging"
+  no_log: true
+  become: true

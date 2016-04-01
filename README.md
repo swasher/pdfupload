@@ -17,18 +17,18 @@ Requirements
 - reportlab==3.3.0
 - pdfminer==20140328
 
-Installation
+Overview
 --------------------------
 
 Обслуживание производится на четырех узлах:
 
-- development - машина разработчика, развернутая в vagrant
-- staging - машина для тестирования деплоя
+- development - машина разработчика, развернутая в vagrant (master node в терминологии ansible)
 - production - собственно сервер с системой
+- staging - машина для тестирования деплоя
 - backup - сервер для бекапа базы данных
 
-Установка производится с помощью менеджера конфигурций Ansible. Ключи создаются вручную. Для доступа от production до
-backup используется ключ без пасс-фразы.
+Установка производится с помощью менеджера конфигурций Ansible. Ключи создаются вручную. Для доступа
+от production до backup используется ключ без пасс-фразы.
 
 Директория provision содержит все необходимое для автоматического развертывания с помощью Ansible.
 Файл provision/provision.yml содержит подробные инструкции, как создать staging/production систему
@@ -44,7 +44,10 @@ Playbook requirements:
 - systemd daemon manager
 
 
-Ansible variables
+Before provision
+====================================
+
+Set Ansible variables
 -------------------------------
 
 Перед развертывание нужно произвести настройку переменных в папке group_vars. Она содержит следующие файлы:
@@ -56,27 +59,36 @@ Ansible variables
 - `development` - эти файлы содержат FQDN и remote_user для соотв. узлов.
 
 
-
-
 The trick:
 Так как Ansible не работает под Microsoft Windows, плейбук запускается ВНУТРИ поднятого vagrant-бокса.
 
 > TODO Когда выйдет vagrant 1.8.2, можно будет попробовать запускать провизию через новый плагин ansible-local
 > В версии 1.8.1 имеется критический баг
 
-Есть некая условность (hardcoded) в именовании машин - они должны называться production, staging, developing 
+Есть некая условность (hardcoded) в именовании машин - они должны называться production, staging, developing
 и backup соответственно.
-Именно такие константы используются в навании Ansible groups, в fabric, в настройках django-settings, 
-в файле [ssh]config для запуска Ansible, etc. 
+Именно такие константы используются в навании Ansible groups, в fabric, в настройках django-settings,
+в файле [ssh]config для запуска Ansible, etc.
+
+
+Create keys on master node
+--------------------------------------------------------
+
+До запуска провижена необходимо создать ключи (если они отсутствуют):
+
+    $ ssh-keygen -t rsa -C "your_email@example.com"
+
+Эта пара ключей будет доставлена на все узлы.
 
 Steps to reproduce new [staging|production] server:
+---------------------------------------------------------
 
-- create fresh ubuntu machine on ESXi (testing on 15.04). During install select `OpenSSH Server`.
+- create fresh ubuntu machine on ESXi (testing on 15.10). During install select `OpenSSH Server`.
 - [optional] set up custom ssh port in /etc/ssh/sshd-config
 - [optional] if using DHCP, setting up static IP for new server (on router)
 - setup FQDN resolution for name of new server in local network (via router or hosts file). Name must be [staging|production]
 - reboot machine
-- on develping machine, write the connection data to provision/group_vars/all.yml. Please attention, that there is many variables stored
+- on ansible master machine, write the connection data to provision/group_vars/all.yml. Please attention, that there is many variables stored
 in crypted vault `vault.yml`
 - on develping machine, copy ssh key to target machine: ssh-copy-id [staging|production]
 - start provision: `fab staging provision`
@@ -121,7 +133,10 @@ TODOes and temporary solution:
 - owner of uwsgi process set to normal user, not www-data, due www-data can't write to tty1, even it is in tty group
 
 Deploy
---------------------
+======================================
+
+Deploy code
+--------------------------------------
 
 Деплой выполняется одной командой fabric:
 
@@ -134,55 +149,15 @@ Deploy
 
     $ fab restore_staging
 
-Эта команда выполнит зеркалирование production на staging, включая так же копирование баз данных.
+Эта команда выполнит зеркалирование приложения с production на staging, включая так же копирование баз данных.
 
-Install by hand
---------------------
+Deploy data
+--------------------------------------
 
-Установка выполняется с использование ansible. Ниже описано, как установить вручную.
+> TODO
 
-Установка требует следующих шагов:
-
-- Установка
-- Настройка конфигов
-- Обработчик incrontab
-- Доступ по samba
-- uWSGI, emperor и nginx
-
-##### Забираем репозиторий
-
-    $ git clone https://github.com/swasher/pdfupload.git
-    
-и создаем директорию для логов
-
-    $ mkdir pdfupload/logs
-
-##### Устанавливаем зависимости
-    
-    $ sudo apt-get install redis-server
-    $ pip install -r requirements.txt
-    $ deactivate
-
-Ставим incrontab, и разрешаем пользователю управлять им:    
-
-    $ sudo apt-get install incron
-    $ sudo echo <username> >> /etc/incron.allow
-    
-В корень проекта необходимо положить библиотеку для отправки sms. Используется smsc.ua, файл API по
-адресу http://smsc.ua/api/python/
-нужно положить в workflow/smsc_api.py
-
-
-##### Запись в tty
-
-Чтобы скрипт мог выводить служебную информацию в терминал, нужно, чтобы пользователь, от имени которого запускается
-скрипт, имел право записи в /dev/tty1. В дебиан/убунту tty1 имеет владельца root:tty, нужно добавить юзера в группу tty:
-    
-    $ sudo adduser $USER dialout  
-    
-После этого, пользователь должен перелогинится. Кроме того, пользователь должен быть обязательно прилогинен к
-терминалу tty1 (например, в консоли vSphere).
-
+Misc
+=====================================
 
 Хотфолдер и обработчик incrontab
 ----------------------------
@@ -315,9 +290,10 @@ Install by hand
     
 приведет к перезапуску uWSGI сервера.
 
+
 ##### Supervisor
 
-##### DEPRECATED: use uwsgi emperor instead
+**DEPRECATED: use uwsgi emperor instead**
 
 В конфиг `supervisord.conf` изменения вносить не нужно. Создаем только файл конфигурации для нашего 
 питон-приложения `/etc/supervisor/conf.d/pdfupload.conf`:
@@ -348,7 +324,7 @@ Install by hand
 Подробно по ссылке выше, рабочие конфиги в `provision/roles/uwsgi`
 
 Методика анализа
------------------------
+====================================
 
 В скрипте применяется анализ файла, основанный на метках signastation и имени файла. 
 В отдельных местах есть возможность альтерантивной методики детектирования.

@@ -10,8 +10,6 @@ input_dir:         "{{ user_home }}/input"
 ram_dir:           "/run/uwsgi"
 socket:            "{{ram_dir}}/{{project_name}}.socket"
 
-
-
 # credentials for http://smsc.ua/
 smsc_login:        "{{ vault_smsc_login }}"
 smsc_password:     "{{ vault_smsc_password }}"
@@ -47,3 +45,10 @@ staging_user:      "{{ vault_staging_user }}"
 backup_ip:         "{{ vault_backup_ip }}"
 backup_port:       "{{ vault_backup_port }}"
 backup_user:       "{{ vault_backup_user }}"
+
+# This variables stored in `vault_ssh_keys.yml`
+# DO NOT IMPORT this variables here for security reason.
+# Keys must be imported directly in tasks with 'no_log: true'
+# Keys stored as multiline variables
+# {{staging_private_key_content}}
+# {{staging_public_key_content}}

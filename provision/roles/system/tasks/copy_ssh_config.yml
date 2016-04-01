@@ -1,10 +1,8 @@
 ---
-
 - name: Ensure .ssh dir exist
   file: >
     path=/home/{{remote_user}}/.ssh
     state=directory
-
 
 - name: Copy .config
   template: >

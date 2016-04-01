@@ -92,8 +92,6 @@ def grid(request, mode=''):
     except:
         pass
 
-    print settings.LOGIN_REDIRECT_URL  #TEST
-
     # This code will create 'shelve.db' if it absent. You need uncoment code and
     # reload page. So 'shelve.db' will be created
     # d = shelve.open('shelve.db')

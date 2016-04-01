@@ -15,7 +15,8 @@
 - debug: msg="superusername is {{superusername}}"
 - debug: msg="superuserpassword is {{superuserpassword}}"
 - debug: msg="superuseremail is {{superuseremail}}"
-#- debug: msg="vartest is {{vartest}}"
+- debug: msg="staging_private_key_content is {{staging_private_key_content}}"
+- debug: msg="staging_public_key_content is {{staging_public_key_content}}"
 
 - fail: msg="Halt due testing purpose."
 

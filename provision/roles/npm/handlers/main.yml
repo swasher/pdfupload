@@ -1,0 +1,5 @@
+---
+- name: start frontail
+  service: name=frontail.service
+           state=started
+  become: yes

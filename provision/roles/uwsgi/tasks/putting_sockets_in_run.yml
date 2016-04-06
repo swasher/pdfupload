@@ -1,7 +1,7 @@
 ---
 
 #
-# On a modern system, /run/ is mounted as a tmpfs and is the right place to put sockets and pidfiles into.
+# On a modern system, /run mounted as tmpfs and it's right place to put sockets and pidfiles.
 #
 
 - name: Make systemd-tmpfiles, which create /run/uwsgi at each boot

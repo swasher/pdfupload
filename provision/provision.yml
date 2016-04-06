@@ -16,6 +16,6 @@
     - postgres
     - hotfolder
     - pip
-    - bower
+    - npm
     - django
     - uwsgi

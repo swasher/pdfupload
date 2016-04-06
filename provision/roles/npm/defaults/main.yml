@@ -1,0 +1,4 @@
+---
+apt_cache_valid_time: 86400
+frontail_service: frontail.service
+frontail_log: /home/vagrant/log/uwsgi-error.log

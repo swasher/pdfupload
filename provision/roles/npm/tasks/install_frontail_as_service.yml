@@ -1,0 +1,10 @@
+---
+
+- name: Setup systemd SERVICE file for the emperor
+  copy: src=frontail.service.j2 dest=/etc/systemd/system/{{frontail_service}} mode=0644 owner=root group=root
+  when: >
+      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
+      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
+  notify:
+    - start frontail
+  become: yes

@@ -1,0 +1,17 @@
+[Unit]
+Description=Frontail daemon
+After=syslog.target
+
+[Service]
+ExecStart=/usr/local/bin/frontail {{frontail_log}}
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -INT $MAINPID
+Restart=always
+Type=forking
+StandardError=syslog
+NotifyAccess=all
+KillSignal=SIGQUIT
+PIDFile=/run/frontail.pid
+
+[Install]
+WantedBy=multi-user.target

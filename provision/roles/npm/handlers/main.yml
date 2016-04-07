@@ -3,6 +3,7 @@
   # do daemon-reload when add or change unit
   shell: systemctl daemon-reload
   notify: restarting frontail
+  become: yes
 
 - name: restarting frontail
   service: >

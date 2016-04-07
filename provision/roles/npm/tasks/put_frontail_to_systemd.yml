@@ -7,17 +7,7 @@
     owner=root
     group=root
   notify:
-  - start frontail
+  - restart frontail
   become: yes
 
-- name: Start frontail.service
-  service: >
-    name={{frontail_service}}
-    state=started
-  become: yes
 
-- name: Enable frontail.service
-  service: >
-    name={{frontail_service}}
-    enabled=yes
-  become: yes

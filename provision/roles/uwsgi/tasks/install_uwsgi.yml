@@ -13,7 +13,7 @@
   become: yes
 
 
-- name: Making sure uwsgi config directories are there
+- name: Make sure if uwsgi config directories is there
   file: path=/etc/{{ item }} state=directory mode=0755
   with_items:
     - uwsgi
@@ -29,12 +29,6 @@
     owner=root
     group=root
   become: yes
-
-
-# FOR UPSTART
-#- name: Setup upstart job for the emperor NOT TESTING - MAY NOT WORK
-#  copy: src=upstart.conf dest=/etc/init/uwsgi.conf mode=0644 owner=root group=root
-#  become: yes
 
 
 - name: Setup systemd SERVICE file for the emperor

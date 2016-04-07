@@ -1,0 +1,3 @@
+---
+watch_log: user.log
+frontail_log: /home/{{remote_user}}/log/{{watch_log}}

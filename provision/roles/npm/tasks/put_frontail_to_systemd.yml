@@ -1,4 +1,9 @@
 ---
+- name: ensure tailing log file is present
+  file: >
+    path="{{frontail_log}}"
+    state=touch
+
 - name: frontail start as systemd service
   template: >
     src=frontail.service.j2

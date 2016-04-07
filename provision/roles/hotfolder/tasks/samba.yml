@@ -1,5 +1,5 @@
 ---
-- name: Install samba.
+- name: Install samba
   apt: >
     pkg={{item}}
     state=installed
@@ -22,35 +22,35 @@
 
 
 
-- name: set local master -> no
+- name: Set local master -> no
   lineinfile: dest=/etc/samba/smb.conf
               line='local master = no'
               insertafter="\[global\]"
   become: yes
 
 
-- name: set os level -> 1
+- name: Set os level -> 1
   lineinfile: dest=/etc/samba/smb.conf
               line='os level = 1'
               insertafter="\[global\]"
   become: yes
 
 
-- name: set domain master -> no
+- name: Set domain master -> no
   lineinfile: dest=/etc/samba/smb.conf
               line='domain master = no'
               insertafter="\[global\]"
   become: yes
 
 
-- name: set preffered master -> no
+- name: Set preffered master -> no
   lineinfile: dest=/etc/samba/smb.conf
               line='preferred master = no'
               insertafter="\[global\]"
   become: yes
 
 
-- name: change workgroup
+- name: Change workgroup
   replace: dest=/etc/samba/smb.conf
            regexp='(\s+workgroup = )\w+(\n)'
            replace='\1{{workgroup}}\2'

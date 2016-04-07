@@ -2,9 +2,9 @@
 - name: restart frontail
   # do daemon-reload when add or change unit
   shell: systemctl daemon-reload
-  notify: restart frontail
+  notify: restarting frontail
 
-- name: restart frontail
+- name: restarting frontail
   service: >
     name=frontail.service
     state=restarted

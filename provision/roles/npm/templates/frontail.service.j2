@@ -3,7 +3,7 @@ Description=Frontail daemon
 After=syslog.target
 
 [Service]
-ExecStart=/usr/local/bin/frontail {{frontail_log}}
+ExecStart=/usr/local/bin/frontail {{frontail_log}} --ui-highlight
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=frontail

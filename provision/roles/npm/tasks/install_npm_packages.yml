@@ -1,5 +1,6 @@
 ---
-- npm: >
+- name: Install npm packages
+  npm: >
     name={{item}}
     global=yes
   with_items:
@@ -8,7 +9,7 @@
   become: yes
 
 # look https://github.com/joyent/node/issues/3911
-- name: bower hack for ubuntu
+- name: Bower hack for ubuntu
   file: >
    src=/usr/bin/nodejs
    dest=/usr/bin/node

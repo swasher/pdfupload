@@ -8,4 +8,4 @@ default ansible_connection=local
 production
 
 [staging]
-staging
+staging ansible_sudo_pass="{{staging_sudo}}"

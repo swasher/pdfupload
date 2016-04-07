@@ -1,0 +1,16 @@
+---
+- npm: >
+    name={{item}}
+    global=yes
+  with_items:
+    - bower
+    - frontail
+  become: yes
+
+# look https://github.com/joyent/node/issues/3911
+- name: bower hack for ubuntu
+  file: >
+   src=/usr/bin/nodejs
+   dest=/usr/bin/node
+   state=link
+  become: yes

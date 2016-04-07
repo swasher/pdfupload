@@ -50,4 +50,3 @@
       (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
       or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
   become: yes
-

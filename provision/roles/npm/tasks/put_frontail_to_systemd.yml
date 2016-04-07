@@ -1,0 +1,23 @@
+---
+- name: frontail start as systemd service
+  template: >
+    src=frontail.service.j2
+    dest=/etc/systemd/system/{{frontail_service}}
+    mode=0644
+    owner=root
+    group=root
+  notify:
+  - start frontail
+  become: yes
+
+- name: Start frontail.service
+  service: >
+    name={{frontail_service}}
+    state=started
+  become: yes
+
+- name: Enable frontail.service
+  service: >
+    name={{frontail_service}}
+    enabled=yes
+  become: yes

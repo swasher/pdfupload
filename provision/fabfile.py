@@ -39,7 +39,7 @@ def provision():
     # Do you want verbose output from ansible? Uncomment it.
     additional_params += ' -vv'
 
-    local('ansible-playbook -i inventories/all --limit {target} --ask-become-pass {additional_params}  '
+    local('ansible-playbook -i inventories/all --limit {target} {additional_params}  '
           'provision.yml'.format(target=env.hosts[0], additional_params=additional_params))
 
 
@@ -62,7 +62,7 @@ def deploy():
         run('git reset --hard origin/master')
         run('bower install')
         run('sudo pip install -r requirements.txt')
-        run('python manage.py collectstatic --noinput --clear ')
+        run('python manage.py collectstatic --noinput --clear --verbosity 1')
         run('python manage.py migrate')
         run('touch /tmp/pdfupload.reload')
         run('echo `date +"%H:%m %d.%m.%Y"` > stamp')

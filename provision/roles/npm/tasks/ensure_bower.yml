@@ -1,8 +1,0 @@
----
-- npm: name=bower global=yes
-  become: yes
-
-# look https://github.com/joyent/node/issues/3911
-- name: hack for ubuntu
-  file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
-  become: yes

@@ -1,4 +1,5 @@
 ---
 - include: ensure_npm.yml
-- include: ensure_bower.yml
-- include: install_project-dependencies.yml
+- include: install_npm_packages.yml
+- include: install_bower_packages.yml
+- include: put_frontail_to_systemd.yml

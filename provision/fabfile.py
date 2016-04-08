@@ -50,7 +50,7 @@ def provision():
 
 
 def testing():
-    local('ansible-playbook -i inventories/all --limit {target} -vvv --ask-become-pass testing.yml'.format(target=env.hosts[0]))
+    local('ansible-playbook -i inventories/all --limit {target} -vvv testing.yml'.format(target=env.hosts[0]))
 
 def test():
     run('hostname -f')

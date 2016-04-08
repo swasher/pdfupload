@@ -1,6 +1,6 @@
 ---
 #- include: test.yml
-- include: check_os_support
+- include: check_os_support.yml
 - include: tty_permission.yml
 - include: utf8_console.yml
 - include: copy_ssh_config.yml

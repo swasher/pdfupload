@@ -1,8 +1,7 @@
 ---
 - name: Check OS support
   debug: >
-    msg="The following OS family {{ ansible_os_family }} {{ ansible_architecture }} is not supported"
+    msg="The following OS distribution {{ ansible_distribution }} {{ ansible_lsb.major_release }} is not supported"
     fail=yes
   when: (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
         or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
-

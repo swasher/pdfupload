@@ -89,7 +89,9 @@ def analyze_machine(pdf):
 
     print '\n--> Detect machine'
     machines = {}
+    print 1
     if pdf.marks:
+        print('detect by signa mark')
         machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, pdf.marks)
 
         for page, piece_info in pdf.marks.items():
@@ -130,7 +132,7 @@ def analyze_machine(pdf):
                 if (press.plate_w == pdf.platesize[page][0]) and (press.plate_h == pdf.platesize[page][1]):
                     machines[page] = press
 
-    # print('machines=', machines)
+    print('machines=', machines)
 
     #Check if machine detected
     #-----------------------------------------------------------------

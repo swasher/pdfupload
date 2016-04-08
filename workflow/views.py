@@ -213,6 +213,8 @@ def processing(pdfName):
     environment = os.getenv('SERVER_TYPE')  #, 'development')   #TEST
     print('SERVER_TYPE={}'.format(environment))                 #TEST
 
+    logger.debug("this is a debug message!")
+
     pdf = PDF(pdfName)
 
     # Переименовываем - из названия PDF удаляется имя выводильщика

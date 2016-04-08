@@ -1,3 +1,5 @@
+/provision/restore_db_from_backup.yml
+/provision/deploy.yml
 # Приватные файлы
 **/*.txt
 !requirements.txt

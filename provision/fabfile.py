@@ -26,6 +26,12 @@ def production():
 def development():
     env.hosts = ['development']
 
+def deploy():
+    additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
+
+    local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
+          format(target=env.hosts[0], additional_params=additional_params))
+
 
 def provision():
     """
@@ -39,8 +45,8 @@ def provision():
     # Do you want verbose output from ansible? Uncomment it.
     additional_params += ' -vv'
 
-    local('ansible-playbook -i inventories/all --limit {target} {additional_params}  '
-          'provision.yml'.format(target=env.hosts[0], additional_params=additional_params))
+    local('ansible-playbook -i inventories/all --limit {target} {additional_params} provision.yml'.
+          format(target=env.hosts[0], additional_params=additional_params))
 
 
 def testing():
@@ -116,11 +122,40 @@ def restore_db():
         run('ssh backup cat /home/swasher/pdfupload/{} | psql pdfuploaddb'.format(latest_backup))
 
 
-def replicate_db(source, destination):
+def restore_local_db():
+    """
+    Restore DB from latest backup.
+    It's very ugly copy of restore_local_db, becouse command for remote and local side are different (local and
+
+    Usage:
+    fab [staging|production|development] restore_db
+    """
+
+    prompt('\nV E R Y   D A N G E R O U S!!!\n==============================\n'
+           'Type `yes` for delete current DB and restore this one from backup server\n', key='answer', default='no')
+
+    if env.answer != 'yes':
+        exit('Terminate.')
+
+    sudo('dropdb --if-exists pdfuploaddb', user='postgres')
+    sudo('createdb --encoding=\'UTF-8\' --owner=swasher --template=template0 pdfuploaddb', user='postgres')
+
+    latest_backup = local('ssh backup ls -rt /home/swasher/pdfupload | tail -1', capture=True)
+
+    print 'latest backup =', latest_backup
+
+    with hide('output'):
+        run('ssh backup cat /home/swasher/pdfupload/{} | psql pdfuploaddb'.format(latest_backup))
+
+
+def replicate_db(source, target):
     """
     Replicate database from source to destination
     :param source:
-    :param destination:
+    :param target:
     :return:
     """
     pass
+
+    # something like
+    # pg_dump -C -h remotehost1 -U remoteuser1 db_name | psql remotehost2 -U remoteuser2 db_name

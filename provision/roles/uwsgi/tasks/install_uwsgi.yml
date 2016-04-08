@@ -33,14 +33,8 @@
 
 - name: Setup systemd SERVICE file for the emperor
   copy: src=systemd.service dest=/etc/systemd/system/{{emperor_service}} mode=0644 owner=root group=root
-  when: >
-      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
   become: yes
 
 - name: Setup systemd SOCKET file for the emperor
   template: src=systemd.socket dest=/etc/systemd/system/{{emperor_socket}} mode=0644 owner=root group=root
-  when: >
-      (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-      or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
   become: yes

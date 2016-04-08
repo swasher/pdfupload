@@ -154,11 +154,11 @@ USE_TZ = False
 # LOGGING SETUP
 #
 
-import logging
-logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
-                    datefmt='%d/%m/%Y %H:%M',
-                    filename=HOME_DIR + '/log/django_debug.log',
-                    level=logging.DEBUG)
+# import logging
+# logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
+#                     datefmt='%d/%m/%Y %H:%M',
+#                     filename=HOME_DIR + '/log/django_debug.log',
+#                     level=logging.DEBUG)
 
 # LOGGING = {
 #     'version': 1,
@@ -198,6 +198,41 @@ logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
 #         },
 #     }
 # }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(HOME_DIR, 'log', 'user.log'),
+            'maxBytes': 1024 * 1024 * 15,  # 15MB
+            'backupCount': 10,
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers':['file'],
+            'propagate': True,
+            'level':'DEBUG',
+        },
+        'workflow': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+    }
+}
 
 
 #

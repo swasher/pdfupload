@@ -340,7 +340,8 @@ def save_bd_record(pdf):
     else:
         bg = 'default'
 
-    logger.info(('\n――> Save into database:'))
+    logger.info('')
+    logger.info('――> Save into database:')
 
     try:
         row = Grid()

@@ -4,7 +4,7 @@
 import sys
 import os
 from pprint import pprint
-#from analyze import analyze_signastation
+import logging
 
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager
@@ -15,6 +15,8 @@ from pdfminer.layout import LAParams
 from pdfminer.layout import LTFigure, LTChar
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfpage import PDFTextExtractionNotAllowed
+
+logger = logging.getLogger(__name__)
 
 # XObject pssMO*_* - это сигновские метки (Mark Object)
 # XObject pssPO*_* - это страницы вывода (Page Object)
@@ -94,7 +96,7 @@ def mark_extraction(pdf):
     print m[page][signa-mark-name][(0|1|2)(mark_text|xobject|SubType)]
 
     """
-    print '\n--> Mark extraction'
+    logger.info('\n――> Mark extraction')
     if pdf.is_signastation:
 
         fp = open(pdf.abspath, 'rb')
@@ -150,7 +152,7 @@ def mark_extraction(pdf):
 
             for xobject, value in resources.items():
                 if 'pssMO' in xobject:
-                    #print '\n', key
+                    # logger.info('\n', key)
                     CreationName = value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationName']
                     CreationType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationType']).translate(None, '/')  # I don't use it
                     SubType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['SubType']).translate(None, '/')
@@ -158,10 +160,10 @@ def mark_extraction(pdf):
                     current_page_mark_dict[CreationName] = (text_dict[xobject], xobject, SubType)
 
             result[n] = current_page_mark_dict
-            print('····ok, page {}'.format(n+1))
+            logger.info('····ok, page {}'.format(n+1))
 
     else:
-        print('····SKIP [non-signa file]')
+        logger.info('····SKIP [non-signa file]')
         result = None
 
     return result
@@ -201,6 +203,9 @@ def detect_mark(list_of_available_marks, pdf_extracted_marks):
 
 
 if __name__ == '__main__':
+
+    # debugging
+
     test_path = '/home/vagrant/!!print/pdf_for_testing'
     if len(sys.argv) < 2:
         f = os.path.join(test_path, '0007_Operniy_Afihsa_S16_NEWMARKS_Admin.pdf')

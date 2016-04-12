@@ -19,6 +19,7 @@ from analyze import analyze_date
 from analyze import analyze_ordername
 from signamarks import mark_extraction
 
+logger = logging.getLogger(__name__)
 
 class PDF:
 
@@ -83,5 +84,5 @@ class PDF:
         try:
             shutil.move(inputpath + self.name, self.tmpdir + self.name)
         except Exception, e:
-            logging.error('{}: Cant move to temp: {}'.format(self.name, e))
-            exit('Error moving to temp: {}'.format(e))
+            logger.error('{}: Cant move to temp: {}'.format(self.name, e))
+            exit()

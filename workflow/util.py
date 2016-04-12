@@ -13,6 +13,8 @@ from datetime import datetime
 from django.conf import settings
 from ftplib import FTP
 
+logger = logging.getLogger(__name__)
+
 
 def mm(points):
     """
@@ -98,7 +100,7 @@ def sendfile(pdf, receiver):
     # print 'port:',receiver.port,  type(receiver.port)
     # print 'login:',receiver.login
     # print 'pass:',receiver.passw
-    print '\n--> Try connect to {}'.format(receiver.name)
+    print '\n――> Try connect to {}'.format(receiver.name)
 
     if not import_mode:
         try:

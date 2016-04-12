@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import calendar
+import logging
 
 from django.shortcuts import render_to_response
 from django.db.models import Sum, Min, Max
@@ -9,6 +10,8 @@ from django.shortcuts import RequestContext
 
 from models import Grid
 from models import PrintingPress
+
+logger = logging.getLogger(__name__)
 
 # Какие хочу графики:
 # - всего плит/месяц и м2/месяц
@@ -48,7 +51,7 @@ def report(request):
         plates_per_month = []
         for month in range(1, 13):
             plates = Grid.objects.filter(datetime__year=year, datetime__month=month).aggregate(Sum('total_plates'))['total_plates__sum']
-            # debug print 'month', calendar.month_name[month], 'plates', plates
+            # logger.debug('month', calendar.month_name[month], 'plates', plates)
             plates_per_month.append(plates)
 
         chartdata = {'x': x_axis_month, 'y': plates_per_month}
@@ -66,13 +69,11 @@ def report(request):
 
     ### График - всего плит за месяц VERSION2
     chart1 = []
-    print '\n'
+    logger.info('\n')
     for year in range(min_year, max_year+1):
         plates_array = []
         area_array = []
         chartdata = {}
-
-        print 'YEAR', year
 
         for month in range(1, 13):
             plates = Grid.objects.filter(datetime__year=year, datetime__month=month).aggregate(Sum('total_plates'))['total_plates__sum']
@@ -112,11 +113,11 @@ def report(request):
             ydata = []
             for month in range(1, 13):
                 plates = Grid.objects.filter(machine=machine, datetime__year=year, datetime__month=month).aggregate(Sum('total_plates'))['total_plates__sum']
-                #print 'machine', machine, 'month', calendar.month_name[month], 'plates', plates
+                #logger.debug('machine', machine, 'month', calendar.month_name[month], 'plates', plates)
                 ydata.append(plates)
             chartdata['name{}'.format(i)] = machine.name
             chartdata['y{}'.format(i)] = ydata
-            #print 'I=', i, 'YEAR', year, 'machine', machine.name, 'DATA', ydata, '\r'
+            # logger.debug('I=', i, 'YEAR', year, 'machine', machine.name, 'DATA', ydata, '\r')
 
 
         """

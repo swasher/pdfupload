@@ -88,9 +88,9 @@ def analyze_machine(pdf):
     :return: machine - словарь или None, если не удалось определить
     """
 
-    logger.info('\n--> Detect machine')
+    logger.info('\n')
+    logger.info('――> Detect machine')
     machines = {}
-    print 1
     if pdf.marks:
         logger.info('detect by signa mark')
         machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, pdf.marks)
@@ -133,7 +133,7 @@ def analyze_machine(pdf):
                 if (press.plate_w == pdf.platesize[page][0]) and (press.plate_h == pdf.platesize[page][1]):
                     machines[page] = press
 
-    print('machines=', machines)
+    logger.info('machines=', machines)
 
     #Check if machine detected
     #-----------------------------------------------------------------
@@ -181,7 +181,7 @@ def analyze_papersize(pdf):
                 logger.warning('Страница {} не содержит cигновской метки {}'.format(page_number, paper_mark_name))
                 paper_w, paper_h = None, None
 
-            #print(page_number, machine.encode('utf-8'), paper)
+            #logger.info(page_number, machine.encode('utf-8'), paper)
             papersizes[page_number] = (machine, paper_w, paper_h)
 
     else:
@@ -229,7 +229,7 @@ def detect_outputter(pdf):
     :param pdf: объект pdf
     :return: outputter (instance of FTP_server)
     """
-    print('--> Detect outputter')
+    logger.info('――> Detect outputter')
     try:
         #
         # Try detect via signa marks
@@ -277,7 +277,8 @@ def analyze_inkcoverage(pdf):
     :param pdf: объект pdf
     :return: inks(dict)
     """
-    logger.info('\n--> Starting ink coverage calculating')
+    logger.info('')
+    logger.info('――> Starting ink coverage calculating')
     gs_command = r"gs -q -o - -sProcessColorModel=DeviceCMYK -sDEVICE=ink_cov {}".format(pdf.name)
     result = Popen(gs_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
     logger.info('····done')

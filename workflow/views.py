@@ -104,9 +104,6 @@ def grid(request, mode=''):
 
     context = RequestContext(request)
 
-    logger.debug("this is a debug message!")
-    logger.error("this is an error message!!")
-
     # Фильтр по умолчанию - за последние n дней.
     myquery = Q()
     n = 60

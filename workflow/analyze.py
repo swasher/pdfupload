@@ -15,6 +15,8 @@ from signamarks import detect_mark
 from PyPDF2 import PdfFileReader
 from util import mm
 
+logger = logging.getLogger(__name__)
+
 def detect_is_pdf(pdf):
     """
     Проверяет, является ли файл типом PDF
@@ -27,13 +29,13 @@ def detect_is_pdf(pdf):
 
     extension = pdf.name.split('.')[-1]
     if extension.lower() == "pdf" and file_is_pdf_document:
-        print("File type: {}".format(filetype))
+        logger.info("File type: {}".format(filetype))
         return True, filetype
     else:
-        logging.error('File [{0}] is NOT PDF - exit!'.format(pdf.name))
         os.unlink(pdf.abspath)
         os.removedirs(pdf.tmpdir)
-        exit('File [{0}] is NOT PDF - exiting...'.format(pdf.name))
+        logger.error('File [{0}] is NOT PDF - exiting...'.format(pdf.name))
+        exit()
         # return False, filetype
 
 
@@ -45,11 +47,10 @@ def detect_is_signastation(pdf):
     creator = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().strip()
     if 'PrinectSignaStation' in creator:
         valid_signa = True
-        print 'File сreator: {}'.format(creator)
+        logger.info('File сreator: {}'.format(creator))
     else:
         valid_signa = False
-        print 'File is NOT a valid PrinectSignaStation file. Creator: {}'.format(creator)
-        logging.warning('Non Signastation file [{}], creator is {}'.format(pdf.name, creator))
+        logger.warning('File is NOT a valid PrinectSignaStation file. Creator: {}'.format(creator))
     return valid_signa, creator
 
 
@@ -87,11 +88,11 @@ def analyze_machine(pdf):
     :return: machine - словарь или None, если не удалось определить
     """
 
-    print '\n--> Detect machine'
+    logger.info('\n--> Detect machine')
     machines = {}
     print 1
     if pdf.marks:
-        print('detect by signa mark')
+        logger.info('detect by signa mark')
         machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, pdf.marks)
 
         for page, piece_info in pdf.marks.items():
@@ -103,7 +104,7 @@ def analyze_machine(pdf):
             try:
                 machine_mark_text = re.findall(machine_mark_regex, piece_info[machine_mark_name][0])[0]
             except KeyError:
-                print('····Страница {} не содержит cигновской метки {}'.format(page_number, machine_mark_name))
+                logger.warning('····Страница {} не содержит cигновской метки {}'.format(page_number, machine_mark_name))
                 machine = None
 
             if 'machine_mark_text' in locals():
@@ -116,7 +117,7 @@ def analyze_machine(pdf):
             else:
                 machines[page_number] = None
     else:
-        print('····signa mark missed, trying detect by plate size')
+        logger.info('····signa mark missed, trying detect by plate size')
         # Если первый способ провалился, пробуем определить машину, основываясь на размере пластины.
 
         # Тут есть проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?
@@ -128,7 +129,7 @@ def analyze_machine(pdf):
         # Теперь сравниваем полученные размеры с известными, для каждой странцы
         for page, plate in pdf.platesize.items():
             for press in primary_machines:
-                # print('press.plate_w={}, pdf.platesize[page][0]={}, press.plate_h={}, pdf.platesize[page][1]={}'.format(press.plate_w, pdf.platesize[page][0], press.plate_h, pdf.platesize[page][1] ))
+                #logger.debug('press.plate_w={}, pdf.platesize[page][0]={}, press.plate_h={}, pdf.platesize[page][1]={}'.format(press.plate_w, pdf.platesize[page][0], press.plate_h, pdf.platesize[page][1] ))
                 if (press.plate_w == pdf.platesize[page][0]) and (press.plate_h == pdf.platesize[page][1]):
                     machines[page] = press
 
@@ -137,12 +138,12 @@ def analyze_machine(pdf):
     #Check if machine detected
     #-----------------------------------------------------------------
     if machines:
-        print '····Detected [by 1st page]: {}'.format(machines[1].name)
+        logger.info('····Detected [by 1st page]: {}'.format(machines[1].name))
     else:
-        logging.error('Cant detect machine for {}'.format(pdf.name))
         os.unlink(pdf.abspath)
         os.removedirs(pdf.tmpdir)
-        exit("Can't detect machine for {}".format(pdf.name))
+        logger.error('Cant detect machine for {}'.format(pdf.name))
+        exit()
 
     return machines
 
@@ -169,7 +170,7 @@ def analyze_papersize(pdf):
             try:
                 machine = re.findall(machine_mark_regex, piece_info[machine_mark_name][0])[0]
             except KeyError:
-                print('Страница {} не содержит cигновской метки {}'.format(page_number, machine_mark_name))
+                logger.warning('Страница {} не содержит cигновской метки {}'.format(page_number, machine_mark_name))
                 machine = None
 
             try:
@@ -177,7 +178,7 @@ def analyze_papersize(pdf):
                 paper_w = int(round(float(paper[0].replace(',', '.'))))
                 paper_h = int(round(float(paper[1].replace(',', '.'))))
             except KeyError:
-                print('Страница {} не содержит cигновской метки {}'.format(page_number, paper_mark_name))
+                logger.warning('Страница {} не содержит cигновской метки {}'.format(page_number, paper_mark_name))
                 paper_w, paper_h = None, None
 
             #print(page_number, machine.encode('utf-8'), paper)
@@ -261,10 +262,9 @@ def detect_outputter(pdf):
                 outputter = company
 
     if 'outputter' in locals():
-        print '····detected: {}\n'.format(outputter)
+        logger.info('····detected: {}\n'.format(outputter))
     else:
-        print '····FAILED: Outputter cant be detected.\nExit!'
-        logging.error('····Outputter is UNKNOWN for {0}'.format(pdf.name))
+        logger.error('····FAILED: Outputter cant be detected.\nExit!')
         exit()
 
     return outputter
@@ -277,10 +277,10 @@ def analyze_inkcoverage(pdf):
     :param pdf: объект pdf
     :return: inks(dict)
     """
-    print '\n--> Starting ink coverage calculating'
+    logger.info('\n--> Starting ink coverage calculating')
     gs_command = r"gs -q -o - -sProcessColorModel=DeviceCMYK -sDEVICE=ink_cov {}".format(pdf.name)
     result = Popen(gs_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
-    print '····done'
+    logger.info('····done')
 
     inks = {}
 

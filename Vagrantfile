@@ -27,7 +27,7 @@ Vagrant.configure(2) do |config|
   #  config.vm.define :pdfdevelop do |pdfdevelop|
   #  end
 
-  #  config.vm.hostname = "pdfdevelop"
+  config.vm.hostname = "development"
 
   config.vm.synced_folder ".", "/home/vagrant/pdfupload", id: "vagrant-root",
     owner: "vagrant",

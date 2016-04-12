@@ -26,10 +26,34 @@ def production():
 def development():
     env.hosts = ['development']
 
-def deploy():
+def deploy_with_ansible():
     additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
 
     local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
+          format(target=env.hosts[0], additional_params=additional_params))
+
+
+def restore_db_from_backup():
+    """
+    Replace for restore_local_db, restore_db, restore_db_from_backup functions with ansible.
+    Copy latest backaped DB to target.
+
+    Usage:
+    fab [development|staging|production] restore_db_from_backup
+    """
+
+    if env.hosts[0] == 'production':
+        prompt("\nV E R Y   D A N G E R O U S!!!\n==============================\n" +
+               "It will destroy production  DB and then restore if from backup server.\nIf you are sure, type 'yes'",
+               key='answer', default='no')
+        if env.answer != 'yes':
+            exit('Terminate.')
+
+    additional_params = ''
+    #additional_params += '--skip-tags=vagrant_skip ' if env.hosts[0] == 'development' else ''
+    #additional_params += '-vvv '
+
+    local('ansible-playbook -i inventories/all --limit {target} {additional_params} restore_db_from_backup.yml'.
           format(target=env.hosts[0], additional_params=additional_params))
 
 
@@ -41,6 +65,7 @@ def provision():
     fab [development|staging|production] provision
     """
     additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
+    additional_params = ''
 
     # Do you want verbose output from ansible? Uncomment it.
     additional_params += ' -vv'
@@ -97,55 +122,57 @@ def restore_staging():
     run('touch /tmp/pdfupload')
 
 
-def restore_db():
-    """
-    Restore DB from latest backup.
+# deprecated; now use ansible's restore_db_from_backup
+# def restore_db():
+#     """
+#     Restore DB from latest backup.
+#
+#     Usage:
+#     fab [staging|production|development] restore_db
+#     """
+#
+#     prompt('\nV E R Y   D A N G E R O U S!!!\n==============================\n'
+#            'Type `yes` for delete current DB and restore this one from backup server\n', key='answer', default='no')
+#
+#     if env.answer != 'yes':
+#         exit('Terminate.')
+#
+#     sudo('dropdb --if-exists pdfuploaddb', user='postgres')
+#     sudo('createdb --encoding=\'UTF-8\' --owner=swasher --template=template0 pdfuploaddb', user='postgres')
+#
+#     latest_backup = local('ssh backup ls -rt /home/swasher/pdfupload | tail -1', capture=True)
+#
+#     print 'latest backup =', latest_backup
+#
+#     with hide('output'):
+#         run('ssh backup cat /home/swasher/pdfupload/{} | psql pdfuploaddb'.format(latest_backup))
 
-    Usage:
-    fab [staging|production|development] restore_db
-    """
 
-    prompt('\nV E R Y   D A N G E R O U S!!!\n==============================\n'
-           'Type `yes` for delete current DB and restore this one from backup server\n', key='answer', default='no')
-
-    if env.answer != 'yes':
-        exit('Terminate.')
-
-    sudo('dropdb --if-exists pdfuploaddb', user='postgres')
-    sudo('createdb --encoding=\'UTF-8\' --owner=swasher --template=template0 pdfuploaddb', user='postgres')
-
-    latest_backup = local('ssh backup ls -rt /home/swasher/pdfupload | tail -1', capture=True)
-
-    print 'latest backup =', latest_backup
-
-    with hide('output'):
-        run('ssh backup cat /home/swasher/pdfupload/{} | psql pdfuploaddb'.format(latest_backup))
-
-
-def restore_local_db():
-    """
-    Restore DB from latest backup.
-    It's very ugly copy of restore_local_db, becouse command for remote and local side are different (local and
-
-    Usage:
-    fab [staging|production|development] restore_db
-    """
-
-    prompt('\nV E R Y   D A N G E R O U S!!!\n==============================\n'
-           'Type `yes` for delete current DB and restore this one from backup server\n', key='answer', default='no')
-
-    if env.answer != 'yes':
-        exit('Terminate.')
-
-    sudo('dropdb --if-exists pdfuploaddb', user='postgres')
-    sudo('createdb --encoding=\'UTF-8\' --owner=swasher --template=template0 pdfuploaddb', user='postgres')
-
-    latest_backup = local('ssh backup ls -rt /home/swasher/pdfupload | tail -1', capture=True)
-
-    print 'latest backup =', latest_backup
-
-    with hide('output'):
-        run('ssh backup cat /home/swasher/pdfupload/{} | psql pdfuploaddb'.format(latest_backup))
+# deprecated; now use ansible's restore_db_from_backup
+# def restore_local_db():
+#     """
+#     Restore DB from latest backup.
+#     It's very ugly copy of restore_local_db, becouse command for remote and local side are different (local and
+#
+#     Usage:
+#     fab [staging|production|development] restore_db
+#     """
+#
+#     prompt('\nV E R Y   D A N G E R O U S!!!\n==============================\n'
+#            'Type `yes` for delete current DB and restore this one from backup server\n', key='answer', default='no')
+#
+#     if env.answer != 'yes':
+#         exit('Terminate.')
+#
+#     sudo('dropdb --if-exists pdfuploaddb', user='postgres')
+#     sudo('createdb --encoding=\'UTF-8\' --owner=swasher --template=template0 pdfuploaddb', user='postgres')
+#
+#     latest_backup = local('ssh backup ls -rt /home/swasher/pdfupload | tail -1', capture=True)
+#
+#     print 'latest backup =', latest_backup
+#
+#     with hide('output'):
+#         run('ssh backup cat /home/swasher/pdfupload/{} | psql pdfuploaddb'.format(latest_backup))
 
 
 def replicate_db(source, target):

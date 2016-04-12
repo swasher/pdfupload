@@ -200,20 +200,27 @@ def delete(request, rowid):
 def processing(pdfName):
     # socket.setdefaulttimeout(10.0)
 
-    try:
-        sys.stdout = open(settings.TTY, 'w')
-        sys.stderr = open(settings.TTY, 'w')
-        #sys.stdout.write('filename'+'\n')
-    except:
-        pass
+    # DEPRECATED
+    # try:
+    #     sys.stdout = open(settings.TTY, 'w')
+    #     sys.stderr = open(settings.TTY, 'w')
+    #     #sys.stdout.write('filename'+'\n')
+    # except:
+    #     pass
+    #
+    # print '\n\n'
+    # print 'START PROCESSING {}'.format(pdfName)
+    # print '─' * (len(pdfName) + 17)
+    # environment = os.getenv('SERVER_TYPE')  #, 'development')   #TEST
+    # print('SERVER_TYPE={}'.format(environment))                 #TEST
 
-    print '\n\n'
-    print 'START PROCESSING {}'.format(pdfName)
-    print '─' * (len(pdfName) + 17)
     environment = os.getenv('SERVER_TYPE')  #, 'development')   #TEST
-    print('SERVER_TYPE={}'.format(environment))                 #TEST
 
-    logger.debug("this is a debug message!")
+    logger.info('\n\n')
+    logger.info('START PROCESSING {}'.format(pdfName))
+    logger.info('─' * (len(pdfName) + 17))
+
+    logger.info('SERVER_TYPE={}'.format(environment))   #TEST
 
     pdf = PDF(pdfName)
 
@@ -235,7 +242,7 @@ def processing(pdfName):
     # Custom operation depends on outputter
     custom_operations(pdf)
 
-    # Send Preview PDF to printing press FTP
+    # Send Preview PDF to press FTP
     upload_to_press(pdf)
 
     # Send Original PDF to Outputter

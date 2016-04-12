@@ -5,7 +5,10 @@
 default ansible_connection=local
 
 [production]
-production
+production ansible_sudo_pass="{{production_sudo}}"
 
 [staging]
 staging ansible_sudo_pass="{{staging_sudo}}"
+
+[backup]
+backup

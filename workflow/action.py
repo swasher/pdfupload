@@ -24,6 +24,7 @@ from util import dict_to_multiline
 from util import inks_to_multiline
 from util import get_bbox
 
+logger = logging.getLogger(__name__)
 
 def remove_outputter_title(pdf):
     """
@@ -47,9 +48,8 @@ def remove_outputter_title(pdf):
 
     # Если подрядчик в имени файла не обнаружен, то файл не переименовывается и не перемещается
     if pdf.name != newname:
-        #.decode('UTF-8')
-        print('\n-->Rename:')
-        print('····{} --> {}'.format(os.path.basename(pdf.name), os.path.basename(newpath)))
+        logger.info('\n-->Rename:')
+        logger.info('····{} --> {}'.format(os.path.basename(pdf.name), os.path.basename(newpath)))
         os.rename(pdf.abspath, newpath)
         pdf.name = newname
 
@@ -67,7 +67,7 @@ def crop(pdf):
     output = PdfFileWriter()
 
     if pdf.paper_sizes:
-        print('\n--> Cropping [using signa paper]:')
+        logger.info('\n--> Cropping [using signa paper]:')
         for index in range(1, pdf.complects + 1):
             paper_w = pdf.paper_sizes[index][1]
             paper_h = pdf.paper_sizes[index][2]
@@ -95,12 +95,12 @@ def crop(pdf):
             page.mediaBox.lowerLeft = (x1, y1)
             page.mediaBox.upperRight = (x2, y2)
 
-            print '····page {} to paper {}x{}'.format(index, paper_w, paper_h)
+            logger.info('····page {} to paper {}x{}'.format(index, paper_w, paper_h))
 
             output.addPage(page)
 
     else:
-        print('\n--> Cropping [using gs bbox]:')
+        logger.info('\n--> Cropping [using gs bbox]:')
         bbox = get_bbox(pdf.abspath)
         for index in range(1, pdf.complects + 1):
 
@@ -111,7 +111,7 @@ def crop(pdf):
 
             paper_w = mm(bbox[index][2] - bbox[index][0])
             paper_h = mm(bbox[index][3] - bbox[index][1])
-            print '····page {} to paper {}x{}'.format(index, paper_w, paper_h)
+            logger.info('····page {} to paper {}x{}'.format(index, paper_w, paper_h))
 
             output.addPage(page)
 
@@ -137,16 +137,16 @@ def compress(pdf):
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} | grep 'Page'" \
                   .format(input=pdf.cropped_file.name, output=pdf.compressed_file.name, resolution=resolution)
 
-    print '\n-->Starting PDF preview compression...'
+    logger.info('\n-->Starting PDF preview compression...')
 
     try:
         retcode = call(gs_compress, shell=True, stdout=subprocess.PIPE)
         if retcode > 0:
-            print "····Compressing FAILED: {}".format(retcode)
+            logger.error('····Compressing FAILED: {}'.format(retcode))
     except OSError as e:
-        print "····Compressing FAILED:", e
+        logger.error('····Compressing FAILED:', e)
     else:
-        print '····done'
+        logger.info('····done')
 
 
 def generating_jpeg(pdf):
@@ -187,12 +187,12 @@ def generating_jpeg(pdf):
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} " \
                   .format(resolution='200', input=pdf.compressed_file.name, output=jpeg_file.name)
 
-    print '\n--> Starting Jpeg preview compression'
-    print '····make full resolution jpg'
+    logger.info('\n--> Starting Jpeg preview compression')
+    logger.info('····make full resolution jpg')
     os.system(gs_compress)
-    print '····downsample to {}px'.format(PROOF_WIDTH)
+    logger.info('····downsample to {}px'.format(PROOF_WIDTH))
     reduce_image(jpeg_file.name, jpeg_proof, PROOF_WIDTH)
-    print '····downsample to {}px'.format(THUMB_WIDTH)
+    logger.info('····downsample to {}px'.format(THUMB_WIDTH))
     reduce_image(jpeg_file.name, jpeg_thumb, THUMB_WIDTH)
     os.unlink(jpeg_file.name)
 
@@ -233,7 +233,7 @@ def custom_operations(pdf):
         else:
             newname = name + '_' + str(pdf.machines[1].plate_w) + ext
 
-        print('\n--> Renaming: {} --> {}'.format(pdf.name, newname))
+        logger.info('\n--> Renaming: {} --> {}'.format(pdf.name, newname))
         shutil.move(pdf.abspath, os.path.join(pdf.tmpdir, newname))
         pdf.name = newname
 
@@ -255,7 +255,7 @@ def upload_to_press(pdf):
         else:
             pdf.upload_to_machine_status, pdf.upload_to_machine_error = False, "Unknown press or missing ftp credentials"
     else:
-        print 'Uploading: compressed file not found'
+        logger.error('Uploading: compressed file not found')
         pdf.upload_to_machine_status, pdf.upload_to_machine_error = False, 'Preview not found'
 
 
@@ -271,7 +271,7 @@ def upload_to_outputter(pdf):
         else:
             pdf.upload_to_outputter_status, pdf.upload_to_outputter_error = False, "Missing ftp credentials"
     else:
-        print 'Uploading: PDF file not found'
+        logger.error('Uploading: PDF file not found')
         pdf.upload_to_outputter_status, pdf.upload_to_outputter_error = False, 'PDF not found'
 
 
@@ -285,13 +285,13 @@ def send_sms(pdf):
     import_mode = d['IMPORT_MODE']
     d.close()
 
-    print('\n--> SMS:')
+    logger.info('\n--> SMS:')
     if pdf.upload_to_outputter_status:
         smsc = smsc_api.SMSC()
         try:
             phone = pdf.outputter.sms_receiver.phone
         except:
-            print('····skip send sms due no phone for outputter')
+            logger.info('····skip send sms due no phone for outputter')
         else:
             message = '{} {} {}->{} {}'.format(pdf.order, pdf.ordername, str(pdf.plates), pdf.machines[1].name, pdf.outputter.name)
 
@@ -307,16 +307,16 @@ def send_sms(pdf):
                 status = []
 
             if len(status) == 4:
-                print('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
-                print('····sms text: {}'.format(message))
+                logger.info('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
+                logger.info('····sms text: {}'.format(message))
             elif len(status) == 2:
-                print('····sms FAILED with error: {}'.format(status[1]))
-                print('····more info: https://smsc.ru/api/http/#answer')
+                logger.error('····sms FAILED with error: {}'.format(status[1]))
+                logger.error('····more info: https://smsc.ru/api/http/#answer')
             else:
-                print('····skip send sms [possible import mode on]')
+                logger.warning('····skip send sms [possible import mode on]')
     else:
         # если по какой-то причине у нас не софрмирован upload_to_outputter_status
-        print('····skip send sms due failed uploading')
+        logger.warning('····skip send sms due failed uploading')
 
 
 def save_bd_record(pdf):
@@ -334,7 +334,7 @@ def save_bd_record(pdf):
     else:
         bg = 'default'
 
-    print('\n--> Save into database:')
+    logger.logger.info(('\n--> Save into database:'))
 
     try:
         row = Grid()
@@ -352,24 +352,24 @@ def save_bd_record(pdf):
         row.bg = bg
         row.proof = pdf.jpeg_proof
         row.thumb = pdf.jpeg_thumb
-        # print 'row.order', row.order
-        # print 'row.datetime', row.datetime
-        # print 'row.pdfname', row.pdfname
-        # print 'row.machine', row.machine
-        # print 'row.total_pages', row.total_pages
-        # print 'row.total_plates', row.total_plates
-        # print 'row.contractor', row.contractor
-        # print 'row.contractor_error', row.contractor_error
-        # print 'row.preview_error', row.preview_error
-        # print 'row.colors', row.colors
-        # print 'row.inks', row.inks
-        # print 'row.bg', row.bg
-        # print 'row.proof', row.proof
-        # print 'row.thumb', row.thumb
+        # logger.info('row.order', row.order)
+        # logger.info('row.datetime', row.datetime)
+        # logger.info('row.pdfname', row.pdfname)
+        # logger.info('row.machine', row.machine)
+        # logger.info('row.total_pages', row.total_pages)
+        # logger.info('row.total_plates', row.total_plates)
+        # logger.info('row.contractor', row.contractor)
+        # logger.info('row.contractor_error', row.contractor_error)
+        # logger.info('row.preview_error', row.preview_error)
+        # logger.info('row.colors', row.colors)
+        # logger.info('row.inks', row.inks)
+        # logger.info('row.bg', row.bg)
+        # logger.info('row.proof', row.proof)
+        # logger.info('row.thumb', row.thumb)
         row.save()
-        print '····done'
+        logger.info('····done')
     except Exception, e:
-        print('····FAILED: {}'.format(e))
+        logger.error('····FAILED: {}'.format(e))
 
 
 def cleaning_temps(pdf):
@@ -378,12 +378,12 @@ def cleaning_temps(pdf):
     :param pdf:
     :return:
     """
-    print('\n--> Cleaning up:')
+    logger.info('\n--> Cleaning up:')
     try:
         os.unlink(pdf.abspath)
         os.unlink(pdf.cropped_file.name)
         os.unlink(pdf.compressed_file.name)
         shutil.rmtree(pdf.tmpdir)
-        print '····done'
+        logger.info('····done')
     except Exception, e:
-        print '····FAILED: {}'.format(e)
+        logger.error('····FAILED: {}'.format(e))

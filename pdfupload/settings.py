@@ -215,10 +215,18 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(HOME_DIR, 'log', 'user.log'),
+            'filename': os.path.join(HOME_DIR, 'log', 'django.log'),
             'maxBytes': 1024 * 1024 * 15,  # 15MB
             'backupCount': 10,
             'formatter': 'verbose'
+        },
+        'userfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(HOME_DIR, 'log', 'user.log'),
+            'maxBytes': 1024 * 1024 * 15,  # 15MB
+            'backupCount': 10,
+            'formatter': 'simple'
         },
     },
     'loggers': {
@@ -228,7 +236,7 @@ LOGGING = {
             'level':'DEBUG',
         },
         'workflow': {
-            'handlers': ['file'],
+            'handlers': ['userfile'],
             'level': 'DEBUG',
         },
     }

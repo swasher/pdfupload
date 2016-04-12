@@ -3,5 +3,5 @@
   debug: >
     msg="The following OS distribution {{ ansible_distribution }} {{ ansible_lsb.major_release }} is not supported"
     fail=yes
-  when: (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
-        or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8)
+  when: not ((ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int >= 15)
+        or (ansible_distribution == 'Debian' and ansible_lsb.major_release|int >= 8))

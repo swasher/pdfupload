@@ -5,12 +5,12 @@
   no_log: true
 
 - name: Copy staging private key
-  copy:
-    content: "{{staging_private_key_content}}"
-    dest: "/home/{{remote_user}}/.ssh/id_rsa"
-    owner: "{{remote_user}}"
-    group: "{{remote_user}}"
-    mode: 0600
+  copy: >
+    content="{{staging_private_key_content}}"
+    dest=   "/home/{{remote_user}}/.ssh/id_rsa"
+    owner=  "{{remote_user}}"=
+    group=  "{{remote_user}}"
+    mode=   0600
   when: group_names[0]=="staging"
   no_log: true
   become: true
@@ -18,11 +18,11 @@
 
 - name: Copy staging public key
   copy:
-    content: "{{staging_public_key_content}}"
-    dest: "/home/{{remote_user}}/.ssh/id_rsa.pub"
-    owner: "{{remote_user}}"
-    group: "{{remote_user}}"
-    mode: 0644
+    content="{{staging_public_key_content}}"
+    dest=   "/home/{{remote_user}}/.ssh/id_rsa.pub"
+    owner=  "{{remote_user}}"
+    group=  "{{remote_user}}"
+    mode=   0644
   when: group_names[0]=="staging"
   no_log: true
   become: true

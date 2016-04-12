@@ -96,7 +96,8 @@ def mark_extraction(pdf):
     print m[page][signa-mark-name][(0|1|2)(mark_text|xobject|SubType)]
 
     """
-    logger.info('\n――> Mark extraction')
+    logger.info('')
+    logger.info('――> Mark extraction')
     if pdf.is_signastation:
 
         fp = open(pdf.abspath, 'rb')

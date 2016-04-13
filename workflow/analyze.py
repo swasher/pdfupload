@@ -92,7 +92,7 @@ def analyze_machine(pdf):
     logger.info('――> Detect machine')
     machines = {}
     if pdf.marks:
-        logger.info('detect by signa mark')
+        logger.info('····detecting by signa mark')
         machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, pdf.marks)
 
         for page, piece_info in pdf.marks.items():
@@ -132,8 +132,6 @@ def analyze_machine(pdf):
                 #logger.debug('press.plate_w={}, pdf.platesize[page][0]={}, press.plate_h={}, pdf.platesize[page][1]={}'.format(press.plate_w, pdf.platesize[page][0], press.plate_h, pdf.platesize[page][1] ))
                 if (press.plate_w == pdf.platesize[page][0]) and (press.plate_h == pdf.platesize[page][1]):
                     machines[page] = press
-
-    logger.info('machines=', machines)
 
     #Check if machine detected
     #-----------------------------------------------------------------
@@ -272,7 +270,8 @@ def detect_outputter(pdf):
 
 def analyze_inkcoverage(pdf):
     """
-    Анализ заполнения краски. Возвращает словарь, в котором ключ - номер страницы, значение - список из четырех float
+    Анализ заполнения краски. Возвращает словарь, в котором
+    ключ - номер страницы, значение - список из четырех float
     цифр, в процентах
     :param pdf: объект pdf
     :return: inks(dict)
@@ -281,14 +280,18 @@ def analyze_inkcoverage(pdf):
     logger.info('――> Starting ink coverage calculating')
     gs_command = r"gs -q -o - -sProcessColorModel=DeviceCMYK -sDEVICE=ink_cov {}".format(pdf.name)
     result = Popen(gs_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().splitlines()
-    logger.info('····done')
 
     inks = {}
-
-    for index, s in enumerate(result, 1):
-        args = s.split()[0:4]
-        args = [float(x) for x in args]
-        inks[index] = args
+    try:
+        for index, s in enumerate(result, 1):
+            args = s.split()[0:4]
+            args = [float(x) for x in args]
+            inks[index] = args
+    except:
+        # Except can be raise when ghostscript fall into error
+        logger.warning('····failed [possibly ghostscript error]')
+    else:
+        logger.info('····done')
 
     return inks
 
@@ -337,4 +340,3 @@ def analyze_ordername(pdf):
 
     ordername = '_'.join(parts)
     return ordername
-

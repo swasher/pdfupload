@@ -2,14 +2,17 @@
 # -- coding: utf-8 --
 
 import os
+import sys
 import tempfile
 import subprocess
 import shutil
 import smsc_api
 import logging
 import shelve
+import time
+import math
 
-from django.conf import settings
+# from django.conf import settings
 from subprocess import call
 from models import Outputter
 from models import Grid
@@ -18,11 +21,11 @@ from util import pt, mm
 from util import reduce_image
 from util import get_jpeg_path
 from util import colorant_to_string
-from util import sendfile
 from util import error_text
 from util import dict_to_multiline
 from util import inks_to_multiline
 from util import get_bbox
+from ftplib import FTP
 
 logger = logging.getLogger(__name__)
 
@@ -395,3 +398,91 @@ def cleaning_temps(pdf):
         logger.info('····done')
     except Exception, e:
         logger.error('····FAILED: {}'.format(e))
+
+
+def sendfile(pdf, receiver):
+    """
+    Функция выполняет заливку на фтп
+    :param pdf_abs_path:str Путь к файлу (абсолютный)
+    :param receiver:Ftp Объект получателя, список получателей в файле ftps, объекты
+    формируются из файла функцией -==-
+    :return: status:boolean - флаг удачного завершения
+                e:exception - код ошибки
+    """
+
+    # bracket is a packet of `blocksize` bytes
+
+    blocksize = 8192 # it's default python value
+
+    global current_bracket, notify_brackets
+
+    def handle(block):
+        global current_bracket, notify_brackets
+        current_bracket += 1
+        if current_bracket in notify_brackets.keys():
+            logger.info('···· progress {}%'.format(notify_brackets[current_bracket]))
+
+    status = True
+    e = None
+
+    d = shelve.open('shelve.db')
+    import_mode = d['IMPORT_MODE']
+    d.close()
+
+    #sizeWritten = 0
+    current_bracket = 0
+    total_size = os.path.getsize(pdf.abspath)
+    total_brackets = math.ceil(total_size / float(blocksize)) # becouse int round
+
+    # list of percentages, when uploading progress rich percentage in
+    # notify_percents, performed write to log
+    notify_percents= [20, 40, 60, 80]
+
+    # Заливка производится кусками по 1024 байта. Брекет - это один кусок.
+    # Словарь определяет номер брекета, который соответствует например 20%
+    notify_brackets = {}
+    for b in notify_percents:
+        notify_bracket = int(total_brackets / 100 * b)
+        notify_brackets[notify_bracket] = b
+
+    if not import_mode:
+        try:
+            logger.info('')
+            logger.info('――> Try connect to {}'.format(receiver.name))
+            ftp = FTP()
+            ftp.set_pasv(receiver.passive_mode) #<-- This puts connection into ACTIVE mode when receiver.passive_mode == False
+            ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
+            ftp.login(receiver.login, receiver.passw)
+        except Exception, e:
+            logger.error('···connect to {} FAILED with error: {}'.format(receiver.name, e))
+            status = False
+            return status, e
+        else:
+            # если коннект и логин прошли удачно, выполняется эта секция
+            logger.info('···connect passed')
+            localfile = open(pdf.abspath, "rb")
+            try:
+                ftp.cwd(receiver.todir)
+                logger.info('···Start uploading {} to {} ...'.format(pdf.name, receiver.name))
+                start = time.time()
+                ftp.storbinary("STOR " + pdf.name, localfile, blocksize, handle)
+                #print 'Size in kb ', totalSize/1024
+                #print 'Time in s ', (time.time()-start)
+                speed_kb = total_size / (time.time() - start) / 1024
+                speed_mb = speed_kb * 8 / 1024
+                logger.info('···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed_kb, speed_mb))
+            except Exception, e:
+                logger.error('···upload to {} FAILED with error: {}'.format(receiver.name, e))
+                status = False
+                # DEPRECATED return status, e
+            else:
+                logger.info('···Upload finished OK')
+            finally:
+                localfile.close()
+        finally:
+            ftp.close()
+    else:
+        logger.info('····skipping upload due import mode')
+        status = False
+        e = 'Skipping upload due import mode'
+    return status, e

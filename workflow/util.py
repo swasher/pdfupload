@@ -1,17 +1,12 @@
 #!/usr/bin/python
 #coding: utf-8
-# __author__ = 'Алексей'
 
 import os
-import sys
 import logging
-import time
 import subprocess
-import shelve
 
 from datetime import datetime
 from django.conf import settings
-from ftplib import FTP
 
 logger = logging.getLogger(__name__)
 
@@ -66,93 +61,6 @@ def inks_to_multiline(dic):
         text += "C{:.1f}% M{:.1f}% Y{:.1f}% B{:.1f}%".format(v[0], v[1], v[2], v[3])
         text += "\n"
     return text
-
-
-def handle(block):
-    global sizeWritten, totalSize
-    sizeWritten += 1024
-    percentComplete = sizeWritten * 100 / totalSize
-    sys.stdout.write("{0} percent complete \r".format(percentComplete))
-
-
-def sendfile(pdf, receiver):
-    """
-    Функция выполняет заливку на фтп
-    :param pdf_abs_path:str Путь к файлу (абсолютный)
-    :param receiver:Ftp Объект получателя, список получателей в файле ftps, объекты
-    формируются из файла функцией -==-
-    :return: status:boolean - флаг удачного завершения
-                e:exception - код ошибки
-    """
-    global sizeWritten, totalSize
-
-    status = True
-    e = None
-
-    d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
-    d.close()
-
-    sizeWritten = 0
-    totalSize = os.path.getsize(pdf.abspath)
-    # print 'name:',receiver.name
-    # print 'ip:',receiver.ip
-    # print 'port:',receiver.port,  type(receiver.port)
-    # print 'login:',receiver.login
-    # print 'pass:',receiver.passw
-    print '\n――> Try connect to {}'.format(receiver.name)
-
-    if not import_mode:
-        try:
-            # пытается прилогинтся
-            ftp = FTP()
-            #TODO сделать в базе фтп поле активный/пассивный
-            if receiver.name == 'TakiSpravy':
-                ftp.set_pasv(False)  #<-- This puts connection into ACTIVE mode.
-            else:
-                ftp.set_pasv(True)
-            ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
-            ftp.login(receiver.login, receiver.passw)
-        except Exception, e:
-            logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
-            print '···connect FAILED with error: {}'.format(e)
-            status = False
-            return status, e
-        else:
-            # если коннект и логин прошли удачно, выполняется эта секция
-            print '···connect passed'
-            localfile = open(pdf.abspath, "rb")
-            try:
-                ftp.cwd(receiver.todir)
-                print '···Start uploading {} to {} ...'.format(pdf.name, receiver.name)
-                start = time.time()
-                ftp.storbinary("STOR " + pdf.name, localfile, 1024, handle)
-                #print 'Size in kb ', totalSize/1024
-                #print 'Time in s ', (time.time()-start)
-                speed = totalSize / (time.time() - start) / 1024
-                print '···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed, speed * 8 / 1024)
-            except Exception, e:
-                logging.error('{} upload to {}: {}'.format(pdf.name, receiver.name, e))
-                print '···upload FAILED with error: {}'.format(e)
-                status = False
-                return status, e
-                #siteecho(pdf.name, receiver.name, 'FAILED', machine, complects, html_data)
-            else:
-                # нифига эта строка не привильная - в эту секцию выполнение попадает полюбому, файл же не обязательно был залит
-                # logging.info('{} upload to {}: upload OK'.format(pdf.name, receiver.name))
-
-                print '···Upload finished OK'
-
-                #siteecho(pdf.name, receiver.name, 'Upload OK', machine, complects, html_data)
-            finally:
-                localfile.close()
-        finally:
-            ftp.close()
-    else:
-        print('····skipping upload due import mode')
-        status = False
-        e = 'Skipping upload due import mode'
-    return status, e
 
 
 def error_text(status, e):

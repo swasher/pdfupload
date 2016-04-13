@@ -213,7 +213,8 @@ def processing(pdfName):
 
     environment = os.getenv('SERVER_TYPE')  #, 'development')   #TEST
 
-    logger.info('\n\n')
+    logger.info('')
+    logger.info('')
     logger.info('START PROCESSING {}'.format(pdfName))
     logger.info('─' * (len(pdfName) + 17))
 

@@ -25,6 +25,7 @@
     "bootstrap-select": "~1.7.3",
     "eonasdan-bootstrap-datetimepicker": "^4.17.37",
     "d3": "^3.5.16",
-    "nvd3": "^1.8.2"
+    "nvd3": "^1.8.2",
+    "bootstrap-confirmation2": "^2.2.0"
   }
 }

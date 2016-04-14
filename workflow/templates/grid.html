@@ -92,8 +92,8 @@
         </div>
 
 
-        {% comment %}<a type="button" class="btn btn-default" href="{% url "grid" %}">
-            <span class="glyphicon glyphicon-refresh"></span> Clear </a>{% endcomment %}
+        <a type="button" class="btn btn-default" href="{% url "grid" %}">
+            <span class="glyphicon glyphicon-refresh"></span> Clear </a>
     </form>
 
 </div>
@@ -115,47 +115,50 @@
               <th>Action</th>
             </tr>
         {% for row in table %}
-           <tr class={{ row.bg }}>
-               <td>{{ row.order|stringformat:"04d" }}</td>
-               <td>{{ row.datetime|date:"d M Y, D H.i" }}</td>
-               <td>{{ row.pdfname }}</td>
-               <td>{{ row.machine.name }}</td>
-               <td>{{ row.total_pages }} компл.</td>
-               <td>
+            <tr class={{ row.bg }}>
+                <td>{{ row.order|stringformat:"04d" }}</td>
+                <td>{{ row.datetime|date:"d M Y, D H.i" }}</td>
+                <td>{{ row.pdfname }}</td>
+                <td>{{ row.machine.name }}</td>
+                <td>{{ row.total_pages }} компл.</td>
+                <td>
                    <span data-toggle="tooltip" data-placement="right" title="{{ row.colors }}">
                        <button type="button" class="btn btn-default btn-xs">{{ row.total_plates }} плит</button> </span>
                    <span data-toggle="tooltip" data-placement="right" title="{{ row.inks }}">
                        <button type="button" class="btn btn-default btn-xs">inks</button> </span>
-               </td>
-               <td>{{ row.contractor }}</td>
-               <td>{% if row.contractor_error == "OK" %}
+                </td>
+                <td>{{ row.contractor }}</td>
+                <td>{% if row.contractor_error == "OK" %}
                         <span class="glyphicon glyphicon-ok-circle text-success big-icon"></span>
                    {% else %}
                         <span class="glyphicon glyphicon-remove-circle text-danger big-icon" data-toggle='tooltip' title='{{ row.contractor_error }}'></span>
                    {% endif %}
-               </td>
-               <td>{% if row.preview_error == "OK" %}
+                </td>
+                <td>{% if row.preview_error == "OK" %}
                         <span class="glyphicon glyphicon-ok-circle text-success big-icon"></span>
                    {% else %}
                         <span class="glyphicon glyphicon-remove-circle text-danger big-icon" data-toggle='tooltip' title='{{ row.preview_error }}'></span>
                    {% endif %}
-               </td>
-               <td>
-                   <a type="button"
-                       class="btn-sm btn-default"
-                       title="<img src='{% if row.proof %}{{ row.thumb.url }}{% endif %}' width='175'>"
-                       data-html="true"
-                       data-toggle="tooltip"
-                       data-placement="left"
-                       href='{% if row.proof %}{{ row.proof.url }}{% endif %}'>
-                       <span class="glyphicon glyphicon-eye-open"></span>
-                   </a>
-                   <a type="button" class="btn-sm btn-info" href="{% url 'admin:workflow_grid_change' row.pk %}">
+                </td>
+                <td>
+                    <a type="button"
+                        class="btn btn-sm btn-default"
+                        title="<img src='{% if row.proof %}{{ row.thumb.url }}{% endif %}' width='175'>"
+                        data-html="true"
+                        data-toggle="tooltip"
+                        data-placement="left"
+                        href='{% if row.proof %}{{ row.proof.url }}{% endif %}'>
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                    </a>
+                    <a type="button" class="btn btn-sm btn-info" href="{% url 'admin:workflow_grid_change' row.pk %}">
                         <span class="glyphicon glyphicon-edit"></span></a>
-                   <a type="button" class="btn-sm btn-danger" href="{% url 'delete' row.pk %}">
-                        <span class="glyphicon glyphicon-trash"></span></a>
-               </td>
-           </tr>
+{#                    <a type="button" class="btn btn-sm btn-danger" href="{% url 'delete' row.pk %}" data-toggle="confirmation">#}
+{#                        <span class="glyphicon glyphicon-trash"></span></a>#}
+                    <button id="{{ row.pk }}" type="button" class="btn btn-danger btn-sm" data-toggle="confirmation">
+                        <span class="glyphicon glyphicon-trash" ></span>
+                    </button>
+                </td>
+            </tr>
         {% endfor %}
     </table>
 </div>

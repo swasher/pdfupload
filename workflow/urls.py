@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^log/$', views.log, name='log'),
     url(r'^usersettings/$', views.usersettings, name='usersettings'),
     url(r'^delete/(?P<rowid>\d+)/$', views.delete, name='delete'),
+    url(r'^delete_row_ajax/$', views.delete_row_ajax, name='delete_row_ajax'),
     url(r'^change_import/$', views.change_import, name='change_import'),
 ]

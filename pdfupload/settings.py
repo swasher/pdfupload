@@ -29,16 +29,16 @@ TEMP_PATH = HOME_DIR + '/tmp/'
 STATIC_ROOT = HOME_DIR + '/static_root/'
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (
-    BASE_DIR + '/static',
-)
-
 MEDIA_ROOT = HOME_DIR + '/media/'
 MEDIA_URL = "/media/"
 
 #LOGIN_URL = '/login_redirect'
 #LOGIN_URL = '/login'
 
+STATICFILES_DIRS =[
+    'static',
+    'bower_components'
+]
 
 #
 # ENVIRONMENT SETUP
@@ -153,51 +153,6 @@ USE_TZ = False
 #
 # LOGGING SETUP
 #
-
-# import logging
-# logging.basicConfig(format='%(asctime)s %(levelname)s \t %(message)s <p>',
-#                     datefmt='%d/%m/%Y %H:%M',
-#                     filename=HOME_DIR + '/log/django_debug.log',
-#                     level=logging.DEBUG)
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'formatters': {
-#         'verbose': {
-#             'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-#             'datefmt' : "%d/%b/%Y %H:%M:%S"
-#         },
-#         'simple': {
-#             'format': '%(levelname)s %(message)s'
-#         },
-#     },
-#     'handlers': {
-#         'filedebug': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': BASE_DIR + '/workflow/templates/debug.html',
-#             'formatter': 'verbose'
-#         },
-#         'fileinfo': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': BASE_DIR + '/workflow/templates/info.html',
-#             'formatter': 'simple'
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'propagate': True,
-#             'level': 'DEBUG',
-#         },
-#         'pdfupload': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#         },
-#     }
-# }
 
 LOGGING = {
     'version': 1,

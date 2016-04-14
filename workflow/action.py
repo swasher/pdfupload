@@ -52,7 +52,7 @@ def remove_outputter_title(pdf):
     # Если подрядчик в имени файла не обнаружен, то файл не переименовывается и не перемещается
     if pdf.name != newname:
         logger.info('')
-        logger.info('――>Rename:')
+        logger.info('――> Rename:')
         logger.info('····{} ――> {}'.format(os.path.basename(pdf.name), os.path.basename(newpath)))
         os.rename(pdf.abspath, newpath)
         pdf.name = newname
@@ -144,7 +144,7 @@ def compress(pdf):
                   .format(input=pdf.cropped_file.name, output=pdf.compressed_file.name, resolution=resolution)
 
     logger.info('')
-    logger.info('――>Starting PDF preview compression...')
+    logger.info('――> Starting PDF preview compression...')
 
     try:
         retcode = call(gs_compress, shell=True, stdout=subprocess.PIPE)
@@ -241,7 +241,8 @@ def custom_operations(pdf):
         else:
             newname = name + '_' + str(pdf.machines[1].plate_w) + ext
 
-        logger.info('\n――> Renaming: {} ――> {}'.format(pdf.name, newname))
+        logger.info('')
+        logger.info('――> Renaming: {} ――> {}'.format(pdf.name, newname))
         shutil.move(pdf.abspath, os.path.join(pdf.tmpdir, newname))
         pdf.name = newname
 

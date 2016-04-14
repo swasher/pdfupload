@@ -22,6 +22,8 @@ import datetime
 import shelve
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.http.response import HttpResponse
 from django.shortcuts import RequestContext, Http404, redirect, render_to_response
 from django.http import JsonResponse
 from django_rq import job
@@ -168,6 +170,9 @@ def grid(request, mode=''):
 
 @login_required
 def delete(request, rowid):
+    """
+    DEPRECATED
+    """
     #TODO сделать, чтобы после удаления не сбрасывался фильтр
     context = RequestContext(request)
 
@@ -191,6 +196,30 @@ def delete(request, rowid):
     # return render_to_response('grid.html', {'table': table, 'form': form}, context)
     '''
     return redirect('grid')
+
+
+#@login_required
+@ensure_csrf_cookie
+def delete_row_ajax(request):
+    if request.is_ajax() and request.method == u'POST':
+        POST = request.POST
+        if 'pk' in POST:
+            pk = int(POST['pk'])
+
+            try:
+                row = Grid.objects.get(pk=pk)
+            except ObjectDoesNotExist:
+                raise Http404
+
+            # deleting jpegs linked to db record
+            if os.path.isfile(row.proof.path):
+                os.unlink(row.proof.path)
+            if os.path.isfile(row.thumb.path):
+                os.unlink(row.thumb.path)
+
+            Grid.objects.get(pk=pk).delete()
+
+    return HttpResponse("")
 
 
 @job

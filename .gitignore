@@ -22,9 +22,8 @@ provision.retry
 
 
 # Статика
-test/**
-test/*
-static/**
+/test
+/bower_components
 
 
 # Сырое

@@ -16,7 +16,6 @@ $(document).ready(function() {
         btnCancelIcon: "glyphicon glyphicon-repeat",
         onConfirm: function(event, element) {
             var pk = $(this).attr('id');
-            console.log("pk=", pk);
             row = $(this).parents('tr');
 
             $.ajax({
@@ -24,18 +23,16 @@ $(document).ready(function() {
                 type: 'POST',
                 data: {pk: pk},
                 dataType : 'json'
-
-                // success: function(json) {
-                //     alert(json['result'])
-                // }
-            }).done(function(json) {
+            })
+                .done(function(json) {
                 row.fadeOut(1000);
                 $("#snoAlertBox")
                     .addClass("alert-success")
                     .text('Заказ '+ json['order'] + ' успешно удален')
                     .fadeIn();
                 closeSnoAlertBox();
-            }).fail(function() {
+            })
+                .fail(function() {
                 $("#snoAlertBox")
                     .addClass("alert-danger")
                     .text('Для удаления нужно войти в систему.')
@@ -43,9 +40,7 @@ $(document).ready(function() {
                 closeSnoAlertBox();
             });
 
-            // $(this).parents('tr').fadeOut(1000);
             $(this).confirmation('destroy');
-
         }
     });
 

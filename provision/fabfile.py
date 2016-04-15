@@ -1,8 +1,7 @@
 # --- coding: utf-8 ---
 
-from fabric.api import local, hosts, env, run, hide
-from fabric.context_managers import cd
-from fabric.operations import prompt, sudo
+from fabric.api import local, hosts, env, run
+from fabric.operations import prompt
 
 # For use server names, we must have hosts description at any machine in ~/.shh/config with following format:
 # Host hostname

@@ -1,9 +1,7 @@
-/provision/restore_db_from_backup.yml
 /provision/deploy.yml
 # Приватные файлы
 **/*.txt
 !requirements.txt
-db.sqlite3
 **/*secret*
 **/*NOT-FOR-GIT*
 workflow/fixtures/initial_data.json

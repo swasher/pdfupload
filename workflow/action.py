@@ -460,7 +460,8 @@ def sendfile(pdf, receiver):
             return status, e
         else:
             # если коннект и логин прошли удачно, выполняется эта секция
-            logger.info('···connect passed')
+            connection_mode = 'passive' if receiver.passive_mode else 'active'
+            logger.info('···connect passed [{} mode]'.format(connection_mode))
             localfile = open(pdf.abspath, "rb")
             try:
                 ftp.cwd(receiver.todir)

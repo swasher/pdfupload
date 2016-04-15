@@ -1,4 +1,3 @@
-/provision/deploy.yml
 # Приватные файлы
 **/*.txt
 !requirements.txt
@@ -17,6 +16,7 @@ __pycache__/
 .vagrant/
 stamp
 provision.retry
+/provision/deploy.retry
 
 
 # Статика

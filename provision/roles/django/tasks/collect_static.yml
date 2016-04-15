@@ -1,5 +1,5 @@
 ---
-- name: Create required dir
+- name: Ensure static root dir present
   file: >
     path={{user_home}}/static_root
     state=directory

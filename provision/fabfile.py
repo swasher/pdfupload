@@ -57,6 +57,22 @@ def restore_db_from_backup():
           format(target=env.hosts[0], additional_params=additional_params))
 
 
+def deploy():
+    """
+    Deploy latest commit to staging or provision server
+
+    Usage:
+    fab [staging|production] deploy
+    """
+
+    additional_params = ''
+    #additional_params += '--skip-tags=vagrant_skip ' if env.hosts[0] == 'development' else ''
+    #additional_params += '-vvv '
+
+    local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
+          format(target=env.hosts[0], additional_params=additional_params))
+
+
 def provision():
     """
     Setup all on provision/staging/deployment via Ansible. Development must run inside Vagrant box.
@@ -80,25 +96,25 @@ def testing():
 def test():
     run('hostname -f')
 
-
-def deploy():
-    """
-    Deploy source code to production/staging
-
-    Usage:
-    fab [staging|production] deploy
-    """
-    with cd(env.project_path):
-        run('git fetch origin')
-        run('git reset --hard origin/master')
-        run('bower install')
-        run('sudo pip install -r requirements.txt')
-        run('python manage.py collectstatic --noinput --clear --verbosity 1')
-        run('python manage.py migrate')
-        run('touch /tmp/pdfupload.reload')
-        run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
-        # then run test
-        #run('python manage.py test myapp')
+# deprecated; now use ansible's deploy
+# def deploy():
+#     """
+#     Deploy source code to production/staging
+#
+#     Usage:
+#     fab [staging|production] deploy
+#     """
+#     with cd(env.project_path):
+#         run('git fetch origin')
+#         run('git reset --hard origin/master')
+#         run('bower install')
+#         run('sudo pip install -r requirements.txt')
+#         run('python manage.py collectstatic --noinput --clear --verbosity 1')
+#         run('python manage.py migrate')
+#         run('touch /tmp/pdfupload.reload')
+#         run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
+#         # then run test
+#         #run('python manage.py test myapp')
 
 
 @hosts('staging')

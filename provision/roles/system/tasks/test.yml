@@ -1,4 +1,15 @@
 ---
+- shell: hostname
+  register: host
+
+- debug: var=host.stdout
+
+- local_action: shell hostname
+  register: host
+
+- debug: var=host.stdout
+
+
 - debug: msg="Environment variable USER is {{ lookup('env','USER') }}"
 - debug: msg="Environment variable HOME is {{ lookup('env','HOME') }}"
 

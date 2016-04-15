@@ -198,7 +198,7 @@ def delete(request, rowid):
     return redirect('grid')
 
 
-#@login_required
+@login_required
 @ensure_csrf_cookie
 def delete_row_ajax(request):
     if request.is_ajax() and request.method == u'POST':
@@ -217,9 +217,12 @@ def delete_row_ajax(request):
             if os.path.isfile(row.thumb.path):
                 os.unlink(row.thumb.path)
 
+            order = "{0:0>4}".format(row.order) # add leading zeros for 4-signed format, ex: 0021, 0003
             Grid.objects.get(pk=pk).delete()
 
-    return HttpResponse("")
+    # deprecated: jquery function do not wait for result now
+    json = {'order': order}
+    return JsonResponse(json)
 
 
 @job

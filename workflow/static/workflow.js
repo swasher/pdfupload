@@ -17,16 +17,42 @@ $(document).ready(function() {
         onConfirm: function(event, element) {
             var pk = $(this).attr('id');
             console.log("pk=", pk);
+            row = $(this).parents('tr');
 
             $.ajax({
                 url: '/delete_row_ajax/',
                 type: 'POST',
-                data: {pk: pk}
+                data: {pk: pk},
+                dataType : 'json'
+
+                // success: function(json) {
+                //     alert(json['result'])
+                // }
+            }).done(function(json) {
+                row.fadeOut(1000);
+                $("#snoAlertBox")
+                    .addClass("alert-success")
+                    .text('Заказ '+ json['order'] + ' успешно удален')
+                    .fadeIn();
+                closeSnoAlertBox();
+            }).fail(function() {
+                $("#snoAlertBox")
+                    .addClass("alert-danger")
+                    .text('Для удаления нужно войти в систему.')
+                    .fadeIn();
+                closeSnoAlertBox();
             });
 
+            // $(this).parents('tr').fadeOut(1000);
             $(this).confirmation('destroy');
-            $(this).parents('tr').fadeOut(1000);
+
         }
     });
 
 });
+
+function closeSnoAlertBox(){
+	window.setTimeout(function () {
+  	$("#snoAlertBox").fadeOut(300)
+	}, 3000);
+} 

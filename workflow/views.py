@@ -59,19 +59,6 @@ def about(request):
     return render_to_response('about.html', {'timestamp': timestamp}, context)
 
 
-@login_required
-def usersettings(request):
-    return render_to_response('usersettings.html')
-
-
-def printing(request):
-    pass
-
-
-def log(request):
-    return render_to_response('log.html')
-
-
 @ensure_csrf_cookie
 def change_import(request):
     d = shelve.open('shelve.db')

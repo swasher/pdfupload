@@ -12,7 +12,8 @@ class FilterForm(forms.ModelForm):
     from_date = forms.DateField(
         widget=DateTimePicker(options={"format": "DD.MM.YYYY",
                                        "locale": 'ru'
-                                       }
+                                       },
+                                attrs = {'class': 'form-control input-sm'}
                               ),
         required=False
     )
@@ -20,7 +21,8 @@ class FilterForm(forms.ModelForm):
     to_date = forms.DateField(
         widget=DateTimePicker(options={"format": "DD.MM.YYYY",
                                        "locale": 'ru'
-                                       }
+                                       },
+                              attrs = {'class': 'form-control input-sm'}
                               ),
         required=False
     )
@@ -30,7 +32,7 @@ class FilterForm(forms.ModelForm):
         queryset=Outputter.objects.all(),
         required=False,
         empty_label='Подрядчик',
-        widget=forms.Select(attrs={'class': 'selectpicker'})
+        widget=forms.Select(attrs={'class': 'selectpicker col-sm'})
     )
 
     machine = forms.ModelChoiceField(
@@ -38,11 +40,11 @@ class FilterForm(forms.ModelForm):
         queryset=PrintingPress.objects.all(),
         required=False,
         empty_label='Машина',
-        widget=forms.Select(attrs={'class': 'selectpicker'})
+        widget=forms.Select(attrs={'class': 'selectpicker col-sm'})
     )
 
     filename = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control input-sm'}),
         required=False
     )
 

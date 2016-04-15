@@ -54,7 +54,7 @@
 </div>{% endcomment %}
 
 <div class="container-fluid">
-<div class="well">
+<div class="well well-sm">
 
     {% load staticfiles %}
     {{ form.media }}
@@ -67,7 +67,7 @@
         </div>
     {% endif %}
 
-    <form id="id_datetime" class="form-inline" role="form" method="post">
+    <form id="id_datetime" class="form-inline" role="form" method="get">
         {% csrf_token %}
 {#        {{ form.non_field_errors }}#}
 
@@ -80,20 +80,16 @@
         {% endfor %}
 
         <div class="btn-group">
-            <button formaction="{% url "grid" mode='filter' %}" type="submit" class="btn btn-success">
-                <span class="glyphicon glyphicon-search"></span> Filter
+            <button formaction="{% url "grid" mode='filter' %}" type="submit" class="btn btn-success btn-sm">
+                <span class="glyphicon glyphicon-search"></span> Фильтр
             </button>
-            <button formaction="{% url "grid" mode='printing' %}" type="submit" class="btn btn-info">
-                <span class="glyphicon glyphicon-print"></span> Print
+            <button formaction="{% url "grid" mode='printing' %}" type="submit" class="btn btn-info btn-sm">
+                <span class="glyphicon glyphicon-print"></span> Печать
             </button>
-            <button formaction="{% url "grid" mode='clear' %}" type="submit" class="btn btn-default">
-                <span class="glyphicon glyphicon-refresh"></span> Refresh
+            <button formaction="{% url "grid" mode='clear' %}" type="submit" class="btn btn-default btn-sm">
+                <span class="glyphicon glyphicon-refresh"></span> Очистить
             </button>
         </div>
-
-
-{#        <a type="button" class="btn btn-default" href="{% url "grid" %}">#}
-{#            <span class="glyphicon glyphicon-refresh"></span> Clear </a>#}
     </form>
 
 </div>

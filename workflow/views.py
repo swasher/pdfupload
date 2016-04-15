@@ -116,9 +116,9 @@ def grid(request, mode=''):
     # Если не указано иное, то по умолчанию используется темплайт grid
     shablon = 'grid.html'
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         # В эту ветку мы можем попасть, если нажато Filter или Print или Clear
-        form = FilterForm(request.POST)
+        form = FilterForm(request.GET)
         if form.is_valid():
             # Логика по датам: первый if - введены обе даты, elif - если введена только начальная дата -
             # с нее по сегодня, иначе - за последние n дней.

@@ -1,14 +1,24 @@
 ---
-- name: Django makemigration
-  # NOTE embedded ansible command dont work
-  django_manage: >
-    command=makemigrations
-    app_path={{project_root}}
-#  shell: 'python manage.py makemigrations'
-#  args:
-#    chdir: "{{project_root}}"
+# DEPRECATED
+# do not need make migration here: migrations alreade exists with source code
+#
+#- name: Django makemigration
+#  # NOTE embedded ansible command dont work
+#  django_manage: >
+#    command=makemigrations
+#    app_path={{project_root}}
 
-- name: Django migrate
+- name: migrate
   django_manage: >
     command=migrate
     app_path={{project_root}}
+  when: group_names[0]=='production' or group_names[0]=='staging'
+
+
+# ansible bug [https://github.com/ansible/ansible/issues/15443]
+# ./manage.py fail with permission error due to manage.py is not executable
+- name: migrate
+  shell: python manage.py migrate
+  args:
+    chdir: "{{ project_root }}"
+  when: group_names[0]=='development'

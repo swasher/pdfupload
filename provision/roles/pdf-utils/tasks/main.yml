@@ -1,5 +1,5 @@
 ---
-- name: Install poppler-utils(pdfinfo), ghostscript
+- name: Install various pdf utilities
   apt: >
     pkg={{item}}
     state=installed

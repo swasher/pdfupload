@@ -3,7 +3,6 @@
 - include: install_requirements.yml
 - include: ensure_directories.yml
 - include: copy_secret.yml
-# - include: load_fixtures.yml
 - include: migrate.yml
 - include: create_superuser.yml
 - include: collect_static.yml

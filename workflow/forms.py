@@ -13,7 +13,8 @@ class FilterForm(forms.ModelForm):
         widget=DateTimePicker(options={"format": "DD.MM.YYYY",
                                        "locale": 'ru'
                                        },
-                                attrs = {'class': 'form-control input-sm'}
+                                attrs = {'class': 'form-control input-sm',
+                                         'placeholder':'нач. дата'}
                               ),
         required=False
     )
@@ -22,7 +23,9 @@ class FilterForm(forms.ModelForm):
         widget=DateTimePicker(options={"format": "DD.MM.YYYY",
                                        "locale": 'ru'
                                        },
-                              attrs = {'class': 'form-control input-sm'}
+                              attrs = {'class': 'form-control input-sm',
+                                       'placeholder':'кон. дата'
+                                       }
                               ),
         required=False
     )
@@ -44,7 +47,7 @@ class FilterForm(forms.ModelForm):
     )
 
     filename = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control input-sm'}),
+        widget=forms.TextInput(attrs={'class': 'form-control input-sm', 'placeholder': 'фильтр по слову'}),
         required=False
     )
 

@@ -9,3 +9,13 @@
   django_manage: >
     command="collectstatic --verbosity 0 --noinput "
     app_path={{project_root}}
+  when: group_names[0]=='production' or group_names[0]=='staging'
+
+
+# ansible bug [https://github.com/ansible/ansible/issues/15443]
+# ./manage.py fail with permission error due to manage.py is not executable
+- name: Collecting static
+  shell: python manage.py collectstatic --noinput
+  args:
+    chdir: "{{ project_root }}"
+  when: group_names[0]=='development'

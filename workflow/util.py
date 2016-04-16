@@ -92,7 +92,7 @@ def reduce_image(infile, outfile, new_width):
             im = im.resize((new_height, new_width), Image.ANTIALIAS)
             im.save(outfile)
         except IOError, e:
-            print("cannot create thumbnail for {} with exception: {}".format(infile, e))
+            logger.error("cannot create thumbnail for {} with exception: {}".format(infile, e))
 
 
 def colorant_to_string(pdf_colors):
@@ -122,12 +122,12 @@ def colorant_to_string(pdf_colors):
     replaced_colors = ''
     #если краски - только CMYK
     if set(inks) == set(cmyk):
-        #то возвращаем пустую строку - в название файла никакая инфа не добавится
-        # print 'only cmyk'
+        # то возвращаем пустую строку - в название файла никакая инфа не добавится
+        # logger.debug('only cmyk')
         short_colors = ''
     else:
         #иначе заменяем краски Cyan Magenta Yellow Black на их заглавные буквы и ставим их в начало строки
-        print 'inks', inks
+        logger.debug('inks {}'.format(inks))
         for ink in cmyk:
             if ink in inks:
                 inks.remove(ink)

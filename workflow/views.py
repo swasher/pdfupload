@@ -74,13 +74,6 @@ def change_import(request):
 
 def grid(request, mode=''):
 
-    try:
-        sys.stdout = open(settings.TTY, 'w')
-        sys.stderr = open(settings.TTY, 'w')
-        #sys.stdout.write('filename'+'\n')
-    except:
-        pass
-
     # This code will create 'shelve.db' if it absent. You need uncoment code and
     # reload page. So 'shelve.db' will be created
     # d = shelve.open('shelve.db')
@@ -215,20 +208,6 @@ def delete_row_ajax(request):
 @job
 def processing(pdfName):
     # socket.setdefaulttimeout(10.0)
-
-    # DEPRECATED
-    # try:
-    #     sys.stdout = open(settings.TTY, 'w')
-    #     sys.stderr = open(settings.TTY, 'w')
-    #     #sys.stdout.write('filename'+'\n')
-    # except:
-    #     pass
-    #
-    # print '\n\n'
-    # print 'START PROCESSING {}'.format(pdfName)
-    # print '─' * (len(pdfName) + 17)
-    # environment = os.getenv('SERVER_TYPE')  #, 'development')   #TEST
-    # print('SERVER_TYPE={}'.format(environment))                 #TEST
 
     environment = os.getenv('SERVER_TYPE')  #, 'development')   #TEST
 

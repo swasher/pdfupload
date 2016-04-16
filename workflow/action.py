@@ -85,7 +85,7 @@ def crop(pdf):
             # The resulting document has a trim box that is 200x200 points
             # and starts at 25,25 points inside the media box.
             # The crop box is 25 points inside the trim box.
-            print mm(page.mediaBox.getUpperRight_x()), mm(page.mediaBox.getUpperRight_y())
+            logger.debug('{} {}'.format(mm(page.mediaBox.getUpperRight_x()), mm(page.mediaBox.getUpperRight_y())))
             page.trimBox.lowerLeft = (25, 25)
             page.trimBox.upperRight = (225, 225)
             page.cropBox.lowerLeft = (50, 50)

@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.shortcuts import render_to_response
 from django.shortcuts import redirect
 from django.shortcuts import RequestContext
 from django.contrib import messages
@@ -18,18 +17,9 @@ def login(request):
                 messages.add_message(request, messages.SUCCESS, 'You are sucessfully login!')
             else:
                 #context['error'] = 'Non active user'
-                messages.add_message(request, messages.INFO, 'Non active user')
+                messages.add_message(request, messages.WARNING, 'Non active user')
         else:
-            messages.add_message(request, messages.INFO, 'Wrong username or password')
+            messages.add_message(request, messages.ERROR, 'Wrong username or password')
+    else:
+        messages.add_message(request, messages.ERROR, 'Вы должны быть зарегистрированны для выполнения этой операции.')
     return redirect('/')
-    #return render_to_response('grid.html', ???)
-
-
-def login_redirect(request):
-    messages.add_message(request, messages.INFO, 'Вы должны быть зарегистрированны для выполнения этой операции.')
-    return redirect('/')
-
-
-# def logout(request):
-#     django_logout(request)
-#     return redirect('/')

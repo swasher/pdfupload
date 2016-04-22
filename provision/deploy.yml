@@ -23,6 +23,13 @@
     - fail: msg="Deploy cant'n perform on development machine"
       when: group_names[0]=='development'
 
+#    - shell: whoami
+#      register: who
+#
+#    - debug: var=who.stdout
+#
+#    - fail: msg='stop'
+
       # run('git fetch origin') NOT WORK
     - name: Fetch source code
       command: git fetch origin
@@ -60,8 +67,8 @@
     - name: Restart uwsgi
       command: touch /tmp/pdfupload.reload
 
-      # run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
+      # run('echo `date +"%H:%m %d.%m.%Y"` > timestamp')
     - name: Make timestamp of deploy
-      command: echo `date +"%H:%m %d.%m.%Y"` > stamp
+      command: echo `date +"%H:%m %d.%m.%Y"` > timestamp
       args:
         chdir: "{{ project_root }}"

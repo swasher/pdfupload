@@ -7,9 +7,10 @@
 #
 
 
-- name: Install dependencies via bower
+- name: Install bower's packages
   bower: path={{project_root}}
   tags: vagrant_skip
+  become: no
 
 # using standart bower ansible module fail with following error:
   # fail only in vagrant

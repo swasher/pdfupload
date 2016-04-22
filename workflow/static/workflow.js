@@ -35,7 +35,7 @@ $(document).ready(function() {
                 .fail(function() {
                 $("#snoAlertBox")
                     .addClass("alert-danger")
-                    .text('Для удаления нужно войти в систему.')
+                    .text('Вы должны авторизироваться.')
                     .fadeIn();
                 closeSnoAlertBox();
             });

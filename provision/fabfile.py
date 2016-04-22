@@ -25,11 +25,58 @@ def production():
 def development():
     env.hosts = ['development']
 
-def deploy_with_ansible():
+
+def provision():
+    """
+    Setup all on provision/staging/deployment via Ansible. Development must run inside Vagrant box.
+
+    Usage:
+    fab [development|staging|production] provision
+    """
     additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
+
+    # Want more verbose output? Uncomment it.
+    additional_params += '-v'
+
+    local('ansible-playbook -i inventories/all --limit {target} {additional_params} provision.yml'.
+          format(target=env.hosts[0], additional_params=additional_params))
+
+
+def deploy():
+    """
+    Deploy latest commit to staging or provision server
+
+    Usage:
+    fab [staging|production] deploy
+    """
+
+    additional_params = ''
+    # additional_params += '--skip-tags=vagrant_skip ' if env.hosts[0] == 'development' else ''
+    # additional_params += '-vvv '
 
     local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
           format(target=env.hosts[0], additional_params=additional_params))
+
+
+@hosts('staging')
+def restore_staging():
+    """
+    Make staging server is mirror of production (source code and db)
+
+    Usage:
+    fab restore_staging
+    """
+
+    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/pdfupload', '~'))
+    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/static_root', '~'))
+
+    # раскомментировать, если нужно скопировать БД и ресурсы с prod на staging
+    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/media', '~'))
+    run('sudo -u postgres dropdb --if-exists pdfuploaddb')
+    run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
+    run('pg_dump -h production pdfuploaddb | psql pdfuploaddb')
+
+    run('touch /tmp/pdfupload')
 
 
 def restore_db_from_backup():
@@ -55,44 +102,31 @@ def restore_db_from_backup():
     local('ansible-playbook -i inventories/all --limit {target} {additional_params} restore_db_from_backup.yml'.
           format(target=env.hosts[0], additional_params=additional_params))
 
-
-def deploy():
-    """
-    Deploy latest commit to staging or provision server
-
-    Usage:
-    fab [staging|production] deploy
-    """
-
-    additional_params = ''
-    #additional_params += '--skip-tags=vagrant_skip ' if env.hosts[0] == 'development' else ''
-    #additional_params += '-vvv '
-
-    local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
-          format(target=env.hosts[0], additional_params=additional_params))
-
-
-def provision():
-    """
-    Setup all on provision/staging/deployment via Ansible. Development must run inside Vagrant box.
-
-    Usage:
-    fab [development|staging|production] provision
-    """
-    additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
-
-    # Do you want verbose output from ansible? Uncomment it.
-    additional_params += ' -vvvv'
-
-    local('ansible-playbook -i inventories/all --limit {target} {additional_params} provision.yml'.
-          format(target=env.hosts[0], additional_params=additional_params))
+# === end of useful task
 
 
 def testing():
+    additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
     local('ansible-playbook -i inventories/all --limit {target} -vvv testing.yml'.format(target=env.hosts[0]))
 
 def test():
     run('hostname -f')
+
+
+def replicate_db(source, target):
+    """
+    Replicate database from source to destination
+    :param source:
+    :param target:
+    :return:
+    """
+    pass
+
+    # something like
+    # pg_dump -C -h remotehost1 -U remoteuser1 db_name | psql remotehost2 -U remoteuser2 db_name
+
+
+
 
 # deprecated; now use ansible's deploy
 # def deploy():
@@ -113,28 +147,6 @@ def test():
 #         run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
 #         # then run test
 #         #run('python manage.py test myapp')
-
-
-@hosts('staging')
-def restore_staging():
-    """
-    Make staging server is mirror of production (source code and db)
-
-    Usage:
-    fab restore_staging
-    """
-
-    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/pdfupload', '~'))
-    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/static_root', '~'))
-
-    # раскомментировать, если нужно скопировать БД и ресурсы с prod на staging
-    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/media', '~'))
-    run('sudo -u postgres dropdb --if-exists pdfuploaddb')
-    run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
-    run('pg_dump -h production pdfuploaddb | psql pdfuploaddb')
-
-    run('touch /tmp/pdfupload')
-
 
 # deprecated; now use ansible's restore_db_from_backup
 # def restore_db():
@@ -187,16 +199,3 @@ def restore_staging():
 #
 #     with hide('output'):
 #         run('ssh backup cat /home/swasher/pdfupload/{} | psql pdfuploaddb'.format(latest_backup))
-
-
-def replicate_db(source, target):
-    """
-    Replicate database from source to destination
-    :param source:
-    :param target:
-    :return:
-    """
-    pass
-
-    # something like
-    # pg_dump -C -h remotehost1 -U remoteuser1 db_name | psql remotehost2 -U remoteuser2 db_name

@@ -8,17 +8,18 @@
 #    command=makemigrations
 #    app_path={{project_root}}
 
-- name: migrate
-  django_manage: >
-    command=migrate
-    app_path={{project_root}}
-  when: group_names[0]=='production' or group_names[0]=='staging'
 
 
 # ansible bug [https://github.com/ansible/ansible/issues/15443]
 # ./manage.py fail with permission error due to manage.py is not executable
+# so we use second version without django_migrate till bug fix
+
+#- name: migrate
+#  django_manage: >
+#    command=migrate
+#    app_path={{project_root}}
+
 - name: migrate
   shell: python manage.py migrate
   args:
     chdir: "{{ project_root }}"
-  when: group_names[0]=='development'

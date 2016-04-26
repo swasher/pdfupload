@@ -12,7 +12,7 @@ from time import gmtime, strftime
 from subprocess import Popen, PIPE
 from datetime import datetime
 from workflow.analyze import analyze_signastation, analyze_colorant, analyze_platesize, analyze_complects, analyze_order
-from workflow.models import Outputter, PrintingPress
+from workflow.models import Ctpbureau, PrintingPress
 
 
 # Walk into directories in filesystem
@@ -50,14 +50,14 @@ def detect_outputter(pdfname):
     fname, fext = os.path.splitext(pdfname)
     parts = fname.lower().split("_")
 
-    for company in Outputter.objects.all():
-        if company.name.lower() in parts:
-            outputter = company
+    for bureau in Ctpbureau.objects.all():
+        if bureau.name.lower() in parts:
+            ctpbureau = bureau
 
-    if 'outputter' not in locals():
-        outputter = Outputter.objects.get(name='Admin')
+    if 'ctpbureau' not in locals():
+        ctpbureau = Ctpbureau.objects.get(name='Admin')
 
-    return outputter
+    return ctpbureau
 
 
 def analyze_machine(pdfname):

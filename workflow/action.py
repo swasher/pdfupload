@@ -2,7 +2,6 @@
 # -- coding: utf-8 --
 
 import os
-import sys
 import tempfile
 import subprocess
 import shutil
@@ -12,9 +11,9 @@ import shelve
 import time
 import math
 
-# from django.conf import settings
 from subprocess import call
-from models import Outputter
+from models import Ctpbureau
+from models import Employee
 from models import Grid
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from util import pt, mm
@@ -29,22 +28,22 @@ from ftplib import FTP
 
 logger = logging.getLogger(__name__)
 
-def remove_outputter_title(pdf):
+def remove_ctpbureau_from_pdfname(pdf):
     """
     Функция убирает подрядчика из имени файла (0537_Technoyug_Flier_Leonov.pdf -> 0537_Technoyug_Flier.pdf),
-    затем переименовывает сам файл, и возвращает новое имя
+    затем переименовывает сам файл, и записывает новое имя в pdf.name
     :param pdf: объект pdf
     :return: none
     """
 
     # Тут нужен unicode, потому что имя файла может содержать русские буквы,
-    # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
+    # и будет лажа при сравнении типа str (fname) с типом unicode (Ctpbureau.objects.all())
     name, ext = os.path.splitext(pdf.name)
     parts = name.decode('UTF-8').split("_")
 
-    for outputter in Outputter.objects.all():
-        if outputter.name in parts:
-            parts.remove(outputter.name)
+    for bureau in Ctpbureau.objects.all():
+        if bureau.name in parts:
+            parts.remove(bureau.name)
 
     newname = '_'.join(parts) + ext
     newpath = os.path.join(pdf.tmpdir, newname)
@@ -211,22 +210,22 @@ def custom_operations(pdf):
     :param pdf:
     :return:
     """
-    if pdf.outputter.name == 'Leonov':
+    if pdf.ctpbureau.name == 'Leonov':
         """
         Леонов хочет, чтобы файл попадал в разные папки на фтп, в зависимости от формата пластин.
         Проверку производим только для первого комплекта (хотя в пдф теоретически могут быть формы на разные машины)
         """
         if pdf.machines[1].name == 'Speedmaster':
-            pdf.outputter.ftp_account.todir = '_1030x770'
+            pdf.ctpbureau.ftp_account.todir = '_1030x770'
         elif pdf.machines[1].name == 'Planeta':
-            pdf.outputter.ftp_account.todir = '_1010x820'
+            pdf.ctpbureau.ftp_account.todir = '_1010x820'
         elif pdf.machines[1].name == 'Dominant':
-            pdf.outputter.ftp_account.todir = '_ADAST'
+            pdf.ctpbureau.ftp_account.todir = '_ADAST'
         else:
-            pdf.outputter.ftp_account.todir = ''
+            pdf.ctpbureau.ftp_account.todir = ''
 
 
-    if pdf.outputter.name == 'Korol':
+    if pdf.ctpbureau.name == 'Korol':
         # may be rotate90?
         """
         Король просит добавлять в имя файла названия красок.
@@ -252,41 +251,65 @@ def custom_operations(pdf):
 # TODO и переписать код, чтобы статусы напрямую возвращалсиь из sendfile
 # TODO Так же эти проверки на присутствие файла, присутствие фтп тоже внедрить в sendfile
 
+# Или наоборот, убрать из sendfile абсолютно всю логику, и сделать разделение -
+# sendfile - только умеет заливать на фтп, а логика в обертках. Так же подумать,
+# может обертки стоит сделать как декораторы.
+
 def upload_to_press(pdf):
     """
     Отсылает обрезанный и сжатый файл на фтп печатной машины
     :param pdf:
-    :return:
+    :return: upload_to_ctpbureau_status, upload_to_ctpbureau_error
     """
-    if os.path.isfile(pdf.compressed_file.name):
-        if pdf.machines[1].uploadtarget:
-            pdf.upload_to_machine_status, pdf.upload_to_machine_error = sendfile(pdf, pdf.machines[1].uploadtarget)
-        else:
-            pdf.upload_to_machine_status, pdf.upload_to_machine_error = False, "Unknown press or missing ftp credentials"
+    d = shelve.open('shelve.db')
+    import_mode = d['IMPORT_MODE']
+    d.close()
+
+    if import_mode:
+        logger.info('····skipping upload due import mode')
+        return False, 'Skipping upload due import mode'
+
+    if not os.path.isfile(pdf.compressed_file.name):
+        logger.error('Uploading: Preview PDF file not found')
+        return False, 'Preview PDF not found'
+
+    if pdf.machines[1].uploadtarget:
+        status, e = sendfile(pdf, pdf.machines[1].uploadtarget)
+        return status, e
     else:
-        logger.error('Uploading: compressed file not found')
-        pdf.upload_to_machine_status, pdf.upload_to_machine_error = False, 'Preview not found'
+        logger.error("Missing ftp credentials")
+        return False, "Missing ftp credentials"
 
 
-def upload_to_outputter(pdf):
+def upload_to_ctpbureau(pdf):
     """
-    Отсылает файл на вывод
+    Отсылает оригинальный файл на вывод
     :param pdf:
-    :return:
+    :return: upload_to_ctpbureau_status, upload_to_ctpbureau_error
     """
-    if os.path.isfile(pdf.abspath):
-        if pdf.outputter.ftp_account:
-            pdf.upload_to_outputter_status, pdf.upload_to_outputter_error = sendfile(pdf, pdf.outputter.ftp_account)
-        else:
-            pdf.upload_to_outputter_status, pdf.upload_to_outputter_error = False, "Missing ftp credentials"
-    else:
+    d = shelve.open('shelve.db')
+    import_mode = d['IMPORT_MODE']
+    d.close()
+
+    if import_mode:
+        logger.info('····skipping upload due import mode')
+        return False, 'Skipping upload due import mode'
+
+    if not os.path.isfile(pdf.abspath):
         logger.error('Uploading: PDF file not found')
-        pdf.upload_to_outputter_status, pdf.upload_to_outputter_error = False, 'PDF not found'
+        return False, 'PDF not found'
+
+    if pdf.ctpbureau.ftp_account:
+        status, e = sendfile(pdf, pdf.ctpbureau.ftp_account)
+        return status, e
+    else:
+        logger.error("Missing ftp credentials")
+        return False, "Missing ftp credentials"
 
 
 def send_sms(pdf):
     """
-    Отсылается смс. Получатель определяется по полю outputter.sms_receiver
+    Отсылается смс. Получатель определяется по полю user.employee.sms_notify
     :param pdf:
     :return:
     """
@@ -296,37 +319,40 @@ def send_sms(pdf):
 
     logger.info('')
     logger.info('――> SMS:')
-    if pdf.upload_to_outputter_status:
-        smsc = smsc_api.SMSC()
-        try:
-            phone = pdf.outputter.sms_receiver.phone
-        except:
-            logger.info('····skip send sms due no phone for outputter')
-        else:
-            message = '{} {} {}->{} {}'.format(pdf.order, pdf.ordername, str(pdf.plates), pdf.machines[1].name, pdf.outputter.name)
+
+    if import_mode:
+        logger.info('····skip due import mode')
+        return None
+
+    if pdf.upload_to_ctpbureau_status:
+
+        receivers = Employee.objects.filter(sms_notify=True)
+
+        for each in receivers:
+            smsc = smsc_api.SMSC()
+            phone = each.phone
+            message = '{} {} {}->{} {}'.format(pdf.order, pdf.ordername, str(pdf.plates), pdf.machines[1].name, pdf.ctpbureau.name)
 
             # smsc.send_sms возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной
             # отправки, либо массив (<id>, -<код ошибки>) в случае ошибки
 
-            # Тут небольшое нарушение логики. Если был включен import mode, то значит, аплоад не производился.
-            # Следовательно, upload_to_outputter_status будет False и в эту ветку выполнение уже не попадет.
-            # Пока, на всякий пожарный, оставлю
-            if not import_mode:
-                status = smsc.send_sms(phone, message)
-            else:
-                status = []
+            status = smsc.send_sms(phone, message)
+            # for debugging
+            #status = ['0000', 0, 'dry-run', '0' ]
 
             if len(status) == 4:
-                logger.info('····sms status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
-                logger.info('····sms text: {}'.format(message))
+                logger.info('····status: ok, cost: {}, balance: {}'.format(status[2], status[3]))
+                logger.info(u'····receiver: {} {}'.format(each.user.first_name, each.user.last_name))
+                logger.info('····text: {}'.format(message))
+                logger.info('')
             elif len(status) == 2:
-                logger.error('····sms FAILED with error: {}'.format(status[1]))
+                logger.error('····FAILED with error: {}'.format(status[1]))
                 logger.error('····more info: https://smsc.ru/api/http/#answer')
             else:
                 logger.warning('····skip send sms [possible import mode on]')
     else:
-        # если по какой-то причине у нас не софрмирован upload_to_outputter_status
-        logger.warning('····skip send sms due failed uploading')
+        # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status
+        logger.warning('····sms NOT sent. Reason: failed upload')
 
 
 def save_bd_record(pdf):
@@ -335,11 +361,11 @@ def save_bd_record(pdf):
     :param pdf:
     :return:
     """
-    contractor_error = error_text(pdf.upload_to_outputter_status, pdf.upload_to_outputter_error)
-    preview_error = error_text(pdf.upload_to_machine_status, pdf.upload_to_machine_error)
-    if not pdf.upload_to_outputter_status:
+    contractor_error = error_text(pdf.upload_to_ctpbureau_status, pdf.upload_to_ctpbureau_error)
+    preview_error = error_text(pdf.upload_to_press_status, pdf.upload_to_press_error)
+    if not pdf.upload_to_ctpbureau_status:
         bg = 'danger'
-    elif not pdf.upload_to_machine_status:
+    elif not pdf.upload_to_press_status:
         bg = 'warning'
     else:
         bg = 'default'
@@ -355,7 +381,7 @@ def save_bd_record(pdf):
         row.machine = pdf.machines[1]
         row.total_pages = pdf.complects
         row.total_plates = pdf.plates
-        row.contractor = pdf.outputter
+        row.contractor = pdf.ctpbureau
         row.contractor_error = contractor_error
         row.preview_error = preview_error
         row.colors = dict_to_multiline(pdf.colors)[:500]
@@ -426,10 +452,6 @@ def sendfile(pdf, receiver):
     status = True
     e = None
 
-    d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
-    d.close()
-
     #sizeWritten = 0
     current_bracket = 0
     total_size = os.path.getsize(pdf.abspath)
@@ -446,45 +468,41 @@ def sendfile(pdf, receiver):
         notify_bracket = int(total_brackets / 100 * b)
         notify_brackets[notify_bracket] = b
 
-    if not import_mode:
-        try:
-            logger.info('')
-            logger.info('――> Try connect to {}'.format(receiver.name))
-            ftp = FTP()
-            ftp.set_pasv(receiver.passive_mode) #<-- This puts connection into ACTIVE mode when receiver.passive_mode == False
-            ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
-            ftp.login(receiver.login, receiver.passw)
-        except Exception, e:
-            logger.error('···connect to {} FAILED with error: {}'.format(receiver.name, e))
-            status = False
-            return status, e
-        else:
-            # если коннект и логин прошли удачно, выполняется эта секция
-            connection_mode = 'passive' if receiver.passive_mode else 'active'
-            logger.info('···connect passed [{} mode]'.format(connection_mode))
-            localfile = open(pdf.abspath, "rb")
-            try:
-                ftp.cwd(receiver.todir)
-                logger.info('···Start uploading {} to {} ...'.format(pdf.name, receiver.name))
-                start = time.time()
-                ftp.storbinary("STOR " + pdf.name, localfile, blocksize, handle)
-                #print 'Size in kb ', totalSize/1024
-                #print 'Time in s ', (time.time()-start)
-                speed_kb = total_size / (time.time() - start) / 1024
-                speed_mb = speed_kb * 8 / 1024
-                logger.info('···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed_kb, speed_mb))
-            except Exception, e:
-                logger.error('···upload to {} FAILED with error: {}'.format(receiver.name, e))
-                status = False
-                # DEPRECATED return status, e
-            else:
-                logger.info('···Upload finished OK')
-            finally:
-                localfile.close()
-        finally:
-            ftp.close()
-    else:
-        logger.info('····skipping upload due import mode')
+    try:
+        logger.info('')
+        logger.info('――> Try connect to {}'.format(receiver.name))
+        ftp = FTP()
+        ftp.set_pasv(receiver.passive_mode) #<-- This puts connection into ACTIVE mode when receiver.passive_mode == False
+        ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
+        ftp.login(receiver.login, receiver.passw)
+    except Exception, e:
+        logger.error('···connect to {} FAILED with error: {}'.format(receiver.name, e))
         status = False
-        e = 'Skipping upload due import mode'
+        return status, e
+    else:
+        # если коннект и логин прошли удачно, выполняется эта секция
+        connection_mode = 'passive' if receiver.passive_mode else 'active'
+        logger.info('···connect passed [{} mode]'.format(connection_mode))
+        localfile = open(pdf.abspath, "rb")
+        try:
+            ftp.cwd(receiver.todir)
+            logger.info('···Start uploading {} to {} ...'.format(pdf.name, receiver.name))
+            start = time.time()
+            ftp.storbinary("STOR " + pdf.name, localfile, blocksize, handle)
+            #print 'Size in kb ', totalSize/1024
+            #print 'Time in s ', (time.time()-start)
+            speed_kb = total_size / (time.time() - start) / 1024
+            speed_mb = speed_kb * 8 / 1024
+            logger.info('···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed_kb, speed_mb))
+        except Exception, e:
+            logger.error('···upload to {} FAILED with error: {}'.format(receiver.name, e))
+            status = False
+            # DEPRECATED return status, e
+        else:
+            logger.info('···Upload finished OK')
+        finally:
+            localfile.close()
+    finally:
+        ftp.close()
+
     return status, e

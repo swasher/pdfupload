@@ -7,7 +7,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'pdfupload.settings'
 import django
 django.setup()
 
-from workflow.models import Grid, PrintingPress, Outputter
+from workflow.models import Grid, PrintingPress, Ctpbureau
 import time
 from datetime import datetime
 
@@ -31,7 +31,7 @@ def main():
                     if machinetext == press.name:
                         machine = press
 
-                for contractor in Outputter.objects.all():
+                for contractor in Ctpbureau.objects.all():
                     if outputtertext == contractor.name:
                         outputter = contractor
 

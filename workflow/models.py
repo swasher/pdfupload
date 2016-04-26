@@ -1,14 +1,31 @@
 # coding: utf-8
 
 from django.db import models
+from django.contrib.auth.models import User
+
+# deprecated; use User class instead
+#
+# class Phone(models.Model):
+#     name = models.CharField(max_length=50)
+#     phone = models.CharField(max_length=13)
+#
+#     def __unicode__(self):
+#         return self.name
 
 
-class Phone(models.Model):
-    name = models.CharField(max_length=50)
-    phone = models.CharField(max_length=13)
+class Employee(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=13, blank=True)
+    telegram_id = models.IntegerField(blank=True, null=True)
+    telegram_notify = models.BooleanField(default=False)
+    sms_notify = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Сотрудник'
+        verbose_name_plural = 'Сотрудники'
 
     def __unicode__(self):
-        return self.name
+        return ' '.join(self.user.username)
 
 
 class Ftp(models.Model):
@@ -44,13 +61,19 @@ class PrintingPress(models.Model):
         return self.name
 
 
-class Outputter(models.Model):
+class Ctpbureau(models.Model):
     name = models.CharField(max_length=50)
     ftp_account = models.ForeignKey('Ftp')
-    sms_receiver = models.ForeignKey('Phone', blank=True, null=True)
+    # deprecated;
+    # use `sms_notify` filed in employer model instead
+    # sms_receiver = models.ForeignKey('Phone', blank=True, null=True)
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'CTP бюро'
+        verbose_name_plural = 'CTP бюро'
 
 
 class Grid(models.Model):
@@ -60,7 +83,7 @@ class Grid(models.Model):
     machine = models.ForeignKey(PrintingPress, null=True)
     total_pages = models.IntegerField()
     total_plates = models.IntegerField()
-    contractor = models.ForeignKey(Outputter, null=True)   # подрядчик
+    contractor = models.ForeignKey(Ctpbureau, null=True)   # подрядчик
     contractor_error = models.CharField(max_length=300)    # код ошибки заливки файла на вывод
     preview_error = models.CharField(max_length=300)       # код ошибки заливки превьюхи на кинап
     colors = models.CharField(max_length=500, blank=True)  # мультилайн текст - инфа о колористике
@@ -71,3 +94,7 @@ class Grid(models.Model):
 
     def __unicode__(self):
         return self.pdfname
+
+    class Meta:
+        verbose_name = 'Заливка'
+        verbose_name_plural = 'Заливки'

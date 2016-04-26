@@ -13,7 +13,7 @@ from analyze import detect_is_pdf
 from analyze import detect_is_signastation
 from analyze import analyze_colorant
 from analyze import analyze_papersize
-from analyze import detect_outputter
+from analyze import detect_ctpbureau
 from analyze import analyze_order
 from analyze import analyze_date
 from analyze import analyze_ordername
@@ -40,16 +40,16 @@ class PDF:
     paper_sizes =''      # словарь с размерами бумаги (не путать с размерами плит!)
     plates = ''          # кол-во плит
     colors = ''          # словарь с цветностью страниц
-    outputter = ''       # объект, соответствующий подрядчику вывода форм
+    ctpbureau = ''       # объект, соответствующий подрядчику вывода форм
     cropped_file = ''    # объект типа файл. Имя доступно в свойстве name.
     compressed_file = '' # путь к кропленному, уменьшеному пдф
     jpeg_proof = ''      # абс. путь к джипегу от первой страницы пдф
     jpeg_thumb = ''      # абс. путь к джипегу от первой страницы пдф (совсем маленький)
     inks = ''            # словарь со значениями расхода краски
-    upload_to_outputter_status = '' # статус заливки выводильщику (для решения, отправлять ли смс)
-    upload_to_outputter_error = ''  # код ошибки
-    upload_to_machine_status = ''   # статус заливки на печ. машину
-    upload_to_machine_error = ''    # код ошибки
+    upload_to_ctpbureau_status = '' # статус заливки выводильщику (для решения, отправлять ли смс)
+    upload_to_ctpbureau_error = ''  # код ошибки
+    upload_to_press_status = ''   # статус заливки на печ. машину
+    upload_to_press_error = ''    # код ошибки
 
 
     def __init__(self, pdfName):
@@ -65,7 +65,7 @@ class PDF:
         self.paper_sizes = analyze_papersize(self)
         self.machines = analyze_machine(self)
         self.plates, self.colors = analyze_colorant(self)
-        self.outputter = detect_outputter(self)
+        self.ctpbureau = detect_ctpbureau(self)
         self.order = analyze_order(self)
 
     @property

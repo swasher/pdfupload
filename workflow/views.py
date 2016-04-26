@@ -38,13 +38,13 @@ from classes import PDF
 
 from analyze import analyze_inkcoverage
 
-from action import remove_outputter_title
+from action import remove_ctpbureau_from_pdfname
 from action import crop
 from action import compress
 from action import generating_jpeg
 from action import custom_operations
 from action import upload_to_press
-from action import upload_to_outputter
+from action import upload_to_ctpbureau
 from action import send_sms
 from action import save_bd_record
 from action import cleaning_temps
@@ -221,7 +221,7 @@ def processing(pdfName):
     pdf = PDF(pdfName)
 
     # Переименовываем - из названия PDF удаляется имя выводильщика
-    remove_outputter_title(pdf)
+    remove_ctpbureau_from_pdfname(pdf)
 
     # Crop via PyPDF2 library
     crop(pdf)
@@ -239,10 +239,10 @@ def processing(pdfName):
     custom_operations(pdf)
 
     # Send Preview PDF to press FTP
-    upload_to_press(pdf)
+    pdf.upload_to_press_status, pdf.upload_to_press_error = upload_to_press(pdf)
 
     # Send Original PDF to Outputter
-    upload_to_outputter(pdf)
+    pdf.upload_to_ctpbureau_status, pdf.upload_to_ctpbureau_error = upload_to_ctpbureau(pdf)
 
     # Send SMS via http://smsc.ua/
     send_sms(pdf)

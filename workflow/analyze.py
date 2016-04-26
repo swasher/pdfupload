@@ -8,7 +8,7 @@ import datetime
 import shelve
 
 from subprocess import Popen, PIPE
-from models import PrintingPress, Outputter
+from models import PrintingPress, Ctpbureau
 from django.conf import settings
 from django.utils import timezone
 from signamarks import detect_mark
@@ -221,13 +221,13 @@ def analyze_colorant(pdf):
     return plates, colors
 
 
-def detect_outputter(pdf):
+def detect_ctpbureau(pdf):
     """
     Возвращает объект, соответствующий подрядчику вывода форм.
     :param pdf: объект pdf
     :return: outputter (instance of FTP_server)
     """
-    logger.info('――> Detect outputter')
+    logger.info('――> Detect ctp bureau')
     try:
         #
         # Try detect via signa marks
@@ -242,9 +242,9 @@ def detect_outputter(pdf):
         # if not mark_content:
         #     raise TypeError
 
-        for company in Outputter.objects.all():
-            if company.name.lower() == mark_content.lower():
-                outputter = company
+        for bureau in Ctpbureau.objects.all():
+            if bureau.name.lower() == mark_content.lower():
+                outputter = bureau
     except (TypeError, IndexError):
         #
         # try detect via filename
@@ -255,9 +255,9 @@ def detect_outputter(pdf):
         # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
         parts = fname.decode('UTF-8').lower().split("_")
 
-        for company in Outputter.objects.all():
-            if company.name.lower() in parts:
-                outputter = company
+        for bureau in Ctpbureau.objects.all():
+            if bureau.name.lower() in parts:
+                outputter = bureau
 
     if 'outputter' in locals():
         logger.info('····detected: {}\n'.format(outputter))
@@ -331,9 +331,9 @@ def analyze_ordername(pdf):
     name, ext = os.path.splitext(pdf.name)
     parts = name.decode('UTF-8').split("_")
 
-    for outputter in Outputter.objects.all():
-        if outputter.name in parts:
-            parts.remove(outputter.name)
+    for bureau in Ctpbureau.objects.all():
+        if bureau.name in parts:
+            parts.remove(bureau.name)
 
     if parts[0].isdigit():
         del parts[0]

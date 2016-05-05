@@ -1,0 +1,11 @@
+---
+- name: Install system packages
+  apt: >
+    pkg={{item}}
+    state=installed
+    update-cache=yes
+    cache_valid_time={{ apt_cache_valid_time }}
+  with_items:
+    - rsync
+    - mc
+  become: yes

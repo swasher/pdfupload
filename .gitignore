@@ -17,6 +17,7 @@ __pycache__/
 stamp
 provision.retry
 /provision/deploy.retry
+/provision/restore_staging.retry
 
 
 # Статика

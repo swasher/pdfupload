@@ -1,6 +1,7 @@
 ---
 #- include: test.yml
 - include: check_os_support.yml
+- include: system_wide_packages.yml
 - include: copy_ssh_config.yml
 - include: copy_ssh_keys.yml
 - include: tz.yml

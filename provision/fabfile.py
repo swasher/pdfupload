@@ -1,6 +1,6 @@
 # --- coding: utf-8 ---
 
-from fabric.api import local, hosts, env, run
+from fabric.api import local, hosts, env, run, task
 from fabric.operations import prompt
 
 # For use server names, we must have hosts description at any machine in ~/.shh/config with following format:
@@ -11,10 +11,8 @@ from fabric.operations import prompt
 #
 # Then we can us deploy as `fab staging deploy` or `fab production deploy`
 
-
 env.use_ssh_config = True
 env.project_path = '/home/swasher/pdfupload'
-
 
 def staging():
     env.hosts = ['staging']
@@ -67,16 +65,18 @@ def restore_staging():
     fab restore_staging
     """
 
-    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/pdfupload', '~'))
-    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/static_root', '~'))
+    # run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/pdfupload', '~'))
+    # run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/static_root', '~'))
+    #
+    # # раскомментировать, если нужно скопировать БД и ресурсы с prod на staging
+    # run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/media', '~'))
+    # run('sudo -u postgres dropdb --if-exists pdfuploaddb')
+    # run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
+    # run('pg_dump -h production pdfuploaddb | psql pdfuploaddb')
+    #
+    # run('touch /tmp/pdfupload')
 
-    # раскомментировать, если нужно скопировать БД и ресурсы с prod на staging
-    run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/media', '~'))
-    run('sudo -u postgres dropdb --if-exists pdfuploaddb')
-    run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
-    run('pg_dump -h production pdfuploaddb | psql pdfuploaddb')
-
-    run('touch /tmp/pdfupload')
+    local('ansible-playbook -i inventories/all --limit staging restore_staging.yml')
 
 
 def restore_db_from_backup():

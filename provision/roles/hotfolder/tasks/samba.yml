@@ -7,6 +7,7 @@
     cache_valid_time={{ apt_cache_valid_time }}
   with_items:
     - samba
+  notify: restart samba
   become: yes
 
 - name: Copy samba share template
@@ -18,37 +19,20 @@
 - name: Include template
   lineinfile: dest=/etc/samba/smb.conf
               line='include = {{samba_include}}'
+  notify: restart samba
   become: yes
 
-
-
-- name: Set local master -> no
-  lineinfile: dest=/etc/samba/smb.conf
-              line='local master = no'
-              insertafter="\[global\]"
+- name: Samba conf global
+  blockinfile:
+    dest: /etc/samba/smb.conf
+    block: |
+      preferred master = no
+      domain master = no
+      os level = 1
+      local master = no
+    insertafter: "## Browsing/Identification ###"
+  notify: restart samba
   become: yes
-
-
-- name: Set os level -> 1
-  lineinfile: dest=/etc/samba/smb.conf
-              line='os level = 1'
-              insertafter="\[global\]"
-  become: yes
-
-
-- name: Set domain master -> no
-  lineinfile: dest=/etc/samba/smb.conf
-              line='domain master = no'
-              insertafter="\[global\]"
-  become: yes
-
-
-- name: Set preffered master -> no
-  lineinfile: dest=/etc/samba/smb.conf
-              line='preferred master = no'
-              insertafter="\[global\]"
-  become: yes
-
 
 - name: Change workgroup
   replace: dest=/etc/samba/smb.conf
@@ -56,4 +40,3 @@
            replace='\1{{workgroup}}\2'
   notify: restart samba
   become: yes
-

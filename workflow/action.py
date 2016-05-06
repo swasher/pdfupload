@@ -5,11 +5,12 @@ import os
 import tempfile
 import subprocess
 import shutil
-import smsc_api
 import logging
 import shelve
 import time
 import math
+import smsc_api
+import twx
 
 from django.conf import settings
 from subprocess import call
@@ -27,6 +28,7 @@ from util import inks_to_multiline
 from util import get_bbox
 from ftplib import FTP
 from twx.botapi import TelegramBot
+
 
 logger = logging.getLogger(__name__)
 
@@ -380,20 +382,35 @@ def send_telegram(pdf):
 
     if pdf.upload_to_ctpbureau_status:
 
-        chat_id = settings.TELEGRAM_CHAT_ID
-        bot = TelegramBot(settings.TELEGRAM_API_KEY)
+        if pdf.ctpbureau.name == 'Admin':
+            # TODO прибито гвоздями; можно сделать в настройках что-то вроде, - пропускать, если есть стоп-слова в названии. Но опять таки - что пропускать? Аплоад? Смс? Нотификации? Если все пропускать, тогда дебажить не получится
+            # debugging purpose; if outputter is Admin then telegram send only to first superuser
+            receivers = Employee.objects.filter(user__is_superuser=True)
+        else:
+            receivers = Employee.objects.filter(telegram_notify=True)
 
-        message = """
-        №{} {}
-        Плит: {}, Машина: {}
-        Вывод: {}
-        """.format(pdf.order, pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name)
+        for each in receivers:
 
-        # smsc.send_sms возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной
-        # отправки, либо массив (<id>, -<код ошибки>) в случае ошибки
+            telegram_id = each.telegram_id
+            bot = TelegramBot(settings.TELEGRAM_API_KEY)
 
-        messag = bot.send_message(chat_id=chat_id, text=message).wait()
-        logger.info(messag)
+            message = """
+№{} {}
+Плит: {}, Машина: {}, Вывод: {}
+""".format(pdf.order, pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name)
+
+            # logger.debug('telegram_id={}'.format(telegram_id))
+            # logger.debug('username={}'.format(each.user.username))
+
+            responce = bot.send_message(chat_id=telegram_id, text=message).wait()
+
+            if isinstance(responce, twx.botapi.botapi.Message):
+                logger.info('··· {} receive notify'.format(responce.chat.username))
+            elif isinstance(responce, twx.botapi.botapi.Error):
+                logger.error(responce)
+            else:
+                logger.error('Critical telegram twx bug:')
+                logger.error(responce)
 
     else:
         # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status

@@ -43,7 +43,7 @@
           chdir: "{{ project_root }}"
 
       # run('bower install')
-    - name: Install packages based on bower.json.
+    - name: Install packages based on bower.json
       bower: path={{ project_root }}
 
       # run('sudo pip install -r requirements.txt')

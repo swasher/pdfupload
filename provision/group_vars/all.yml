@@ -15,6 +15,9 @@ touchfile:         "/tmp/pdfupload.reload" # `touch` it for restart uswgi vassal
 smsc_login:        "{{ vault_smsc_login }}"
 smsc_password:     "{{ vault_smsc_password }}"
 
+# telegram bot
+telegram_api_key:  "{{ vault_telegram_api_key }}"
+
 # django secret key
 secret_key:        "{{ vault_secret_key }}"
 

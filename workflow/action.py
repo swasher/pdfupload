@@ -11,6 +11,7 @@ import shelve
 import time
 import math
 
+from django.conf import settings
 from subprocess import call
 from models import Ctpbureau
 from models import Employee
@@ -350,6 +351,49 @@ def send_sms(pdf):
                 logger.error('····more info: https://smsc.ru/api/http/#answer')
             else:
                 logger.warning('····skip send sms [possible import mode on]')
+    else:
+        # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status
+        logger.warning('····sms NOT sent. Reason: failed upload')
+
+
+def send_telegram(pdf):
+    """
+    Отсылается сообщение через telegram bot. Получатель определяется по полю user.employee.sms_notify
+    :param pdf:
+    :return:
+    """
+    from twx.botapi import TelegramBot, ReplyKeyboardMarkup
+
+
+    d = shelve.open('shelve.db')
+    import_mode = d['IMPORT_MODE']
+    d.close()
+
+    logger.info('')
+    logger.info('――> Telegram:')
+
+    if import_mode:
+        logger.info('····skip due import mode')
+        return None
+
+    if pdf.upload_to_ctpbureau_status:
+
+        chat_id = 212101911
+
+        bot = TelegramBot(settings.telegram_api)
+
+        message = """
+        №{} {}
+        Плит: {}, Машина: {}
+        Вывод: {}
+        """.format(pdf.order, pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name)
+
+        # smsc.send_sms возвращает массив (<id>, <количество sms>, <стоимость>, <баланс>) в случае успешной
+        # отправки, либо массив (<id>, -<код ошибки>) в случае ошибки
+
+        messag = bot.send_message(chat_id=chat_id, text=message).wait()
+        logger.info(messag)
+
     else:
         # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status
         logger.warning('····sms NOT sent. Reason: failed upload')

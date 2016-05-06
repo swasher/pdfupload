@@ -326,6 +326,10 @@ def send_sms(pdf):
         logger.info('····skip due import mode')
         return None
 
+    if pdf.ctpbureau.name == 'Admin':
+        logger.info('····skip due admin mode')
+        return None
+
     if pdf.upload_to_ctpbureau_status:
 
         receivers = Employee.objects.filter(sms_notify=True)

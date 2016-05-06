@@ -26,6 +26,7 @@ from util import dict_to_multiline
 from util import inks_to_multiline
 from util import get_bbox
 from ftplib import FTP
+from twx.botapi import TelegramBot
 
 logger = logging.getLogger(__name__)
 
@@ -362,9 +363,6 @@ def send_telegram(pdf):
     :param pdf:
     :return:
     """
-    from twx.botapi import TelegramBot, ReplyKeyboardMarkup
-
-
     d = shelve.open('shelve.db')
     import_mode = d['IMPORT_MODE']
     d.close()
@@ -378,8 +376,7 @@ def send_telegram(pdf):
 
     if pdf.upload_to_ctpbureau_status:
 
-        chat_id = 212101911
-
+        chat_id = settings.TELEGRAM_CHAT_ID
         bot = TelegramBot(settings.telegram_api)
 
         message = """
@@ -396,7 +393,7 @@ def send_telegram(pdf):
 
     else:
         # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status
-        logger.warning('····sms NOT sent. Reason: failed upload')
+        logger.warning('····telegram NOT sent. Reason: failed upload')
 
 
 def save_bd_record(pdf):

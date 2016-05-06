@@ -46,6 +46,7 @@ from action import custom_operations
 from action import upload_to_press
 from action import upload_to_ctpbureau
 from action import send_sms
+from action import send_telegram
 from action import save_bd_record
 from action import cleaning_temps
 
@@ -246,6 +247,7 @@ def processing(pdfName):
 
     # Send SMS via http://smsc.ua/
     send_sms(pdf)
+    send_telegram(pdf)
 
     # Запись в БД
     save_bd_record(pdf)

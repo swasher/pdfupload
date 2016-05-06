@@ -377,7 +377,7 @@ def send_telegram(pdf):
     if pdf.upload_to_ctpbureau_status:
 
         chat_id = settings.TELEGRAM_CHAT_ID
-        bot = TelegramBot(settings.TELEGRAM_API)
+        bot = TelegramBot(settings.TELEGRAM_API_KEY)
 
         message = """
         №{} {}

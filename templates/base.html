@@ -37,10 +37,10 @@
 
         // устанавливаем первоначальные значения во время загрузки страницы
         {% if import_mode %}
-            $(importid).html('Import mode: ON');
+            $(importid).html('Import mode');
             $(importid).addClass('label-danger');
         {% else %}
-            $(importid).html('Import mode: OFF');
+            $(importid).html('Normal mode');
             $(importid).addClass('label-success');
         {% endif %}
 

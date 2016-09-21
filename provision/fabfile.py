@@ -26,7 +26,9 @@ def development():
 
 def provision():
     """
-    Setup all on provision/staging/deployment via Ansible. Development must run inside Vagrant box.
+    Install needed software, source code and databases on clean machine.
+    Use this for initially setup provision/staging/deployment.
+    Development environment must run inside Vagrant box.
 
     Usage:
     fab [development|staging|production] provision
@@ -42,7 +44,7 @@ def provision():
 
 def deploy():
     """
-    Deploy latest commit to staging or provision server
+    Deploy latest source code from github to staging or provision server
 
     Usage:
     fab [staging|production] deploy
@@ -59,7 +61,7 @@ def deploy():
 @hosts('staging')
 def restore_staging():
     """
-    Make staging server is mirror of production (source code and db)
+    Make staging server as mirror of production (source code and db)
 
     Usage:
     fab restore_staging

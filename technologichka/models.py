@@ -122,7 +122,7 @@ class OperationList(models.Model):
 
 class Operation(models.Model):
     order = models.ForeignKey(Order)
-    name = models.ForeignKey(OperationList, verbose_name='Название операции', help_text='лцупруклпор')
+    name = models.ForeignKey(OperationList, verbose_name='Операция', help_text='')
     printsheet = models.ForeignKey(PrintSheet, blank=True, null=True, verbose_name='Печатный лист', help_text='Если оперция не относится к конкретному печатному листу, оставьте это поле пустым')
     contractor = models.ForeignKey(Contractor, blank=True, null=True, verbose_name='Подрядчик')
     price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True, verbose_name='Стоимость, грн.')

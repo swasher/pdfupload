@@ -134,7 +134,7 @@ class PrintSheetInLine(admin.TabularInline):
     model = PrintSheet
     extra = 0
 
-    fields = ('name', 'printingpress', 'turnover', 'pressrun', 'plates', 'outputter', 'colors', 'quantity', 'paper', 'link')
+    fields = ['name', 'printingpress', 'turnover', 'pressrun', 'plates', 'outputter', 'colors', 'quantity', 'paper', 'link']
 
     save_on_top = True
     verbose_name = 'Печатный лист'

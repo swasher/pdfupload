@@ -56,14 +56,14 @@ def printpdf_(request, orderid):
 
 #_platypus
 def printpdf__(request, orderid):
+
+
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
     # скачать
     #response['Content-Disposition'] = 'attachment; filename=somefilename.pdf'
     # показать
     response['Content-Disposition'] = 'filename="somefilename.pdf"'
-
-
 
     # Первый пример
     #
@@ -73,6 +73,9 @@ def printpdf__(request, orderid):
     # p = Paragraph("Hello World", styles['Heading1'])
     # Elements.append(p)
     # doc.build(Elements)
+
+
+
 
 
     # Второй пример
@@ -99,6 +102,12 @@ def printpdf__(request, orderid):
 
 
     doc = SimpleDocTemplate(response)
+
+    # или для создания ландскейпа
+    from reportlab.lib.pagesizes import letter, landscape
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(self.pagesize))
+
+
     Story = [Spacer(1,2*inch)]
     style = styles["Normal"]
     for i in range(100):
@@ -109,3 +118,21 @@ def printpdf__(request, orderid):
     doc.build(Story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
 
     return response
+
+
+"""
+поворот изображения
+"""
+
+from reportlab.platypus.flowables import Image
+
+class RotatedImage(Image):
+
+    def wrap(self,availWidth,availHeight):
+        h, w = Image.wrap(self,availHeight,availWidth)
+        return w, h
+    def draw(self):
+        self.canv.rotate(90)
+        Image.draw(self)
+
+I = RotatedImage('../images/somelogo.gif')

@@ -96,5 +96,5 @@ class Grid(models.Model):
         return self.pdfname
 
     class Meta:
-        verbose_name = 'Заливка'
-        verbose_name_plural = 'Заливки'
+        verbose_name = 'Залитый файл'
+        verbose_name_plural = 'Залитые файлы'

@@ -7,8 +7,8 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from technologichka.models import Order, PrintSheet, Operation, Detal
 from technologichka.forms import NewOrderForm
-from reporting import MyPrint
-from reporting import printpdf
+from reporting import PrintOrder
+#from reporting import printpdf
 
 
 def create_new_order(request):
@@ -99,7 +99,7 @@ def print_pdf_order(request, orderid):
 
     buffer = BytesIO()
 
-    report = MyPrint(buffer, 'A4')
+    report = PrintOrder(buffer, orderid)
     pdf = report.printpdf()
 
     response.write(pdf)

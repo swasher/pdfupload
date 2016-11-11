@@ -87,8 +87,8 @@ def grid(request, mode=''):
 
     context = RequestContext(request)
 
-    # Фильтр по умолчанию - за последние n дней.
     myquery = Q()
+    # Фильтр по умолчанию - за последние n дней.
     n = 60
     start = datetime.datetime.now() - datetime.timedelta(days=n)
     end = datetime.datetime.now()
@@ -101,6 +101,7 @@ def grid(request, mode=''):
         # В эту ветку мы можем попасть, если нажато Filter или Print или Clear
         form = FilterForm(request.GET)
         if form.is_valid():
+            """
             # Логика по датам: первый if - введены обе даты, elif - если введена только начальная дата -
             # с нее по сегодня, иначе - за последние n дней.
             if form.cleaned_data['from_date'] and form.cleaned_data['to_date']:
@@ -113,6 +114,7 @@ def grid(request, mode=''):
                 myquery &= Q(datetime__range=(start, end))
             else:
                 myquery &= defaultfilter
+
             if form.cleaned_data['contractor']:
                 myquery &= Q(contractor__exact=form.cleaned_data['contractor'])
             if form.cleaned_data['machine']:
@@ -122,6 +124,36 @@ def grid(request, mode=''):
                     myquery &= ~Q(pdfname__icontains=form.cleaned_data['filename'][1:])
                 else:
                     myquery &= Q(pdfname__icontains=form.cleaned_data['filename'])
+            """
+
+            #### НОЫВАЯ ЛОГИКА ####
+
+            # Если пользователь задал хотя бы один фильтр, то применяем только явно заданные фильтры. Иначе применяем фильтр "за последние два месяца".
+            if form.cleaned_data['from_date'] or form.cleaned_data['to_date'] or form.cleaned_data['contractor'] or form.cleaned_data['machine'] or form.cleaned_data['filename']:
+
+                # Если заданы обе даты, то делаем выборку между ними, иначе проверяем, задана ли начальная дата, и делаем выборку от нее по today
+                if form.cleaned_data['from_date'] and form.cleaned_data['to_date']:
+                    start = form.cleaned_data['from_date']
+                    end = form.cleaned_data['to_date'] + datetime.timedelta(days=1)
+                    myquery &= Q(datetime__range=(start, end))
+                elif form.cleaned_data['from_date']:
+                    start = form.cleaned_data['from_date']
+                    end = datetime.datetime.now() + datetime.timedelta(days=1)
+                    myquery &= Q(datetime__range=(start, end))
+
+                if form.cleaned_data['contractor']:
+                    myquery &= Q(contractor__exact=form.cleaned_data['contractor'])
+                if form.cleaned_data['machine']:
+                    myquery &= Q(machine__exact=form.cleaned_data['machine'])
+
+                # Если предварить фильтр по имени файла дефисом, то это исключит имена, вместо добавления
+                if form.cleaned_data['filename']:
+                    if form.cleaned_data['filename'][0] == '-':
+                        myquery &= ~Q(pdfname__icontains=form.cleaned_data['filename'][1:])
+                    else:
+                        myquery &= Q(pdfname__icontains=form.cleaned_data['filename'])
+            else:
+                myquery &= defaultfilter
 
             if mode == 'clear':
                 myquery = defaultfilter

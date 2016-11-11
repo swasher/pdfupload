@@ -14,7 +14,7 @@ class FilterForm(forms.ModelForm):
                                        "locale": 'ru'
                                        },
                                 attrs = {'class': 'form-control input-sm',
-                                         'placeholder':'нач. дата'}
+                                         'placeholder':'начальная дата'}
                               ),
         required=False
     )
@@ -24,7 +24,7 @@ class FilterForm(forms.ModelForm):
                                        "locale": 'ru'
                                        },
                               attrs = {'class': 'form-control input-sm',
-                                       'placeholder':'кон. дата'
+                                       'placeholder':'конечная дата'
                                        }
                               ),
         required=False

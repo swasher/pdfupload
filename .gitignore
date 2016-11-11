@@ -15,9 +15,7 @@ __pycache__/
 .idea/
 .vagrant/
 stamp
-provision.retry
-/provision/deploy.retry
-/provision/restore_staging.retry
+/provision/*.retry
 
 
 # Статика

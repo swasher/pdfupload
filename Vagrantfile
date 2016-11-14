@@ -83,3 +83,10 @@ Vagrant.configure(2) do |config|
 
 
 end
+
+# steps to add github key:
+# - create private github key at ~/.ssg/github
+# - chmod it to 600
+# - enable ssh-agent: eval "$(ssh-agent -s)"
+# - add key to agent: ssh-add ~/.ssh/github
+# - now you can git push origin master without password

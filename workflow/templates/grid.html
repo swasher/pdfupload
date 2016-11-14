@@ -2,57 +2,6 @@
 
 {% block table %}
 
-{#Django-bootstrap3#}
-{#{% load bootstrap3 %}#}
-{% comment %}<div class="container-fluid">
-    <div class="well">
-        <form action="/grid/" method="post" class="form">
-          {% csrf_token %}
-          {% bootstrap_form form layout='inline'%}
-          {% buttons %}
-              <button type="submit" class="btn btn-default">
-                  {% bootstrap_icon "search" %} Filter
-              </button>
-          {% endbuttons %}
-        </form>
-    </div>
-</div>{% endcomment %}
-
-{#Crispy form with |#}
-{% comment %}{% load crispy_forms_tags %}
-<div class="container-fluid">
-    <div class="well">
-        <form id="id_datetime" class="form-inline" role="form" action="/grid/" method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            {{ form|crispy }}
-
-            <button type="submit" class="btn btn-primary">
-                <span class="glyphicon glyphicon-search"></span> Filter
-            </button>
-            <a type="button" class="btn btn-default" href="{% url "grid" %}"> Clear filter </a>
-        </form>
-    </div>
-</div>{% endcomment %}
-
-
-{#Crispy form with crispy tag#}
-{% comment %}{% load crispy_forms_tags %}
-<div class="container-fluid">
-    <div class="well">
-{#        <form id="id_datetime" class="form-inline" role="form" action="/grid/" method="post">#}
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            {% crispy form %}
-
-{#            <button type="submit" class="btn btn-primary">#}
-{#                <span class="glyphicon glyphicon-search"></span> Filter#}
-{#            </button>#}
-            <a type="button" class="btn btn-default" href="{% url "grid" %}"> Clear filter </a>
-        </form>
-    </div>
-</div>{% endcomment %}
-
 <div class="container-fluid">
 <div class="well well-sm">
 
@@ -69,7 +18,7 @@
 
     <form id="id_datetime" class="form-inline" role="form" method="get">
         {% csrf_token %}
-{#        {{ form.non_field_errors }}#}
+        {# {{ form.non_field_errors }} #}
 
         {% for field in form.visible_fields %}
             <div class="form-group">
@@ -83,7 +32,10 @@
             <button formaction="{% url "grid" mode='filter' %}" type="submit" class="btn btn-success btn-sm">
                 <span class="glyphicon glyphicon-search"></span> Фильтр
             </button>
-            <button formaction="{% url "grid" mode='printing' %}" type="submit" class="btn btn-info btn-sm">
+            {% comment %}            <button formaction="{% url "grid" mode='printing' %}" type="submit" class="btn btn-info btn-sm">
+                <span class="glyphicon glyphicon-print"></span> Печать
+            </button>{% endcomment %}
+            <button type="submit" class="btn btn-info btn-sm" id="ajaxprint">
                 <span class="glyphicon glyphicon-print"></span> Печать
             </button>
             <button formaction="{% url "grid" mode='clear' %}" type="submit" class="btn btn-default btn-sm">

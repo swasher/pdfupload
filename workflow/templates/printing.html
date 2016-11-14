@@ -1,49 +1,55 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
 
-{% block table %}
+    {% load static %}
+    <link href="{% static "bootstrap/dist/css/bootstrap.min.css" %}" rel="stylesheet">
 
-<div class="container-fluid">
-    <table class="table table-striped table-bordered table-condensed">
-            <tr>
-              <th>Дата</th>
-              <th>№</th>
-              <th>Имя файла</th>
-              <th>Машина</th>
-{#              <th>Комплекты</th>#}
-              <th>Формы</th>
-              <th>Вывод</th>
-            </tr>
-        {% for row in table %}
-           <tr>
-               <td>{{ row.datetime|date:"d.m.Y" }}</td>
-               <td>{{ row.order|stringformat:"04d" }}</td>
-               <td>{{ row.pdfname }}</td>
-               <td>{{ row.machine.name }}</td>
-{#               <td>{{ row.total_pages }} компл.</td>#}
-               <td>{{ row.total_plates }}</td>
-               <td>{{ row.contractor }}</td>
-           </tr>
-        {% endfor %}
-    </table>
-</div>
+</head>
+
+<body>
+  <div class="container-fluid">
+      <table class="table table-striped table-bordered table-condensed">
+              <tr>
+                <th>Дата</th>
+                <th>№</th>
+                <th>Имя файла</th>
+                <th>Машина</th>
+  {#              <th>Комплекты</th>#}
+                <th>Формы</th>
+                <th>Вывод</th>
+              </tr>
+          {% for row in table %}
+             <tr>
+                 <td>{{ row.datetime|date:"d.m.Y" }}</td>
+                 <td>{{ row.order|stringformat:"04d" }}</td>
+                 <td>{{ row.pdfname }}</td>
+                 <td>{{ row.machine.name }}</td>
+  {#               <td>{{ row.total_pages }} компл.</td>#}
+                 <td>{{ row.total_plates }}</td>
+                 <td>{{ row.contractor }}</td>
+             </tr>
+          {% endfor %}
+      </table>
+  </div>
 
 
-<div class="col-md-4 col-md-offset-4">
-    <div class="panel panel-default">
-        <div class="panel-heading clearfix">
-            <i class="icon-calendar"></i>
-            <h3 class="panel-title">Total</h3>
-        </div>
+  <div class="col-md-4 col-md-offset-4">
+      <div class="panel panel-default">
 
-        <div class="panel-body">
-            <ul class="nav nav-pills nav-justified">
-                {% for m, y in sum_plate.items %}
-                    <span class="label label-success">{{ m }}</span>
-                    <span class="badge">{{ y }}</span>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-</div>
 
-{% endblock %}
+          <div class="panel-body">
+
+              <ul class="nav nav-pills nav-justified">
+
+                  <b>Total:&nbsp;&nbsp;&nbsp;&nbsp;</b>
+                  {% for m, y in sum_plate.items %}
+                      <span class="label label-success">{{ m }}</span>
+                      <span class="badge">{{ y }}</span>
+                  {% endfor %}
+              </ul>
+          </div>
+      </div>
+  </div>
+
+</body>

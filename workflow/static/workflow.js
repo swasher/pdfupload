@@ -14,40 +14,74 @@ $(document).ready(function() {
         btnOkIcon: "glyphicon glyphicon-remove",
         btnCancelLabel: "&nbsp;Cancel",
         btnCancelIcon: "glyphicon glyphicon-repeat",
-        onConfirm: function(event, element) {
+        onConfirm: function (event, element) {
             var pk = $(this).attr('id');
             row = $(this).parents('tr');
 
             $.ajax({
-                url: '/delete_row_ajax/',
-                type: 'POST',
-                data: {pk: pk},
-                dataType : 'json'
-            })
-                .done(function(json) {
-                row.fadeOut(1000);
-                $("#snoAlertBox")
-                    .addClass("alert-success")
-                    .text('Заказ '+ json['order'] + ' успешно удален')
-                    .fadeIn();
-                closeSnoAlertBox();
-            })
-                .fail(function() {
-                $("#snoAlertBox")
-                    .addClass("alert-danger")
-                    .text('Вы должны авторизироваться.')
-                    .fadeIn();
-                closeSnoAlertBox();
-            });
+                    url: '/delete_row_ajax/',
+                    type: 'POST',
+                    data: {pk: pk},
+                    dataType: 'json'
+                })
+                .done(function (json) {
+                    row.fadeOut(1000);
+                    $("#snoAlertBox")
+                        .addClass("alert-success")
+                        .text('Заказ ' + json['order'] + ' успешно удален')
+                        .fadeIn();
+                    closeSnoAlertBox();
+                })
+                .fail(function () {
+                    $("#snoAlertBox")
+                        .addClass("alert-danger")
+                        .text('Вы должны авторизироваться.')
+                        .fadeIn();
+                    closeSnoAlertBox();
+                });
 
             $(this).confirmation('destroy');
         }
     });
 
+    // Submit через ajax выполняется только после нажатия на кнопку #ajaxprint
+    $('#ajaxprint').click(function () {
+
+        // this is the id of the form
+        $("#id_datetime").submit(function (e) {
+
+            var url = "/grid/printing"; // the script where you handle the form input.
+            var w = window.open();
+            $.ajax({
+                type: "GET",
+                url: url,
+                data: $("#id_datetime").serialize(), // serializes the form's elements
+                dataType: 'html',
+                success: function (data) {
+                    //alert(data); // show response from the php script.
+                    // TODO Сделать проверку, что что-то вернулось, типа `if data`
+
+                    w.document.write(data);
+                    w.document.close();
+                    w.focus();
+                    w.print();
+                    w.close();
+                    location.reload();
+                }
+                ,error: function() {
+                    alert('Ajax errror!')
+                }
+
+            });
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+        });
+    });
+
 });
 
-function closeSnoAlertBox(){
-	window.setTimeout(function () {
-  	$("#snoAlertBox").fadeOut(300)
-	}, 3000);
-} 
+
+function closeSnoAlertBox() {
+    window.setTimeout(function () {
+        $("#snoAlertBox").fadeOut(300)
+    }, 3000);
+}

@@ -102,6 +102,7 @@ def grid(request, mode=''):
         form = FilterForm(request.GET)
         if form.is_valid():
             """
+            DEPRECATED
             # Логика по датам: первый if - введены обе даты, elif - если введена только начальная дата -
             # с нее по сегодня, иначе - за последние n дней.
             if form.cleaned_data['from_date'] and form.cleaned_data['to_date']:

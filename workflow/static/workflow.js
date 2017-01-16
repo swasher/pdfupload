@@ -14,6 +14,7 @@ $(document).ready(function() {
         btnOkIcon: "glyphicon glyphicon-remove",
         btnCancelLabel: "&nbsp;Cancel",
         btnCancelIcon: "glyphicon glyphicon-repeat",
+        rootSelector: '[data-toggle=confirmation]',
         onConfirm: function (event, element) {
             var pk = $(this).attr('id');
             row = $(this).parents('tr');

@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-import views
-import report
+from workflow import views
+from workflow import report
 
 urlpatterns = [
     url(r'^$', views.grid),
@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^grid/(?P<mode>\w+)/$', views.grid, name='grid'),
     url(r'^about/$', views.about, name='about'),
     url(r'^report/$', report.report, name='report'),
-    url(r'^delete/(?P<rowid>\d+)/$', views.delete, name='delete'),
+    #url(r'^delete/(?P<rowid>\d+)/$', views.delete, name='delete'),
     url(r'^delete_row_ajax/$', views.delete_row_ajax, name='delete_row_ajax'),
     url(r'^change_import/$', views.change_import, name='change_import'),
 ]

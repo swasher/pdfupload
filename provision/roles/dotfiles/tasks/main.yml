@@ -1,0 +1,8 @@
+---
+
+# Install various developer's helpers, preferabbly bash completions
+
+- include: dotfile_folder.yml
+- include: pip_completions.yml
+- include: django_completions.yml
+- include: ansible_editor.yml

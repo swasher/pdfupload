@@ -215,15 +215,15 @@ if __name__ == '__main__':
     else:
         f = sys.argv[1]
 
-    print f
+    print(f)
     if not os.path.exists(f):
         sys.exit('ERROR: PDF "{}" was not found!'.format(sys.argv[1]))
 
     pdf_marks = mark_extraction(f)
     pprint(pdf_marks)
 
-    print 'Выведено:'
-    print pdf_marks[0]['Outputter'][0]
+    print('Выведено:')
+    print(pdf_marks[0]['Outputter'][0])
 
     #print '\n'
     #pprint(pdf_marks[0])

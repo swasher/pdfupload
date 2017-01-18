@@ -1,0 +1,6 @@
+---
+- name: Ensure folder for dotfile
+  file: >
+    path=/home/{{remote_user}}/{{dotfiles}}
+    state=directory
+    mode=0700

@@ -1,0 +1,10 @@
+---
+- name: get pip completion
+  shell: source {{virtualenv}}/bin/activate && pip completion --bash > /home/{{remote_user}}/{{dotfiles}}/pip
+  args:
+      executable: /bin/bash
+
+- name: add pip completion to bashrc
+  lineinfile: >
+    dest=/home/{{remote_user}}/.bashrc
+    line="source /home/{{remote_user}}/{{dotfiles}}/pip"

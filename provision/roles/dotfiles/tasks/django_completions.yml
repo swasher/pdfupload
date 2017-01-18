@@ -1,0 +1,10 @@
+---
+- name: Download django completions
+  get_url: >
+    url=https://raw.githubusercontent.com/django/django/master/extras/django_bash_completion
+    dest="/home/{{remote_user}}/{{dotfiles}}/django"
+
+- name: Add django completions to bashrc
+  lineinfile: >
+    dest=/home/{{remote_user}}/.bashrc
+    line="source /home/{{remote_user}}/{{dotfiles}}/django"

@@ -24,7 +24,8 @@ import shelve
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponse
-from django.shortcuts import RequestContext, Http404, redirect, render_to_response
+from django.shortcuts import Http404, redirect, render_to_response
+from django.shortcuts import render
 from django.http import JsonResponse
 from django_rq import job
 from django.contrib.auth.decorators import login_required
@@ -32,32 +33,31 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from forms import FilterForm
-from models import Grid, PrintingPress
-from classes import PDF
+from .forms import FilterForm
+from .models import Grid, PrintingPress
+from .classes import PDF
 
-from analyze import analyze_inkcoverage
+from .analyze import analyze_inkcoverage
 
-from action import remove_ctpbureau_from_pdfname
-from action import crop
-from action import compress
-from action import generating_jpeg
-from action import custom_operations
-from action import upload_to_press
-from action import upload_to_ctpbureau
-from action import send_sms
-from action import send_telegram
-from action import save_bd_record
-from action import cleaning_temps
+from .action import remove_ctpbureau_from_pdfname
+from .action import crop
+from .action import compress
+from .action import generating_jpeg
+from .action import custom_operations
+from .action import upload_to_press
+from .action import upload_to_ctpbureau
+from .action import send_sms
+from .action import send_telegram
+from .action import save_bd_record
+from .action import cleaning_temps
 
 logger = logging.getLogger(__name__)
 
 
 def about(request):
-    context = RequestContext(request)
     with open('timestamp', 'r') as f:
         timestamp = f.read()
-    return render_to_response('about.html', {'timestamp': timestamp}, context)
+    return render(request, 'about.html', {'timestamp': timestamp})
 
 
 @ensure_csrf_cookie
@@ -81,11 +81,18 @@ def grid(request, mode=''):
     # d['IMPORT_MODE'] = False
     # d.close()
 
+
     d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
+
+    try:
+        import_mode = d['IMPORT_MODE']
+    except KeyError:
+        d['IMPORT_MODE'] = False
+        import_mode = d['IMPORT_MODE']
+        d.close()
+
     d.close()
 
-    context = RequestContext(request)
 
     myquery = Q()
     # Фильтр по умолчанию - за последние n дней.
@@ -179,37 +186,7 @@ def grid(request, mode=''):
         if total['total_plates__sum']:
             sum_plates[m.name] = total['total_plates__sum']
 
-    return render_to_response(shablon, {'table': table, 'form': form, 'sum_plate': sum_plates, 'import_mode': import_mode}, context)
-
-
-@login_required
-def delete(request, rowid):
-    """
-    DEPRECATED
-    """
-    #TODO сделать, чтобы после удаления не сбрасывался фильтр
-    context = RequestContext(request)
-
-    try:
-        row = Grid.objects.get(pk=rowid)
-    except row.DoesNotExist:
-        raise Http404
-
-    # deleting jpegs linked to db record
-    if os.path.isfile(row.proof.path):
-        os.unlink(row.proof.path)
-    if os.path.isfile(row.thumb.path):
-        os.unlink(row.thumb.path)
-
-    Grid.objects.get(pk=rowid).delete()
-
-    '''
-    # context = RequestContext(request)
-    # table = Grid.objects.all().order_by('datetime').reverse()
-    # form = FilterForm()
-    # return render_to_response('grid.html', {'table': table, 'form': form}, context)
-    '''
-    return redirect('grid')
+    return render(request, shablon, {'table': table, 'form': form, 'sum_plate': sum_plates, 'import_mode': import_mode})
 
 
 @login_required

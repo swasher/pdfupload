@@ -7,17 +7,17 @@ import logging
 from pdfupload.settings import INPUT_PATH as inputpath
 from pdfupload.settings import TEMP_PATH as tmppath
 
-from analyze import analyze_machine
-from analyze import analyze_platesize
-from analyze import detect_is_pdf
-from analyze import detect_is_signastation
-from analyze import analyze_colorant
-from analyze import analyze_papersize
-from analyze import detect_ctpbureau
-from analyze import analyze_order
-from analyze import analyze_date
-from analyze import analyze_ordername
-from signamarks import mark_extraction
+from .analyze import analyze_machine
+from .analyze import analyze_platesize
+from .analyze import detect_is_pdf
+from .analyze import detect_is_signastation
+from .analyze import analyze_colorant
+from .analyze import analyze_papersize
+from .analyze import detect_ctpbureau
+from .analyze import analyze_order
+from .analyze import analyze_date
+from .analyze import analyze_ordername
+from .signamarks import mark_extraction
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +83,6 @@ class PDF:
         """
         try:
             shutil.move(inputpath + self.name, self.tmpdir + self.name)
-        except Exception, e:
+        except Exception as e:
             logger.error('{}: Cant move to temp: {}'.format(self.name, e))
             exit()

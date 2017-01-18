@@ -7,6 +7,7 @@ workflow/fixtures/initial_data.json
 test/**
 test.py
 vault_password
+.env
 
 
 # Файлы, создаваемые приложением
@@ -16,7 +17,7 @@ __pycache__/
 .vagrant/
 stamp
 /provision/*.retry
-
+shelve.db
 
 # Статика
 /test
@@ -32,3 +33,4 @@ TODO.md
 rebuild_db.sh
 PDFSOFTWARE.md
 pdfupload/settings_secret.py
+workflow/fixtures/

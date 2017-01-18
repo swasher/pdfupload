@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -- coding: utf-8 --
-
 import os
 import logging
 import re
@@ -8,12 +7,13 @@ import datetime
 import shelve
 
 from subprocess import Popen, PIPE
-from models import PrintingPress, Ctpbureau
 from django.conf import settings
 from django.utils import timezone
-from signamarks import detect_mark
 from PyPDF2 import PdfFileReader
-from util import mm
+
+from .util import mm
+from .signamarks import detect_mark
+from .models import PrintingPress, Ctpbureau
 
 logger = logging.getLogger(__name__)
 

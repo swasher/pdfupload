@@ -1,0 +1,5 @@
+---
+- name: Set default editor for ansible-vault
+  lineinfile: dest=/etc/environment
+              line='EDITOR=mcedit'
+  become: yes

@@ -6,10 +6,9 @@ import logging
 from django.shortcuts import render_to_response
 from django.db.models import Sum, Min, Max
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import RequestContext
 
-from models import Grid
-from models import PrintingPress
+from .models import Grid
+from .models import PrintingPress
 
 logger = logging.getLogger(__name__)
 

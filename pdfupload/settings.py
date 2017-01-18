@@ -1,35 +1,26 @@
 # coding: utf-8
-
+from decouple import config
 import os
-import secrets
-import marks
-from os.path import join
+import pdfupload.marks
+from pathlib import Path
 
+from pdfupload import marks
 #
 # PATH SETUP
 #
 
-# BASE_DIR two levels upper than settings.py
-
-# default BASE_DIR buggy for me - __file__ return relative path instead absolute
-# BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-# look discussion here - https://code.djangoproject.com/ticket/21409 (espesially comment 5 and 6)
-# and here - http://stackoverflow.com/a/7116925/1334825
-# but probably it will work fine in python3
-
-p = os.path
-BASE_DIR = p.abspath(p.normpath(p.join(p.dirname(__file__), p.pardir)))
+BASE_DIR = Path(__file__).parent.parent
 
 # HOME на один уровень выше, чем BASE. Я хочу, чтобы media, log и другие директории лежили *рядом* с проектом, а не внутри
-HOME_DIR = os.path.dirname(BASE_DIR)
+HOME_DIR = BASE_DIR.parent
 
-INPUT_PATH = HOME_DIR + '/input/'
-TEMP_PATH = HOME_DIR + '/tmp/'
+INPUT_PATH = str(HOME_DIR / 'input')
+TEMP_PATH = str(HOME_DIR / 'tmp')
 
-STATIC_ROOT = HOME_DIR + '/static_root/'
+STATIC_ROOT = str(HOME_DIR / 'static_root')
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = HOME_DIR + '/media/'
+MEDIA_ROOT = str(HOME_DIR / 'media')
 MEDIA_URL = "/media/"
 
 #LOGIN_URL = '/login_redirect'
@@ -44,16 +35,19 @@ STATICFILES_DIRS =[
 # ENVIRONMENT SETUP
 #
 
-SECRET_KEY = secrets.SECRET_KEY
 MARKS_MACHINE = marks.MARKS_MACHINE
 MARKS_PAPER = marks.MARKS_PAPER
 MARKS_OUTPUTTER = marks.MARKS_OUTPUTTER
-SMSC_LOGIN = secrets.SMSC_LOGIN
-SMSC_PASSWORD = secrets.SMSC_PASSWORD
-TELEGRAM_API_KEY = secrets.TELEGRAM_API_KEY
-TELEGRAM_CHAT_ID = secrets.TELEGRAM_CHAT_ID
 
-ALLOWED_HOSTS = []
+SECRET_KEY = config('SECRET_KEY')
+SMSC_LOGIN = config('SMSC_LOGIN')
+SMSC_PASSWORD = config('SMSC_PASSWORD')
+TELEGRAM_API_KEY = config('TELEGRAM_API_KEY')
+TELEGRAM_CHAT_ID = config('TELEGRAM_CHAT_ID')
+
+ALLOWED_HOSTS = ['*']
+
+DEBUG = config('DEBUG', cast=bool)
 
 #
 # APPLICATION SETUP
@@ -83,9 +77,10 @@ TEMPLATES = [
         },
     },
 ]
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 INSTALLED_APPS = [
-    'grappelli',
+    #'grappelli',
     #'suit',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -102,8 +97,11 @@ INSTALLED_APPS = [
     'stanzforms',
     'workflow',
 ]
+if DEBUG:
+    INSTALLED_APPS.insert(0, 'debug_toolbar')
 
-MIDDLEWARE_CLASSES = [
+
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -114,6 +112,8 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware'
 ]
+if DEBUG:
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 ROOT_URLCONF = 'pdfupload.urls'
 
@@ -122,13 +122,31 @@ WSGI_APPLICATION = 'pdfupload.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': secrets.DATABASE_NAME,
-        'USER': secrets.DATABASE_USER,
-        'PASSWORD': secrets.DATABASE_PASSWORD,
+        'NAME': config('DATABASE_NAME'),
+        'USER': config('DATABASE_USER'),
+        'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '',
     }
 }
+
+# Password validation
+# https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
 RQ_QUEUES = {
     'default': {
@@ -170,7 +188,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(HOME_DIR, 'log', 'django.log'),
+            'filename': str(HOME_DIR / 'log' / 'django.log'),
             'maxBytes': 1024 * 1024 * 15,  # 15MB
             'backupCount': 10,
             'formatter': 'verbose'
@@ -178,7 +196,7 @@ LOGGING = {
         'userfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(HOME_DIR, 'log', 'user.log'),
+            'filename': str(HOME_DIR / 'log' / 'user.log'),
             'maxBytes': 1024 * 1024 * 15,  # 15MB
             'backupCount': 10,
             'formatter': 'simple'
@@ -234,28 +252,12 @@ SUIT_CONFIG = {
     # 'LIST_PER_PAGE': 15
 }
 
-
+#
+# Align django messages with bootstrap colors
+#
 from django.contrib.messages import constants as message_constants
-MESSAGE_TAGS = {message_constants.DEBUG: 'debug',
-                message_constants.INFO: 'info',
-                message_constants.SUCCESS: 'success',
-                message_constants.WARNING: 'warning',
-                message_constants.ERROR: 'danger',}
-
-#
-# LOAD SERVER-DEPENDING SETTINGS
-#
-
-SERVER_TYPE = os.getenv('SERVER_TYPE')
-
-DEV_ENV  = SERVER_TYPE == 'development'
-TEST_ENV = SERVER_TYPE == 'staging'
-PROD_ENV = SERVER_TYPE == 'production'
-
-if PROD_ENV:
-    from production import *
-elif TEST_ENV:
-    from staging import *
-elif DEV_ENV:
-    from development import *
-
+MESSAGE_TAGS = {message_constants.DEBUG: 'debug',       #no color
+                message_constants.INFO: 'info',         #cyan
+                message_constants.SUCCESS: 'success',   #green
+                message_constants.WARNING: 'warning',   #yellow
+                message_constants.ERROR: 'danger',}     #red

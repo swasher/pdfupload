@@ -19,3 +19,4 @@
     - npm
     - django
     - uwsgi
+    - dotfiles

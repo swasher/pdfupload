@@ -1,18 +1,16 @@
 # coding: utf-8
 
-import sys
 from io import BytesIO
-from django.shortcuts import render, redirect, render_to_response, RequestContext, Http404
+from django.shortcuts import render, redirect, render_to_response, Http404
 from django.http import HttpResponse
 from django.template import RequestContext
 from technologichka.models import Order, PrintSheet, Operation, Detal
 from technologichka.forms import NewOrderForm
-from reporting import PrintOrder
+from .reporting import PrintOrder
 #from reporting import printpdf
 
 
 def create_new_order(request):
-    context = RequestContext(request)
     if request.method == 'POST':
         form = NewOrderForm(request.POST)
         if form.is_valid():
@@ -20,13 +18,12 @@ def create_new_order(request):
     else:
         # Показываем пустую форму
         form = NewOrderForm()
-    return render_to_response('new_order.html', {'form': form}, context)
+    return render(request, 'new_order.html', {'form': form})
 
 
 def orders(request):
-    context_instance = RequestContext(request)
     table = Order.objects.all()
-    return render_to_response('orders.html', {'table': table}, context_instance)
+    return render(request, 'orders.html', {'table': table})
 
 
 # DEPRECATED

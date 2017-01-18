@@ -9,25 +9,26 @@ import logging
 import shelve
 import time
 import math
-import smsc_api
 import twx
 
+from .smsc_api import SMSC
+from PyPDF2 import PdfFileWriter, PdfFileReader
 from django.conf import settings
 from subprocess import call
-from models import Ctpbureau
-from models import Employee
-from models import Grid
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from util import pt, mm
-from util import reduce_image
-from util import get_jpeg_path
-from util import colorant_to_string
-from util import error_text
-from util import dict_to_multiline
-from util import inks_to_multiline
-from util import get_bbox
 from ftplib import FTP
 from twx.botapi import TelegramBot
+
+from .models import Ctpbureau
+from .models import Employee
+from .models import Grid
+from .util import pt, mm
+from .util import reduce_image
+from .util import get_jpeg_path
+from .util import colorant_to_string
+from .util import error_text
+from .util import dict_to_multiline
+from .util import inks_to_multiline
+from .util import get_bbox
 
 
 logger = logging.getLogger(__name__)
@@ -337,7 +338,7 @@ def send_sms(pdf):
         receivers = Employee.objects.filter(sms_notify=True)
 
         for each in receivers:
-            smsc = smsc_api.SMSC()
+            smsc = SMSC()
             phone = each.phone
             message = '{} {} {}->{} {}'.format(pdf.order, pdf.ordername, str(pdf.plates), pdf.machines[1].name, pdf.ctpbureau.name)
 
@@ -467,7 +468,7 @@ def save_bd_record(pdf):
         # logger.info('row.thumb', row.thumb)
         row.save()
         logger.info('····done')
-    except Exception, e:
+    except Exception as e:
         logger.error('····FAILED: {}'.format(e))
 
 
@@ -485,7 +486,7 @@ def cleaning_temps(pdf):
         os.unlink(pdf.compressed_file.name)
         shutil.rmtree(pdf.tmpdir)
         logger.info('····done')
-    except Exception, e:
+    except Exception as e:
         logger.error('····FAILED: {}'.format(e))
 
 
@@ -537,7 +538,7 @@ def sendfile(pdf, receiver):
         ftp.set_pasv(receiver.passive_mode) #<-- This puts connection into ACTIVE mode when receiver.passive_mode == False
         ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
         ftp.login(receiver.login, receiver.passw)
-    except Exception, e:
+    except Exception as e:
         logger.error('···connect to {} FAILED with error: {}'.format(receiver.name, e))
         status = False
         return status, e
@@ -556,7 +557,7 @@ def sendfile(pdf, receiver):
             speed_kb = total_size / (time.time() - start) / 1024
             speed_mb = speed_kb * 8 / 1024
             logger.info('···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed_kb, speed_mb))
-        except Exception, e:
+        except Exception as e:
             logger.error('···upload to {} FAILED with error: {}'.format(receiver.name, e))
             status = False
             # DEPRECATED return status, e

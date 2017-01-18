@@ -91,7 +91,7 @@ def reduce_image(infile, outfile, new_width):
             new_height = new_width * height / width
             im = im.resize((new_height, new_width), Image.ANTIALIAS)
             im.save(outfile)
-        except IOError, e:
+        except IOError as e:
             logger.error("cannot create thumbnail for {} with exception: {}".format(infile, e))
 
 

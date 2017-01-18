@@ -19,7 +19,7 @@ from reportlab.lib.units import inch
 from reportlab.lib import colors
 
 
-from reporting_adds import StyleSheet
+from .reporting_adds import StyleSheet
 
 
 """

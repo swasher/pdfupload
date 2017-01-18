@@ -18,7 +18,7 @@ Requirements
 - pdfminer==20140328
 
 Overview
---------------------------
+==================================
 
 Обслуживание производится на четырех узлах:
 
@@ -45,6 +45,20 @@ Playbook requirements:
 - ubuntu/debian based system
 - systemd daemon manager
 
+Some details
+------------------------------
+
+## Handling settings secrets
+
+**All** sensitive data, like paswords, API keys, etc., stored at Ansibles's encrypted vault.
+This data can be used within any Ansible scripts,
+like provisioning, deploy, database operation, etc.
+
+Q. How this data can be accesible by Django?
+A. When provision or deploy, Ansible decrypt data and fill special template `production_settings.env.j2` with necessary
+sensitive variables, then put this decrypted template to remote root project directory as `.env`. Later Django can use
+this data in his own `settings.py` through `python-decouple` library. `.env` also contain all custom django settings,
+like `DEBUG`, for production server, which inject into django's `settings.py`.
 
 Before provision
 ====================================
@@ -103,14 +117,6 @@ Connect to vagrant and generate ssh keys:
 
 That's all!
 
-**Some details:**
-
-Due bug in vagrant/ansible, there is error happens when asking sudo password during vagrant provision.
-Thread: [one](https://github.com/geerlingguy/JJG-Ansible-Windows/issues/3),
-[two](https://github.com/mitchellh/vagrant/issues/2924),
-[three](https://github.com/mitchellh/vagrant/issues/3396) with: "Guest-based provisioning cannot support interactive prompts (in Vagrant 1.x at least)".
-So we connect to box via ssh first, and then start provision INSIDE the vagrant box.
-
 Creating [staging|production] server:
 ---------------------------------------------------------
 
@@ -142,14 +148,19 @@ Deploy code
 рабочий. Если во время тестирования на тестовом сервере что-то пошло не так, то перед следующей попыткой деплоя нужно
 привести тестовый сервер в состояние, идентичное рабочему (production) серверу:
 
+    $ cd provision
     $ fab restore_staging
 
 Эта команда выполнит зеркалирование приложения с production на staging, включая так же копирование баз данных.
 
-Deploy data
+Hadling data
 --------------------------------------
 
-> TODO
+Восстановление production базы из последнего бекапа:
+
+    $ cd provision
+    $ fab restore_db_from_backup
+
 
 Misc
 =====================================

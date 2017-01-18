@@ -5,6 +5,6 @@
 
 - name: Copy secret settings
   template: >
-    src=secure_settings.py.j2
-    dest={{project_root}}/{{project_name}}/secrets.py
+    src=production_settings.env.j2
+    dest={{project_root}}/.env
   tags: vagrant_skip

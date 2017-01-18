@@ -1,6 +1,5 @@
 from django.conf.urls import url
 
-#from .views import doska_list, knife_list
 from stanzforms import views
 
 urlpatterns =[

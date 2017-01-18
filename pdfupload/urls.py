@@ -9,7 +9,8 @@ from django.conf.urls.static import static
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    # deprecated url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 
     url('^', include('django.contrib.auth.urls')),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
@@ -18,7 +19,7 @@ urlpatterns = [
     url(r'^', include('stanzforms.urls')),
     url(r'^', include('technologichka.urls')),
 
-    url(r'^grappelli/', include('grappelli.urls')),
+    #url(r'^grappelli/', include('grappelli.urls')),
     #url(r'^admin/rq/', include('django_rq_dashboard.urls')),
 ]
 

@@ -91,7 +91,7 @@
                 <li><a href="http://{{ request.get_host }}:9001" target="_blank"><span class="glyphicon glyphicon-dashboard"></span>
                     Log</a></li>
 
-                <li><a href="{% url 'stanzforms.views.doska_list' %}"><span class="glyphicon glyphicon-list"></span>
+                <li><a href="{% url 'doska_list' %}"><span class="glyphicon glyphicon-list"></span>
                     Штанцы</a></li>
             </ul>
 
@@ -103,7 +103,7 @@
                         <li><a href="{% url 'admin:technologichka_order_add' %}"><span class="glyphicon glyphicon-stats"></span>
                             Новый заказ</a></li>
 
-                        <li><a href="{% url 'technologichka.views.orders' %}"><span class="glyphicon glyphicon-stats"></span>
+                        <li><a href="{% url 'technologichka:orders' %}"><span class="glyphicon glyphicon-stats"></span>
                             Заказы</a></li>
 
                         <li role="separator" class="divider"></li>

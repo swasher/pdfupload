@@ -83,10 +83,10 @@
                     {#<a type="button" class="btn-sm btn-default" href="{% url 'print_order' row.pk %}">#}
                     {#<span class="glyphicon glyphicon-print"></span></a>#}
 
-                  <a type="button" class="btn btn-sm btn-default" href="{% url 'print_pdf_order' row.pk %}">
+                  <a type="button" class="btn btn-sm btn-default" href="{% url 'technologichka:print_pdf_order' row.pk %}">
                     <span class="glyphicon glyphicon-print"></span></a>
 
-                  <a type="button" class="btn btn-sm btn-default" href="{% url 'copy_order' row.pk %}">
+                  <a type="button" class="btn btn-sm btn-default" href="{% url 'technologichka:copy_order' row.pk %}">
                     <span class="glyphicon glyphicon-copy"></span></a>
 
                   <a type="button" class="btn btn-sm btn-info" href="{% url 'admin:technologichka_order_change' row.pk %}">

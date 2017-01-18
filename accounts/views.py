@@ -1,13 +1,11 @@
 # coding: utf-8
 
 from django.shortcuts import redirect
-from django.shortcuts import RequestContext
 from django.contrib import messages
 from django.contrib.auth import login as django_login, authenticate
 
 
 def login(request):
-    context = RequestContext(request)
     if request.method == 'POST':
         username, password = request.POST['username'], request.POST['password']
         user = authenticate(username=username, password=password)

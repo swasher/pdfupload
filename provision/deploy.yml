@@ -18,6 +18,12 @@
 #        run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
 
 
+#
+# TODO
+# Надо удалять virtualenv;
+# Копировать на удаленный сервер файл vault при каждом деплое
+#
+
   tasks:
 
     - fail: msg="Deploy cant'n perform on development machine"

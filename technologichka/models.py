@@ -14,7 +14,7 @@ class Customer(models.Model):
     phone = models.CharField(max_length=50, blank=True, help_text='Телефон контактного лица')
     remarks = models.TextField(blank=True, verbose_name='Примечания')
 
-    def __unicode__(self):
+    def __str__(self):
         if self.fio:
             return u'{} ({} {})'.format(self.name, self.fio, self.phone)
         else:
@@ -37,7 +37,7 @@ class Contractor(models.Model):
     phone = models.CharField(max_length=50, blank=True, verbose_name='Телефон')
     remarks = models.TextField(blank=True, verbose_name='Примечания')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}'.format(self.name)
 
     class Meta:
@@ -70,8 +70,8 @@ class Order(models.Model):
         return unit_price
     calc_field.short_description = 'unit_price'
 
-    def __unicode__(self):
-        return u'Заказ {} от {} [{}]'.format(self.name, self.customer.name, self.quantity)
+    def __str__(self):
+        return 'Заказ {} от {} [{}]'.format(self.name, self.customer.name, self.quantity)
 
 
 class PrintSheet(models.Model):
@@ -105,15 +105,15 @@ class PrintSheet(models.Model):
         verbose_name = 'Печатный лист'
         verbose_name_plural = 'Печатные листы'
 
-    def __unicode__(self):
-        return u'{} [{} {}]'.format(self.name, self.printingpress, self.colors)
+    def __str__(self):
+        return '{} [{} {}]'.format(self.name, self.printingpress, self.colors)
 
 
 class OperationList(models.Model):
     name = models.CharField(max_length=50)
 
-    def __unicode__(self):
-        return u'{}'.format(self.name)
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'Словарь технологических операций'
@@ -132,8 +132,8 @@ class Operation(models.Model):
         verbose_name = 'Операция'
         verbose_name_plural = 'Операции'
 
-    def __unicode__(self):
-        return u'{}'.format(self.name)
+    def __str__(self):
+        return self.name
 
 
 class Detal(models.Model):
@@ -146,10 +146,10 @@ class Detal(models.Model):
         verbose_name = 'Деталь'
         verbose_name_plural = 'Детали'
 
-    def __unicode__(self):
+    def __str__(self):
         if self.size:
-            return u'{} [{}]'.format(self.name, self.size)
+            return '{} [{}]'.format(self.name, self.size)
         else:
-            return u'{}'.format(self.name)
+            return self.name
 
 

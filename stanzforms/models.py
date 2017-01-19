@@ -56,8 +56,8 @@ class Doska(models.Model):
         verbose_name = 'Доска'
         verbose_name_plural = 'Доски'
 
-    def __unicode__(self):
-        return u'[{}] {}'.format(self.articul, self.name)
+    def __str__(self):
+        return '[{}] {}'.format(self.articul, self.name)
 
 
 class Knife(models.Model):
@@ -75,5 +75,5 @@ class Knife(models.Model):
         verbose_name = 'Штанц'
         verbose_name_plural = 'Штанцы'
 
-    def __unicode__(self):
-        return u'{}'.format(self.name)
+    def __str__(self):
+        return self.name

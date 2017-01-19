@@ -3,15 +3,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# deprecated; use User class instead
-#
-# class Phone(models.Model):
-#     name = models.CharField(max_length=50)
-#     phone = models.CharField(max_length=13)
-#
-#     def __unicode__(self):
-#         return self.name
-
 
 class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -24,7 +15,7 @@ class Employee(models.Model):
         verbose_name = 'Сотрудник'
         verbose_name_plural = 'Сотрудники'
 
-    def __unicode__(self):
+    def __str__(self):
         return ' '.join(self.user.username)
 
 
@@ -41,7 +32,7 @@ class Ftp(models.Model):
         verbose_name = 'ФТП'
         verbose_name_plural = 'ФТП'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -57,7 +48,7 @@ class PrintingPress(models.Model):
         verbose_name = 'Машина'
         verbose_name_plural = 'Машины'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -68,7 +59,7 @@ class Ctpbureau(models.Model):
     # use `sms_notify` filed in employer model instead
     # sms_receiver = models.ForeignKey('Phone', blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -92,7 +83,7 @@ class Grid(models.Model):
     proof = models.ImageField(blank=True, null=True)
     thumb = models.ImageField(blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.pdfname
 
     class Meta:

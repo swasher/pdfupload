@@ -36,42 +36,57 @@
 #
 #    - fail: msg='stop'
 
-      # run('git fetch origin') NOT WORK
+#    - name: Fetch source code
+#      command: git fetch origin
+#      args:
+#          chdir: "{{ project_root }}"
+
+
+#    - name: git reset
+#      command: git reset --hard origin/master
+#      args:
+#          chdir: "{{ project_root }}"
+
+
+    - name: Remove source code
+      file:
+        path: "{{ project_root }}"
+        state: absent
+
+    - name: Remove virtual environment
+      file:
+        path: "{{ virtualenv }}"
+        state: absent
+
     - name: Fetch source code
-      command: git fetch origin
-      args:
-          chdir: "{{ project_root }}"
+      git:
+        repo: "{{ project_repo }}"
+        dest: "{{ project_root }}"
 
-      # run('git reset --hard origin/master')
-    - name: git reset
-      command: git reset --hard origin/master
-      args:
-          chdir: "{{ project_root }}"
-
-      # run('bower install')
-    - name: Install packages based on bower.json
-      bower: path={{ project_root }}
-
-      # run('sudo pip install -r requirements.txt')
-    - name: Install specified python requirements.
-      pip: requirements={{ project_root }}/requirements.txt
-      become: yes
-
-      # run('python manage.py collectstatic --noinput --clear --verbosity 1')
-    - name: Collecting static
-      django_manage: >
-        command="collectstatic --verbosity 0 --noinput "
-        app_path={{ project_root }}
-
-      # run('python manage.py migrate')
-    - name: Django migrate
-      django_manage: >
-        command=migrate
-        app_path={{ project_root }}
-
-      # run('touch /tmp/pdfupload.reload')
-    - name: Restart uwsgi
-      command: touch /tmp/pdfupload.reload
+#    # run('bower install')
+#    - name: Install packages based on bower.json
+#      bower: path={{ project_root }}
+#
+#      # run('sudo pip install -r requirements.txt')
+#    - name: Install specified python requirements.
+#      pip: requirements={{ project_root }}/requirements.txt
+#      become: yes
+#
+#      # run('python manage.py collectstatic --noinput --clear --verbosity 1')
+#    - name: Collecting static
+#      django_manage: >
+#        command="collectstatic --verbosity 0 --noinput "
+#        app_path={{ project_root }}
+#
+#      # run('python manage.py migrate')
+#    - name: Django migrate
+#      django_manage: >
+#        command=migrate
+#        app_path={{ project_root }}
+#
+#      # run('touch /tmp/pdfupload.reload')
+#    - name: Restart uwsgi
+#      command: touch /tmp/pdfupload.reload
 
       # run('echo `date +"%H:%m %d.%m.%Y"` > timestamp')
     - name: Make timestamp of deploy

@@ -3,6 +3,7 @@ project_repo:       http://github.com/swasher/pdfupload.git
 project_name:       pdfupload
 user_home:         "/home/{{remote_user}}"
 virtualenv:        "{{ user_home }}/virtualenvironment"
+python_binary:     "{{ virtualenv }}/bin/python"
 project_root:      "{{user_home}}/pdfupload"
 ansible_user:      "{{ remote_user }}"
 log_dir:           "{{ user_home }}/log"

@@ -3,8 +3,8 @@ from decouple import config
 import os
 import pdfupload.marks
 from pathlib import Path
-
 from pdfupload import marks
+
 #
 # PATH SETUP
 #
@@ -63,8 +63,6 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
-                # list if you haven't customized them:
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
@@ -148,15 +146,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-RQ_QUEUES = {
-    'default': {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'DB': 0,
-    },
-}
-
-
 #
 # INTERNATIONALIZATION AND TZ
 #
@@ -219,6 +208,16 @@ LOGGING = {
 #
 # BATTARIES CONFIG
 #
+
+RQ_SHOW_ADMIN_LINK = False
+RQ_QUEUES = {
+    'default': {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'DB': 0,
+    },
+}
+
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 

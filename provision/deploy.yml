@@ -3,6 +3,8 @@
   gather_facts: no
   vars_files:
     - group_vars/vault.yml
+  vars:
+    branch: python3 # Which branch to deploy
 
 #
 # Original working fabric script:
@@ -26,7 +28,9 @@
 
   tasks:
 
-    - fail: msg="Deploy cant'n perform on development machine"
+    - name: Check target
+      fail:
+        msg: "Deploy cant'n perform on development machine"
       when: group_names[0]=='development'
 
 #    - shell: whoami
@@ -62,15 +66,26 @@
       git:
         repo: "{{ project_repo }}"
         dest: "{{ project_root }}"
+        version: "{{ branch }}"
 
 #    # run('bower install')
 #    - name: Install packages based on bower.json
 #      bower: path={{ project_root }}
 #
-#      # run('sudo pip install -r requirements.txt')
+
 #    - name: Install specified python requirements.
 #      pip: requirements={{ project_root }}/requirements.txt
 #      become: yes
+    - name: Create virtual environment
+      pip:
+        virtualenv: "{{ virtualenv }}"
+        virtualenv_command: pyvenv
+        requirements: "{{project_root}}/requirements.txt"
+        extra_args: '--quiet'
+
+
+
+
 #
 #      # run('python manage.py collectstatic --noinput --clear --verbosity 1')
 #    - name: Collecting static
@@ -90,6 +105,4 @@
 
       # run('echo `date +"%H:%m %d.%m.%Y"` > timestamp')
     - name: Make timestamp of deploy
-      command: echo `date +"%H:%m %d.%m.%Y"` > timestamp
-      args:
-        chdir: "{{ project_root }}"
+      shell: echo `date +"%H:%m %d.%m.%Y"` > {{project_root}}/timestamp

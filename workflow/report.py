@@ -3,7 +3,7 @@
 import calendar
 import logging
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.db.models import Sum, Min, Max
 from django.contrib.auth.decorators import login_required
 
@@ -19,8 +19,6 @@ logger = logging.getLogger(__name__)
 
 @login_required()
 def report(request):
-
-    context = RequestContext(request)
 
     class chart():
         def __init__(self, year, chartdata, charttype, chartcontainer, extra):
@@ -189,4 +187,4 @@ def report(request):
     #     print k.chartcontainer
     #     pprintpp.pprint(k.chartdata, width=150)
 
-    return render_to_response('report.html', {'chart1':chart1, 'chart2':chart2, 'chart3':chart3}, context)
+    return render(request, 'report.html', {'chart1':chart1, 'chart2':chart2, 'chart3':chart3})

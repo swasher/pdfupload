@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^grid/(?P<mode>\w+)/$', views.grid, name='grid'),
     url(r'^about/$', views.about, name='about'),
     url(r'^report/$', report.report, name='report'),
-    #url(r'^delete/(?P<rowid>\d+)/$', views.delete, name='delete'),
+    # DEPRECATED url(r'^delete/(?P<rowid>\d+)/$', views.delete, name='delete'),
     url(r'^delete_row_ajax/$', views.delete_row_ajax, name='delete_row_ajax'),
     url(r'^change_import/$', views.change_import, name='change_import'),
 ]

@@ -10,21 +10,18 @@
 #TODO Сделать кнопку 'перезалить на кинап'
 #TODO Аналогично кнопка run
 #TODO Ротация логов nginx
-#TODO Разобраться с багом, когда в названии файла русские буквы. Но это уже при переходе на Python 3
+#TODO Разобраться с багом, когда в названии файла русские буквы И пробелы. Но это уже при переходе на Python 3
 #TODO Цена на пластины должна быть дробной
 #TODO Переделать нумерацию страниц во всех analyze, чтобы начиналась не с первой, а с нулевой. Большая кропотливая работа. ХЗ надо ли вообще
 #TODO В функции crop() используется метод рассчета размера изображения bbox, его надо перенести в analyze_paper()
 
 import os
-import sys
 import logging
 import datetime
 import shelve
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.http.response import HttpResponse
-from django.shortcuts import Http404, redirect, render_to_response
+from django.shortcuts import Http404
 from django.shortcuts import render
 from django.http import JsonResponse
 from django_rq import job

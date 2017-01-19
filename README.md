@@ -1,22 +1,22 @@
 Dependencies
 --------------------------
 
-Django
-django-bootstrap3
-django-bootstrap3-datetimepicker-2
-django-crispy-forms
-rq
-django-rq
-rq-dashboard
-pillow
-django-nvd3
-reportlab
--e git+https://github.com/goulu/pdfminer.git#egg=pdfminer.six
-twx.botapi
-python-decouple
-psycopg2
-django-debug-toolbar
--e git+https://github.com/mstamy2/PyPDF2.git#egg=PyPDF2
+- Django
+- django-bootstrap3
+- django-bootstrap3-datetimepicker-2
+- django-crispy-forms
+- rq
+- django-rq
+- rq-dashboard
+- pillow
+- django-nvd3
+- reportlab
+- -e git+https://github.com/goulu/pdfminer.git#egg=pdfminer.six
+- twx.botapi
+- python-decouple
+- psycopg2
+- django-debug-toolbar
+- -e git+https://github.com/mstamy2/PyPDF2.git#egg=PyPDF2
 
 
 Overview
@@ -402,8 +402,8 @@ TROUBLESHOOTING
 
 - запустить джанго в командной строке и посмотреть браузером: `python manage.py runserver 0.0.0.0:8080`
 - можно перезапустить nginx командой `pdfupload_restart.sh`
-- запускаем `rq-dashboard`, смотрим браузером в порт 9181
 - руками запустить python `path/to/putting_job_in_the_queue.py <filename>.pdf`. Помогает при ошибках компиляции скрипта.
+- если ошибка возникает в rq, то это можно увидеть в выводе `python manage.py rqworker` или запускаем `rq-dashboard`, смотрим браузером в порт 9181   
 
 
 ERROR (in uwsgi log)

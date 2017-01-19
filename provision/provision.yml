@@ -7,7 +7,6 @@
     - system
     - cron-backup
     - pdf-utils
-    - python
     - git
     - get-source
     - smsc
@@ -15,7 +14,6 @@
     - redis
     - postgres
     - hotfolder
-    - pip
     - npm
     - django
     - uwsgi

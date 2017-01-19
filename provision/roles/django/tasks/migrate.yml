@@ -19,7 +19,13 @@
 #    command=migrate
 #    app_path={{project_root}}
 
-- name: migrate
-  shell: python manage.py migrate
-  args:
-    chdir: "{{ project_root }}"
+#- name: migrate
+#  shell: python manage.py migrate
+#  args:
+#    chdir: "{{ project_root }}"
+
+- name: Run Django database migrations
+  django_manage:
+    command: migrate
+    app_path: "{{ project_root }}"
+    virtualenv: "{{ virtualenv }}"

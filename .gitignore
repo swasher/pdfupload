@@ -7,7 +7,7 @@ workflow/fixtures/initial_data.json
 test/**
 test.py
 vault_password
-.env
+*.env
 
 
 # Файлы, создаваемые приложением

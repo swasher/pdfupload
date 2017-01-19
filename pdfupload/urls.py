@@ -20,7 +20,6 @@ urlpatterns = [
     url(r'^', include('technologichka.urls')),
 
     #url(r'^grappelli/', include('grappelli.urls')),
-    #url(r'^admin/rq/', include('django_rq_dashboard.urls')),
 ]
 
 # хз для чего это. вроде как чтобы media работало в dev time

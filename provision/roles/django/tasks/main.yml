@@ -1,6 +1,6 @@
 ---
 - include: install_binary_dependencies.yml
-- include: install_requirements.yml
+- include: virtualenv.yml
 - include: ensure_directories.yml
 - include: copy_hidden_settings.yml
 - include: migrate.yml

@@ -1,6 +1,0 @@
----
-- name: Install pip requirements
-  pip: >
-    requirements={{project_root}}/requirements.txt
-    extra_args='--quiet'
-  become: yes

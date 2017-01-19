@@ -1,4 +1,0 @@
----
-pip_download_dest: /tmp
-python: python
-pip: pip

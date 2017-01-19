@@ -1,21 +1,23 @@
-Requirements
+Dependencies
 --------------------------
 
-- PyPDF2==1.24
-- fabric==1.10.2
-- Django==1.9.2
-- django-debug-toolbar==1.4
-- django-bootstrap3==6.2.2
-- git+git://github.com/sehmaschine/django-grappelli #2.8.1
-- django-bootstrap3-datetimepicker-2==2.4.2
-- django-crispy-forms==1.6.0
-- rq==0.5.6
-- rq-dashboard==0.3.6
-- django-rq==0.9.0
-- pillow==3.1.1
-- django-nvd3==0.9.7
-- reportlab==3.3.0
-- pdfminer==20140328
+Django
+django-bootstrap3
+django-bootstrap3-datetimepicker-2
+django-crispy-forms
+rq
+django-rq
+rq-dashboard
+pillow
+django-nvd3
+reportlab
+-e git+https://github.com/goulu/pdfminer.git#egg=pdfminer.six
+twx.botapi
+python-decouple
+psycopg2
+django-debug-toolbar
+-e git+https://github.com/mstamy2/PyPDF2.git#egg=PyPDF2
+
 
 Overview
 ==================================
@@ -40,7 +42,7 @@ Overview
 >При запуске ansible локальные файлы не используются, все файлы берутся с гита! Поэтому перед
 >запуском provision нужно не забыть сделать push!
 
-Playbook requirements:
+Ansible playbook requirements:
 
 - ubuntu/debian based system
 - systemd daemon manager
@@ -48,9 +50,9 @@ Playbook requirements:
 Some details
 ------------------------------
 
-## Handling settings secrets
+## Handling secret settings
 
-**All** sensitive data, like paswords, API keys, etc., stored at Ansibles's encrypted vault.
+**All** sensitive data, like passwords, API keys, etc., stored at Ansibles's encrypted vault.
 This data can be used within any Ansible scripts,
 like provisioning, deploy, database operation, etc.
 
@@ -78,9 +80,6 @@ Set Ansible variables
 The trick:
 Так как Ansible не работает под Microsoft Windows, плейбук запускается ВНУТРИ поднятого vagrant-бокса.
 
-> TODO Когда выйдет vagrant 1.8.2, можно будет попробовать запускать провизию через новый плагин ansible-local
-> В версии 1.8.1 имеется критический баг
-
 Есть некая условность (hardcoded) в именовании узлов - они должны называться production, staging, developing
 и backup соответственно.
 Именно такие константы используются в навании Ansible groups, в fabric, в настройках django-settings,
@@ -90,7 +89,7 @@ The trick:
 Create keys on master node
 --------------------------------------------------------
 
-До запуска провижена необходимо создать ключи (если они отсутствуют):
+До запуска `fab provision` необходимо создать ключи (если они отсутствуют):
 
     $ ssh-keygen -t rsa -C "your_email@example.com"
 

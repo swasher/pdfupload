@@ -7,38 +7,42 @@
   tasks:
 
     - name: drop db
-      postgresql_db: >
-        name={{db_name}}
-        state=absent
+      postgresql_db:
+        name: {{db_name}}
+        state: absent
+        login_user: "{{postgresql_admin_user}}"
       become: yes
-      become_user: postgres
+      become_user: "{{postgresql_admin_user}}"
 
     - name: create db
-      postgresql_db: >
-        name={{ db_name }}
-        encoding='UTF-8'
-        lc_collate='en_US.UTF-8'
-        lc_ctype='en_US.UTF-8'
-        template='template0'
-        state=present
+      postgresql_db:
+        name: "{{ db_name }}"
+        encoding: 'UTF-8'
+        lc_collate: 'en_US.UTF-8'
+        lc_ctype: 'en_US.UTF-8'
+        template: 'template0'
+        state: present
+        login_user: "{{postgresql_admin_user}}"
       become: yes
-      become_user: postgres
+      become_user: "{{postgresql_admin_user}}"
 
     - name: Ensure user has access to the database
-      postgresql_user: >
-        db={{ db_name }}
-        name={{ db_user }}
-        password={{ db_password }}
-        priv=ALL
-        state=present
+      postgresql_user:
+        db: "{{ db_name }}"
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: ALL
+        state: present
+        login_user: "{{postgresql_admin_user}}"
       become: yes
-      become_user: postgres
+      become_user: "{{postgresql_admin_user}}"
 
     - name: Ensure user does not have unnecessary privileges
-      postgresql_user: >
-        name={{ db_user }}
-        role_attr_flags=NOSUPERUSER,NOCREATEDB
-        state=present
+      postgresql_user:
+        name: "{{ db_user }}"
+        role_attr_flags: NOSUPERUSER,NOCREATEDB
+        state: present
+        login_user: "{{postgresql_admin_user}}"
       become: yes
       become_user: postgres
 

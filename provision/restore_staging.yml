@@ -32,7 +32,6 @@
         delete: yes
       delegate_to: production
 
-    #run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/static_root', '~'))
     - name: rsync static_root
       synchronize: >
         src={{user_home}}/static_root
@@ -41,7 +40,6 @@
         delete=yes
       delegate_to: production
 
-    #run('rsync -avz --delete production:{0} {1}'.format('/home/swasher/media', '~'))
     - name: rsync media
       synchronize: >
         src={{user_home}}/media
@@ -50,7 +48,6 @@
         delete=yes
       delegate_to: production
 
-    #run('sudo -u postgres dropdb --if-exists pdfuploaddb')
     - name: drop db
       postgresql_db: >
         name={{db_name}}
@@ -58,8 +55,6 @@
       become: yes
       become_user: postgres
 
-
-    #run("sudo -u postgres createdb --encoding='UTF-8' --owner=swasher --template=template0 pdfuploaddb")
     - name: create db
       postgresql_db: >
         name={{ db_name }}
@@ -81,12 +76,9 @@
       become: yes
       become_user: postgres
 
-    #run('pg_dump -h production pdfuploaddb | psql pdfuploaddb')
     - name: make
       shell: pg_dump -h production pdfuploaddb | psql pdfuploaddb
 
-
-    #run('touch /tmp/pdfupload')
     - name: restart pdfupload
       file:
         path={{touchfile}}

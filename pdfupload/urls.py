@@ -20,8 +20,9 @@ urlpatterns = [
     url(r'^', include('technologichka.urls')),
 
     #url(r'^grappelli/', include('grappelli.urls')),
+    url(r'^django-rq/', include('django_rq.urls')),
 ]
 
 # хз для чего это. вроде как чтобы media работало в dev time
-urlpatterns += staticfiles_urlpatterns()
+#urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,31 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+
+[Service]
+PIDFile={{ram_dir}}/pid
+User={{remote_user}}
+Group=www-data
+RuntimeDirectory={{project_name}}
+RuntimeDirectoryMode=0777
+WorkingDirectory={{project_root}}
+Type=notify
+#PrivateTmp=true
+
+ExecStart={{virtualenv}}/bin/gunicorn \
+            --pid {{ram_dir}}/pid \
+            --workers 3 \
+            --error-logfile {{log_dir}}/gunicorn_error.log \
+            --bind unix:{{socket}} \
+            {{project_name}}.wsgi:application
+
+#TODO add --reload option to ExecStart to dev machine for automatic reload
+
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+
+[Install]
+WantedBy=multi-user.target

@@ -22,7 +22,6 @@
 
 #
 # TODO
-# Надо удалять virtualenv;
 # Копировать на удаленный сервер файл vault при каждом деплое
 #
 
@@ -76,15 +75,13 @@
 #    - name: Install specified python requirements.
 #      pip: requirements={{ project_root }}/requirements.txt
 #      become: yes
+
     - name: Create virtual environment
       pip:
         virtualenv: "{{ virtualenv }}"
         virtualenv_command: pyvenv
         requirements: "{{project_root}}/requirements.txt"
         extra_args: '--quiet'
-
-
-
 
 #
 #      # run('python manage.py collectstatic --noinput --clear --verbosity 1')

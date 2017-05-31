@@ -18,7 +18,6 @@
 import os
 import logging
 import datetime
-import shelve
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import Http404
@@ -35,7 +34,6 @@ from .models import Grid, PrintingPress
 from .classes import PDF
 
 from .analyze import analyze_inkcoverage
-
 from .action import remove_ctpbureau_from_pdfname
 from .action import crop
 from .action import compress
@@ -47,6 +45,8 @@ from .action import send_sms
 from .action import send_telegram
 from .action import save_bd_record
 from .action import cleaning_temps
+from .util import read_shelve
+from .util import write_shelve
 
 logger = logging.getLogger(__name__)
 
@@ -59,37 +59,20 @@ def about(request):
 
 @ensure_csrf_cookie
 def change_import(request):
-    d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
+    import_mode = read_shelve()
 
     if request.is_ajax():
-        import_mode = d['IMPORT_MODE'] = not import_mode
+        import_mode = not import_mode
+        write_shelve(import_mode)
 
     results = {'import_mode': import_mode}
-    d.close()
+
     return JsonResponse(results)
 
 
 def grid(request, mode=''):
 
-    # This code will create 'shelve.db' if it absent. You need uncoment code and
-    # reload page. So 'shelve.db' will be created
-    # d = shelve.open('shelve.db')
-    # d['IMPORT_MODE'] = False
-    # d.close()
-
-
-    d = shelve.open('shelve.db')
-
-    try:
-        import_mode = d['IMPORT_MODE']
-    except KeyError:
-        d['IMPORT_MODE'] = False
-        import_mode = d['IMPORT_MODE']
-        d.close()
-
-    d.close()
-
+    import_mode = read_shelve()
 
     myquery = Q()
     # Фильтр по умолчанию - за последние n дней.
@@ -131,7 +114,7 @@ def grid(request, mode=''):
                     myquery &= Q(pdfname__icontains=form.cleaned_data['filename'])
             """
 
-            #### НОЫВАЯ ЛОГИКА ####
+            #### НОВАЯ ЛОГИКА ####
 
             # Если пользователь задал хотя бы один фильтр, то применяем только явно заданные фильтры. Иначе применяем фильтр "за последние два месяца".
             if form.cleaned_data['from_date'] or form.cleaned_data['to_date'] or form.cleaned_data['contractor'] or form.cleaned_data['machine'] or form.cleaned_data['filename']:
@@ -212,19 +195,19 @@ def delete_row_ajax(request):
     json = {'order': order}
     return JsonResponse(json)
 
+from decouple import config
 
 @job
 def processing(pdfName):
     # socket.setdefaulttimeout(10.0)
 
-    environment = os.getenv('SERVER_TYPE')  #, 'development')   #TEST
+    server = config('SERVER')   #TEST
 
     logger.info('')
     logger.info('')
     logger.info('START PROCESSING {}'.format(pdfName))
-    logger.info('─' * (len(pdfName) + 17))
-
-    logger.info('SERVER_TYPE={}'.format(environment))   #TEST
+    logger.info('{}'.format('-' * (len(pdfName)+17)))
+    logger.info('SERVER_TYPE={}'.format(server))   #TEST
 
     pdf = PDF(pdfName)
 

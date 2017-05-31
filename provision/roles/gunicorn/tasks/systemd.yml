@@ -1,0 +1,35 @@
+---
+- name: Gunicorn socket
+  template:
+    src: gunicorn.socket
+    dest: /etc/systemd/system/{{gunicorn_socket_name}}
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+    - restart gunicorn socket
+  become: yes
+
+- name: Autostart gunicorn with systemd
+  template:
+    src: gunicorn.service
+    dest: /etc/systemd/system/{{gunicorn_service_name}}
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+    - restart gunicorn socket
+  become: yes
+
+- name: Enable gunicorn socket autostart
+  service:
+    name: "{{gunicorn_socket_name}}"
+    enabled: yes
+  become: yes
+
+# Service do not need autostart, only socket
+#- name: Enable gunicorn autostart
+#  service:
+#    name: "{{gunicorn_service_name}}"
+#    enabled: yes
+#  become: yes

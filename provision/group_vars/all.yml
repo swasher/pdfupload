@@ -9,9 +9,12 @@ ansible_user:      "{{ remote_user }}"
 log_dir:           "{{ user_home }}/log"
 input_dir:         "{{ user_home }}/input"
 
-ram_dir:           "/run/uwsgi"
-socket:            "{{ram_dir}}/{{project_name}}.socket"
-touchfile:         "/tmp/pdfupload.reload" # `touch` it for restart uswgi vassal
+# deprecated in gunicorn favor:
+# ram_dir:           "/run/uwsgi"
+# touchfile:         "/tmp/pdfupload.reload" # `touch` it for restart uswgi vassal
+ram_dir:           "/run/{{project_name}}"
+socket:            "{{ram_dir}}/gunicorn.socket"
+
 
 # credentials for http://smsc.ua/
 smsc_login:        "{{ vault_smsc_login }}"

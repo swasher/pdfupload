@@ -41,8 +41,8 @@
 - debug: msg="play_hosts is {{play_hosts}}"
 
 - name: for test purpose
-  debug: msg="Empty action with vagrant_skip tag"
-  tags: vagrant_skip
+  debug: msg="Empty action with prod tag"
+  tags: prod
 
 - name: test delegating
   shell: ifconfig

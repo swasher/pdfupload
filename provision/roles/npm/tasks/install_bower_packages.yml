@@ -9,7 +9,7 @@
 
 - name: Install bower's packages
   bower: path={{project_root}}
-  tags: vagrant_skip
+  tags: prod
   become: no
 
 # using standart bower ansible module fail with following error:

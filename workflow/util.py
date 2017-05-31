@@ -4,6 +4,7 @@
 import os
 import logging
 import subprocess
+import shelve
 
 from datetime import datetime
 from django.conf import settings
@@ -56,7 +57,7 @@ def inks_to_multiline(dic):
     :return: text(str)
     """
     text = ''
-    for k, v in dic.iteritems():
+    for k, v in iter(dic.items()):
         text += str(k)+': '
         text += "C{:.1f}% M{:.1f}% Y{:.1f}% B{:.1f}%".format(v[0], v[1], v[2], v[3])
         text += "\n"
@@ -88,7 +89,7 @@ def reduce_image(infile, outfile, new_width):
         try:
             im = Image.open(infile)
             height, width = im.size
-            new_height = new_width * height / width
+            new_height = int(new_width * height / width)
             im = im.resize((new_height, new_width), Image.ANTIALIAS)
             im.save(outfile)
         except IOError as e:
@@ -185,3 +186,25 @@ def get_bbox(fname):
             bbox[num] = [ float(s) for s in data[1:5] ]
 
     return bbox
+
+
+def read_shelve():
+
+    shelf = settings.SHELF
+    d = shelve.open(shelf, flag='c')
+
+    try:
+        import_mode = d['IMPORT_MODE']
+    except KeyError:
+        d['IMPORT_MODE'] = False
+        import_mode = False
+
+    d.close()
+    return import_mode
+
+
+def write_shelve(mode):
+    shelf = settings.SHELF
+    d = shelve.open(shelf, flag='c')
+    d['IMPORT_MODE'] = mode
+    d.close()

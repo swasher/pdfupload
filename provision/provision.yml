@@ -5,16 +5,17 @@
 
   roles:
     - system
-    - cron-backup
-    - pdf-utils
-    - git
+    - dbbackup
     - get-source
     - smsc
-    - nginx
     - redis
     - postgres
     - hotfolder
     - npm
+    - project
     - django
-    - uwsgi
+    - gunicorn
+    - nginx
+    - rq
+    - frontail
     - dotfiles

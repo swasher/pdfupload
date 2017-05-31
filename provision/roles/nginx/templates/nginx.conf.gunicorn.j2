@@ -1,0 +1,43 @@
+upstream {{upstream}} {
+    # server unix:///path/to/your/mysite/mysite.sock;     # for a file socket
+    # server 127.0.0.1:49001;                             # for a web port socket (we'll use this first)
+    server unix:{{socket}};
+}
+
+server {
+
+    #listen       8080;
+    server_name {{fqdn}};
+    charset     utf-8;
+    access_log  {{log_dir}}/nginx-access.log; # compression;
+    error_log   {{log_dir}}/nginx-error.log; # info;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://{{upstream}};
+    }
+
+
+    location /media/ {
+        alias {{user_home}}/media/;
+        expires 30d;
+        access_log off;
+    }
+
+
+    location /static/ {
+        alias {{user_home}}/static_root/;
+        expires 30d;
+        access_log off;
+    }
+}
+
+# Чем отличаются директивы root и alias в nginx?
+# Делают они одно и то же только для location /.
+#
+# Если у вас, например, location /img, то при
+# root /var/www ссылка /img/1.jpg будет вести в файл /var/www/img/1.jpg
+#
+# а при alias /var/www та же ссылка будет вести в /var/www/1.jpg.

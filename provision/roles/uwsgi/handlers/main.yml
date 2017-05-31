@@ -1,5 +1,0 @@
----
-- name: restart uwsgi emperor
-  service: name=emperor.uwsgi.service
-           state=restarted
-  become: yes

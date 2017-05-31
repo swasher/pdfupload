@@ -4,7 +4,6 @@ import os
 import logging
 import re
 import datetime
-import shelve
 
 from subprocess import Popen, PIPE
 from django.conf import settings
@@ -14,6 +13,7 @@ from PyPDF2 import PdfFileReader
 from .util import mm
 from .signamarks import detect_mark
 from .models import PrintingPress, Ctpbureau
+from .util import read_shelve
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,8 @@ def detect_is_pdf(pdf):
     :return: True, если входной файл имеет расширение pdf и внутренний тип pdf, иначе False
     """
     pdfcheck_command = "file {} | tr -s ':' | cut -f 2 -d ':'".format(pdf.abspath)
-    result_strings = Popen(pdfcheck_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().split(',')[0].strip()
+    result_strings = Popen(pdfcheck_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().decode().split(',')[0].strip()
+
     file_is_pdf_document = result_strings == 'PDF document'
     filetype = result_strings
 
@@ -44,10 +45,10 @@ def detect_is_signastation(pdf):
     :return: Возвращиет True, если файл создан в Heidelberg Signastation
     """
     pdfinfo_command = "pdfinfo '{}' | grep Creator | tr -s ' ' | cut -f 2 -d ':'".format(pdf.abspath)
-    creator = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().strip()
+    creator = Popen(pdfinfo_command, shell=True, stdin=PIPE, stdout=PIPE).stdout.read().decode().strip()
     if 'PrinectSignaStation' in creator:
         valid_signa = True
-        logger.info('File сreator: {}'.format(creator))
+        logger.info('File creator: {}'.format(creator))
     else:
         valid_signa = False
         logger.warning('File is NOT a valid PrinectSignaStation file. Creator: {}'.format(creator))
@@ -203,7 +204,7 @@ def analyze_colorant(pdf):
         colors = {}
 
         for page, content in enumerate(pages, 1):
-            color = content['/PieceInfo']['/HDAG_COLORANT']['/Private']['/HDAG_ColorantNames']
+            color = content['/PieceInfo']['/HDAG_COLORANT']['/Private']['/HDAG_ColorantOrder']
 
             #colors contain string for one page:
             #['/Magenta', '/Cyan', '/Yellow']
@@ -217,7 +218,8 @@ def analyze_colorant(pdf):
             plates += len(color)
     else:
         plates, colors = 0, None
-
+    import pydevd
+    pydevd.settrace('192.168.0.10', port=9111, stdoutToServer=True, stderrToServer=True)
     return plates, colors
 
 
@@ -314,10 +316,7 @@ def analyze_date(pdf):
     :param pdf: объект pdf
     :return: объект datetime
     """
-
-    d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
-    d.close()
+    import_mode = read_shelve()
 
     if import_mode:
         modified = os.path.getmtime(pdf)
@@ -329,7 +328,7 @@ def analyze_date(pdf):
 
 def analyze_ordername(pdf):
     name, ext = os.path.splitext(pdf.name)
-    parts = name.decode('UTF-8').split("_")
+    parts = name.split("_")
 
     for bureau in Ctpbureau.objects.all():
         if bureau.name in parts:

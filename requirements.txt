@@ -1,27 +1,30 @@
 arrow==0.10.0
-chardet==2.3.0
+chardet==3.0.2
 click==6.7
-Django==1.10.5
+Django==1.11.1
 django-bootstrap3==8.1.0
 django-bootstrap3-datetimepicker-2==2.4.2
 django-crispy-forms==1.6.1
 django-debug-toolbar==1.6
 django-nvd3==0.9.7
-django-rq==0.9.4
+django-rq==0.9.5
 Flask==0.12
+gunicorn==19.7.1
 itsdangerous==0.24
-Jinja2==2.9.4
-MarkupSafe==0.23
+Jinja2==2.9.6
+MarkupSafe==1.0
 olefile==0.44
--e git+https://github.com/goulu/pdfminer.git@61d423d81c4cada65aee10b31aa033cb459b552a#egg=pdfminer.six
+-e git+https://github.com/goulu/pdfminer@baddb25df66c8830a4fce30f7cdf01d90c222a5d#egg=pdfminer.six
 Pillow==4.0.0
+pkg-resources==0.0.0
 psycopg2==2.6.2
 pycrypto==2.6.1
--e git+https://github.com/mstamy2/PyPDF2.git@2a9d76d1244444f7bdd1e8f42eaeee159eadf7fa#egg=PyPDF2
+-e git+https://github.com/mstamy2/PyPDF2@2a9d76d1244444f7bdd1e8f42eaeee159eadf7fa#egg=PyPDF2
 python-dateutil==2.6.0
 python-decouple==3.0
 python-nvd3==0.14.2
 python-slugify==1.1.4
+pytz==2017.2
 redis==2.10.5
 reportlab==3.3.0
 requests==2.12.4

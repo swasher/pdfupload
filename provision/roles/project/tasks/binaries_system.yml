@@ -1,0 +1,15 @@
+---
+- name: Install system packages for this project
+  apt:
+    pkg: "{{item}}"
+    state: installed
+    update-cache: yes
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+  with_items:
+    - rsync
+    - mc
+    - git
+  become: yes
+
+# Note that mc required en_US.utf8 or C.utf8 locale.
+# Locales setting up in 'system' role

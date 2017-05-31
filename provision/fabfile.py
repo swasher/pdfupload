@@ -33,7 +33,7 @@ def provision():
     Usage:
     fab [development|staging|production] provision
     """
-    additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
+    additional_params = '--skip-tags=prod' if env.hosts[0] == 'development' else ''
 
     # Want more verbose output? Uncomment it.
     additional_params += '-v'
@@ -51,7 +51,6 @@ def deploy():
     """
 
     additional_params = ''
-    # additional_params += '--skip-tags=vagrant_skip ' if env.hosts[0] == 'development' else ''
     # additional_params += '-vvv '
 
     local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
@@ -83,8 +82,7 @@ def restore_staging():
 
 def restore_db_from_backup():
     """
-    Replace for restore_local_db, restore_db, restore_db_from_backup functions with ansible.
-    Copy latest backaped DB to target.
+    Copy from Backap Server to target.
 
     Usage:
     fab [development|staging|production] restore_db_from_backup
@@ -127,7 +125,12 @@ def replicate_db(source, target):
     # something like
     # pg_dump -C -h remotehost1 -U remoteuser1 db_name | psql remotehost2 -U remoteuser2 db_name
 
-
+"""
+def access_to_backup_server():
+    if ключей нет:
+        ssh-keygen
+    ssh-import-id user@backupip
+"""
 
 
 # deprecated; now use ansible's deploy

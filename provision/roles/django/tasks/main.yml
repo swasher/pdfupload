@@ -1,8 +1,6 @@
 ---
-- include: install_binary_dependencies.yml
-- include: virtualenv.yml
 - include: ensure_directories.yml
 - include: copy_hidden_settings.yml
 - include: migrate.yml
 - include: create_superuser.yml
-- include: collect_static.yml
+#- include: collect_static.yml

@@ -1,3 +1,3 @@
 ---
 #log_path: "{{ lookup('env','HOME') }}/logs"
-upstream: django
+upstream: gunicorn

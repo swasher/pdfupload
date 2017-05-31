@@ -1,6 +1,8 @@
 ---
 - hosts: all
   gather_facts: yes
+  vars:
+    postgresql_admin_user: postgres
   vars_files:
     - group_vars/vault.yml
 
@@ -8,7 +10,7 @@
 
     - name: drop db
       postgresql_db:
-        name: {{db_name}}
+        name: "{{db_name}}"
         state: absent
         login_user: "{{postgresql_admin_user}}"
       become: yes
@@ -53,4 +55,4 @@
     - debug: msg={{latest_backup.stdout_lines}}
 
     - name: Copy postgres database
-      shell: ssh backup cat /home/swasher/pdfupload/{{latest_backup.stdout_lines[0]}} | psql {{db_name}} -U {{db_user}}
+      shell: "ssh backup cat /home/swasher/pdfupload/{{latest_backup.stdout_lines[0]}} | psql {{db_name}} -U {{db_user}}"

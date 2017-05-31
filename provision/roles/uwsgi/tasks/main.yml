@@ -1,5 +1,0 @@
----
-- include: putting_sockets_in_run.yml
-- include: install_uwsgi.yml
-- include: install_project_ini.yml
-- include: restart_services.yml

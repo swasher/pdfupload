@@ -6,9 +6,10 @@ project_name = "pdfupload"
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "bento/ubuntu-16.04"
+  # config.vm.box = "bento/ubuntu-16.10"
+  config.vm.box = "boxcutter/ubuntu1610"
   config.vm.network "private_network", ip: internal_ip
-  config.vm.hostname = project_name
+  config.vm.hostname = project_name + 'dev'
 
   config.vm.provider :virtualbox do |v|
     v.name = project_name
@@ -17,7 +18,7 @@ Vagrant.configure(2) do |config|
     v.gui = false
 
     # enable internet access
-    #v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    # v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
 
     # enable ioapic http://serverfault.com/a/91867
     # v.customize ["modifyvm", :id, "--ioapic", "on"]
@@ -30,6 +31,7 @@ Vagrant.configure(2) do |config|
     owner: "vagrant",
     group: "vagrant",
     mount_options: ["dmode=775,fmode=664"]
+    #type: "smb"
 
   config.vm.synced_folder "D:\\!!print", "/home/vagrant/!!print",
     owner: "vagrant",
@@ -38,13 +40,13 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     export DEBIAN_FRONTEND=noninteractive
-    sudo apt-get update -qq
-    apt-get autoremove -y
   SHELL
+    #sudo apt-get update -qq
+    #apt-get autoremove -y
     #sudo apt-get install python-dev libpython2.7-dev libyaml-dev mc -y -q
     #curl -s https://bootstrap.pypa.io/get-pip.py | sudo python -
     #sudo pip install fabric
-    #sudo pip install ansibl
+    #sudo pip install ansible
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     mkdir --parents /home/vagrant/log
@@ -54,7 +56,7 @@ Vagrant.configure(2) do |config|
   # Run Ansible inside the Vagrant VM
   config.vm.provision :ansible_local do |ansible|
     ansible.playbook       = "provision.yml"
-    ansible.verbose        = true
+    ansible.verbose        = "vv"
     ansible.install        = true
     ansible.install_mode   = 'pip'
     ansible.limit          = 'development'
@@ -65,8 +67,8 @@ Vagrant.configure(2) do |config|
 end
 
 # steps to add github key:
-# - create private github key at ~/.ssg/github
-# - chmod it to 600
+# - copy securely stored private github key to ~/.ssg/github
+# - chmod 600 ~/.ssg/github
 # - enable ssh-agent: eval "$(ssh-agent -s)"
 # - add key to agent: ssh-add ~/.ssh/github
 # - now you can git push origin master without password

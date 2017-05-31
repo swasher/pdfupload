@@ -1,5 +1,2 @@
 ---
 apt_cache_valid_time: 86400
-pip_download_dest: /tmp
-python: python3
-pip: pip

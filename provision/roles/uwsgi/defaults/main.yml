@@ -1,4 +1,0 @@
----
-emperor_service: emperor.uwsgi.service
-emperor_socket: emperor.uwsgi.socket
-tmpfilesd_template: uwsgi.conf

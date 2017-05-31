@@ -1,8 +1,5 @@
 #!/usr/bin/python
 #coding: utf-8
-
-import sys
-import os
 from pprint import pprint
 import logging
 
@@ -78,7 +75,7 @@ def parse_mo_dict(mo_dict):
 def mark_extraction(pdf):
     """
     Возвращает словарь, где ключ - номер страницы, а значение - словарь.
-    Во внутреннем словаре ключ - имя метка (как она названа в сигне), а
+    Во внутреннем словаре ключ - имя метки (как она названа в сигне), а
     значение - список (текст метки, имя XObject, Субтип). Например:
 
      {0: {'CutMark_2mm': ('', 'pssMO1_1', 'Default'),
@@ -154,9 +151,9 @@ def mark_extraction(pdf):
             for xobject, value in resources.items():
                 if 'pssMO' in xobject:
                     # logger.info('\n', key)
-                    CreationName = value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationName']
-                    CreationType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationType']).translate(None, '/')  # I don't use it
-                    SubType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['SubType']).translate(None, '/')
+                    CreationName = value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationName'].decode()
+                    CreationType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['CreationType']).strip("\/'")  # I don't use it
+                    SubType = repr(value.resolve()['PieceInfo'].resolve()['HDAG_SignaMarkInfo']['Private'].resolve()['SubType']).strip("\/'")
 
                     current_page_mark_dict[CreationName] = (text_dict[xobject], xobject, SubType)
 
@@ -172,9 +169,12 @@ def mark_extraction(pdf):
 
 def detect_mark(list_of_available_marks, pdf_extracted_marks):
     """
-    Со временем названия и содержания сигна-меток, содержащих нужную информацию, могут измениться.
-    Все названия меток вместе с регулярками для извлечения находятся в settings.
-    Эта функция определяет, какая именно метка используется, и возвращает два значения - имя марки и regexp.
+    Со временем названия и содержания сигна-меток, содержащих нужную информацию, могут измениться. Но программа должна 
+    корректно работать со всеми версиями файлов, поэтому каждый тип информации (например, название машины) прописан 
+    в marks.py и имеет несколько кортежей метка-регулярка, которые описывают метки, применявшиеся в разное время.
+     
+    Эта функция перебирает все варианты, определяет, какой именно формат используется в PDF файле, и возвращает два 
+    значения - имя марки и regexp.
 
     Так же предполагается, что название марки одинаково для всех страниц, и поэтому производится анализ только первой.
 
@@ -194,21 +194,27 @@ def detect_mark(list_of_available_marks, pdf_extracted_marks):
         if mark[0] in pdf_mark_names:
             detected_mark = mark
 
-    # Если ничего не нашлось, возвращаем None
+    # Если подходящей метки не нашлось, возвращаем None
     try:
         detected_mark
     except NameError:
-        detected_mark = None
+        detected_mark = None, None
 
     return detected_mark
 
 
 if __name__ == '__main__':
-
     # debugging
+    import os
+    import sys
+    import django
+    sys.path.append("/home/vagrant/pdfupload")
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'pdfupload.settings'
+    django.setup()
+    from workflow.classes import PDF
 
     test_path = '/home/vagrant/!!print/pdf_for_testing'
-    if len(sys.argv) < 2:
+    if len(sys.argv) == 1:
         f = os.path.join(test_path, '0007_Operniy_Afihsa_S16_NEWMARKS_Admin.pdf')
         #f = '../test/pdf_for_testing/test_search_dominant_mark.pdf'
         #f = '../test/pdf_for_testing/0059_Mig_Gazeta_Leonov.pdf'
@@ -219,7 +225,10 @@ if __name__ == '__main__':
     if not os.path.exists(f):
         sys.exit('ERROR: PDF "{}" was not found!'.format(sys.argv[1]))
 
-    pdf_marks = mark_extraction(f)
+    pdf = PDF(os.path.basename(f))
+    pdf.is_signastation = True
+
+    pdf_marks = mark_extraction(pdf)
     pprint(pdf_marks)
 
     print('Выведено:')

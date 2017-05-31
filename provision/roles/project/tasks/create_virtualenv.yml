@@ -1,0 +1,60 @@
+---
+#- name: check if pip is already installed
+#  command: "{{ pip }} --version"
+#  ignore_errors: true
+#  changed_when: false
+#  register: pip_is_installed
+
+#- name: download pip
+#  get_url: url=https://bootstrap.pypa.io/get-pip.py dest={{ pip_download_dest }}
+#  when: pip_is_installed.rc != 0
+
+#- name: install pip
+#  command: "{{ python }} {{ pip_download_dest }}/get-pip.py"
+#  become: yes
+#  when: pip_is_installed.rc != 0
+
+#- name: delete get-pip.py
+#  file: state=absent path={{ pip_download_dest }}/get-pip.py
+#  when: pip_is_installed.rc != 0
+
+
+
+# pyvenv use default python, only 3-th version (not 2)
+# In future, pyvenv must be replacing with `python -m venv myenv` construction as described in PEP 405
+# pyvenv will be deprecated since python 3.6
+# https://docs.python.org/3/library/venv.html
+#
+# Since python3.5 recomended way is `python3 -m venv <env_name>`
+#
+#- name: Create virtual environment
+#  pip:
+#    virtualenv: "{{virtualenv}}"
+#    virtualenv_command: "{{python}}"
+#    requirements: "{{project_root}}/requirements.txt"
+#    extra_args: '--quiet'
+
+- name: Install venv
+  apt:
+    pkg: "{{item}}"
+    state: installed
+    update-cache: yes
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+  with_items:
+    - python3-venv
+  become: yes
+
+- name: Create virtual environment
+  shell: python3 -m venv {{virtualenv}}
+
+- name: Update pip
+  pip:
+    name: pip
+    state: latest
+    virtualenv: "{{virtualenv}}"
+
+- name: Install project requirements
+  pip:
+    requirements: "{{project_root}}/requirements.txt"
+    virtualenv: "{{virtualenv}}"
+    extra_args: '--quiet'

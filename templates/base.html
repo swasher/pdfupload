@@ -50,11 +50,11 @@
             $.getJSON("/change_import/", function(json) {
                 $(importid).html('Import mode: ' + json['import_mode']);
                 if (json['import_mode']) {
-                    $(importid).html('Import mode: ON');
+                    $(importid).html('Import mode');
                     $(importid).removeClass('label-success');
                     $(importid).addClass('label-danger');
                 } else {
-                    $(importid).html('Import mode: OFF');
+                    $(importid).html('Normal mode');
                     $(importid).removeClass('label-danger');
                     $(importid).addClass('label-success');
                 }

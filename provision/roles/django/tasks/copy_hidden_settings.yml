@@ -1,10 +1,10 @@
 ---
-
 # Renaming file must be done due .gitignore match purpose:
 # *secret* is ignore by .gitignore, but *secure* is not.
 
 - name: Copy secret settings
-  template: >
-    src=production_settings.env.j2
-    dest={{project_root}}/.env
-  tags: vagrant_skip
+  template:
+    src: settings.env.j2
+    dest: "{{project_root}}/.env"
+    force: no
+  tags: prod

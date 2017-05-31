@@ -45,7 +45,7 @@ SMSC_PASSWORD = config('SMSC_PASSWORD')
 TELEGRAM_API_KEY = config('TELEGRAM_API_KEY')
 TELEGRAM_CHAT_ID = config('TELEGRAM_CHAT_ID')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS')
 
 DEBUG = config('DEBUG', cast=bool)
 
@@ -175,7 +175,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': str(HOME_DIR / 'log' / 'django.log'),
             'maxBytes': 1024 * 1024 * 15,  # 15MB
@@ -188,6 +188,7 @@ LOGGING = {
             'filename': str(HOME_DIR / 'log' / 'user.log'),
             'maxBytes': 1024 * 1024 * 15,  # 15MB
             'backupCount': 10,
+            'encoding': 'utf8',
             'formatter': 'simple'
         },
     },
@@ -260,3 +261,5 @@ MESSAGE_TAGS = {message_constants.DEBUG: 'debug',       #no color
                 message_constants.SUCCESS: 'success',   #green
                 message_constants.WARNING: 'warning',   #yellow
                 message_constants.ERROR: 'danger',}     #red
+
+SHELF = '/tmp/shelve.db'

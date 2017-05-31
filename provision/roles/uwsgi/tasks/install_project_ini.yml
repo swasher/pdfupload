@@ -1,7 +1,0 @@
----
-- name: Copy uwsgi config
-  template: >
-    src=uwsgi.ini.j2
-    dest=/etc/uwsgi/vassals/{{project_name}}.ini
-  notify: restart uwsgi emperor
-  become: yes

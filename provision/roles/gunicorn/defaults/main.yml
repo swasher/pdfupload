@@ -1,0 +1,3 @@
+---
+gunicorn_socket_name: gunicorn.socket
+gunicorn_service_name: gunicorn.service

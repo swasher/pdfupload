@@ -1,0 +1,17 @@
+[Unit]
+Description=rqworker daemon
+After=network.target
+
+[Service]
+User={{remote_user}}
+Group=www-data
+
+ExecStart=/home/vagrant/virtualenvironment/bin/python /home/vagrant/pdfupload/manage.py rqworker default
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

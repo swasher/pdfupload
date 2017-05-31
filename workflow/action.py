@@ -6,7 +6,6 @@ import tempfile
 import subprocess
 import shutil
 import logging
-import shelve
 import time
 import math
 import twx
@@ -29,6 +28,7 @@ from .util import error_text
 from .util import dict_to_multiline
 from .util import inks_to_multiline
 from .util import get_bbox
+from .util import read_shelve
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ def remove_ctpbureau_from_pdfname(pdf):
     # Тут нужен unicode, потому что имя файла может содержать русские буквы,
     # и будет лажа при сравнении типа str (fname) с типом unicode (Ctpbureau.objects.all())
     name, ext = os.path.splitext(pdf.name)
-    parts = name.decode('UTF-8').split("_")
+    parts = name.split("_")
 
     for bureau in Ctpbureau.objects.all():
         if bureau.name in parts:
@@ -71,7 +71,8 @@ def crop(pdf):
     """
     pdf.cropped_file = tempfile.NamedTemporaryFile(mode='w+b', dir=pdf.tmpdir, suffix='.pdf', delete=False)
 
-    input = PdfFileReader(file(pdf.abspath, "rb"))
+    f = open(pdf.abspath, "rb")
+    input = PdfFileReader(f)
     output = PdfFileWriter()
 
     if pdf.paper_sizes:
@@ -125,10 +126,11 @@ def crop(pdf):
 
             output.addPage(page)
 
-    outputstream = file(pdf.cropped_file.name, "wb")
+    outputstream = open(pdf.cropped_file.name, "wb")
     output.write(outputstream)
     outputstream.close()
     pdf.cropped_file.close()
+    f.close()
 
 
 def compress(pdf):
@@ -266,9 +268,7 @@ def upload_to_press(pdf):
     :param pdf:
     :return: upload_to_ctpbureau_status, upload_to_ctpbureau_error
     """
-    d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
-    d.close()
+    import_mode = read_shelve()
 
     if import_mode:
         logger.info('····skipping upload due import mode')
@@ -292,9 +292,7 @@ def upload_to_ctpbureau(pdf):
     :param pdf:
     :return: upload_to_ctpbureau_status, upload_to_ctpbureau_error
     """
-    d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
-    d.close()
+    import_mode = read_shelve()
 
     if import_mode:
         logger.info('····skipping upload due import mode')
@@ -318,9 +316,7 @@ def send_sms(pdf):
     :param pdf:
     :return:
     """
-    d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
-    d.close()
+    import_mode = read_shelve()
 
     logger.info('')
     logger.info('――> SMS:')
@@ -370,9 +366,7 @@ def send_telegram(pdf):
     :param pdf:
     :return:
     """
-    d = shelve.open('shelve.db')
-    import_mode = d['IMPORT_MODE']
-    d.close()
+    import_mode = read_shelve()
 
     logger.info('')
     logger.info('――> Telegram:')

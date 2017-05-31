@@ -9,7 +9,7 @@
 
 - name: Install nginx configuration file
   template: >
-    src=nginx.conf.j2
+    src=nginx.conf.gunicorn.j2
     dest=/etc/nginx/sites-available/{{project_name}}
   become: yes
 

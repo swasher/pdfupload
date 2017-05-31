@@ -28,7 +28,7 @@ class PDF:
     created = ''         # дата (или now(), или дата создания файла, зависит от IMPORT_MODE)
     order = ''           # номер заказа
     tmpdir = ''          # абс. путь к временной директории
-    abspath = ''         # @property aбс. пусть к pdf во временной директории
+    abspath = ''         # @property aбс. путь к pdf во временной директории
     is_pdf = ''          # True если файл - pdf
     filetype = ''        # тип файла. Можно определить, pdf это или нет.
     is_signastation = '' # True если pdf был создан в сигне
@@ -48,12 +48,12 @@ class PDF:
     inks = ''            # словарь со значениями расхода краски
     upload_to_ctpbureau_status = '' # статус заливки выводильщику (для решения, отправлять ли смс)
     upload_to_ctpbureau_error = ''  # код ошибки
-    upload_to_press_status = ''   # статус заливки на печ. машину
-    upload_to_press_error = ''    # код ошибки
+    upload_to_press_status = ''     # статус заливки на печ. машину
+    upload_to_press_error = ''      # код ошибки
 
 
-    def __init__(self, pdfName):
-        self.name = pdfName.strip("'") # Remove quote added by incron. Through quotes whitespace-contained filenames are supported.
+    def __init__(self, pdf_name):
+        self.name = pdf_name.strip("'") # Remove quote added by incron. Through quotes whitespace-contained filenames are supported.
         self.ordername = analyze_ordername(self)
         self.created = analyze_date(os.path.join(inputpath, self.name))
         self.tmpdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
@@ -81,8 +81,9 @@ class PDF:
         Move PDF from hotfolder to temp dir
         :return: absolute path to pdf in tempdir
         """
+
         try:
-            shutil.move(inputpath + self.name, self.tmpdir + self.name)
+            shutil.move(os.path.join(inputpath, self.name), os.path.join(self.tmpdir, self.name))
         except Exception as e:
-            logger.error('{}: Cant move to temp: {}'.format(self.name, e))
+            logger.error('{}: Can`t move to temp: {}'.format(self.name, e))
             exit()

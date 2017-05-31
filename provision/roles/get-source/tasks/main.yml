@@ -12,4 +12,4 @@
        dest={{project_root}}
        accept_hostkey=yes
   when: not p.stat.isdir is defined
-  tags: vagrant_skip
+  tags: prod

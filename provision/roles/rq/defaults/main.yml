@@ -1,0 +1,3 @@
+---
+rqworker_service: rqworker.service
+rqdashboard_service: rqdashboard.service

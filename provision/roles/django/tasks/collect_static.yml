@@ -1,14 +1,14 @@
 ---
 - name: Ensure static root dir present
-  file: >
-    path={{user_home}}/static_root
-    state=directory
+  file:
+    path: "{{user_home}}/static_root"
+    state: directory
 
 
 - name: Collecting static
-  django_manage: >
-    command="collectstatic --verbosity 0 --noinput "
-    app_path={{project_root}}
+  django_manage:
+    command: "collectstatic --verbosity 0 --noinput "
+    app_path: "{{project_root}}"
   when: group_names[0]=='production' or group_names[0]=='staging'
 
 

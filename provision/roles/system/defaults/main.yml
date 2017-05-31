@@ -2,3 +2,5 @@
 #www_owner: www-data
 www_owner: swasher
 apt_cache_valid_time: 86400
+locale: en_US.UTF-8
+timezone: Europe/Kiev

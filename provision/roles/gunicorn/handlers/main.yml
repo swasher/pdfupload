@@ -1,0 +1,11 @@
+---
+# deprecated
+#- name: restart gunicorn service
+#  service: name=gunicorn.service
+#           state=restarted
+#  become: yes
+
+- name: restart gunicorn socket
+  service: name=gunicorn.socket
+           state=restarted
+  become: yes

@@ -4,16 +4,17 @@
 # https://github.com/ansible/ansible/issues/9526
 
 - name: Copy script to target
-  template: >
-    src=create_superuser.py.j2
-    dest=/tmp/create_superuser.py
+  template:
+    src: create_superuser.py.j2
+    dest: /tmp/create_superuser.py
 
 - name: Launch script to create superuser
-  command: python /tmp/create_superuser.py
+  shell: "source {{virtualenv}}/bin/activate && python /tmp/create_superuser.py"
   args:
     chdir: "{{project_root}}"
+    executable: /bin/bash
 
 - name: Remove script
-  file: >
-    path=/tmp/create_superuser.py
-    state=absent
+  file:
+    path: /tmp/create_superuser.py
+    state: absent

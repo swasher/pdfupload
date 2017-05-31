@@ -1,0 +1,44 @@
+---
+- name: Copy rq service template
+  template:
+    src: rqworker.service
+    dest: /etc/systemd/system/{{rqworker_service}}
+    mode: 0644
+    owner: root
+    group: root
+  become: yes
+
+- name: Copy rq dashboard service template
+  template:
+    src: rqdashboard.service
+    dest: /etc/systemd/system/{{rqdashboard_service}}
+    mode: 0644
+    owner: root
+    group: root
+  become: yes
+
+
+- name: Enable rq autostart
+  service:
+    name: "{{rqworker_service}}"
+    enabled: yes
+  become: yes
+
+- name: Enable rq dashboard autostart
+  service:
+    name: "{{rqdashboard_service}}"
+    enabled: yes
+  become: yes
+
+
+- name: Start rq
+  service:
+    name: "{{rqworker_service}}"
+    state: started
+  become: yes
+
+- name: Start rq dashboard
+  service:
+    name: "{{rqdashboard_service}}"
+    state: started
+  become: yes

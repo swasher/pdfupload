@@ -14,7 +14,7 @@ itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
 olefile==0.44
--e git+https://github.com/goulu/pdfminer@baddb25df66c8830a4fce30f7cdf01d90c222a5d#egg=pdfminer.six
+pdfminer.six==20170510
 Pillow==4.0.0
 pkg-resources==0.0.0
 psycopg2==2.6.2

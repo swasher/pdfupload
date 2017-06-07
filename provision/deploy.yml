@@ -4,20 +4,19 @@
   vars_files:
     - group_vars/vault.yml
   vars:
-    branch: python3 # Which branch to deploy
+    branch: python3 # Choose branch for deploy
 
 #
-# Original working fabric script:
+# Original fabric script:
 #
-
-#        run('git fetch origin')
-#        run('git reset --hard origin/master')
-#        run('bower install')
-#        run('sudo pip install -r requirements.txt')
-#        run('python manage.py collectstatic --noinput --clear --verbosity 1')
-#        run('python manage.py migrate')
-#        run('touch /tmp/pdfupload.reload')
-#        run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
+#  run('git fetch origin')
+#  run('git reset --hard origin/master')
+#  run('bower install')
+#  run('sudo pip install -r requirements.txt')
+#  run('python manage.py collectstatic --noinput --clear --verbosity 1')
+#  run('python manage.py migrate')
+#  run('touch /tmp/pdfupload.reload')
+#  run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
 
 
 #
@@ -32,25 +31,16 @@
         msg: "Deploy cant'n perform on development machine"
       when: group_names[0]=='development'
 
-#    - shell: whoami
-#      register: who
-#
-#    - debug: var=who.stdout
-#
-#    - fail: msg='stop'
+    #    - shell: whoami
+    #      register: who
+    #
+    #    - debug: var=who.stdout
+    #
+    #    - fail: msg='stop'
 
-#    - name: Fetch source code
-#      command: git fetch origin
-#      args:
-#          chdir: "{{ project_root }}"
-
-
-#    - name: git reset
-#      command: git reset --hard origin/master
-#      args:
-#          chdir: "{{ project_root }}"
-
-
+    #
+    # Remove old source code and virtual env
+    #
     - name: Remove source code
       file:
         path: "{{ project_root }}"
@@ -61,45 +51,75 @@
         path: "{{ virtualenv }}"
         state: absent
 
+
+    #
+    # Get source code from github
+    #
     - name: Fetch source code
       git:
         repo: "{{ project_repo }}"
         dest: "{{ project_root }}"
         version: "{{ branch }}"
 
-#    # run('bower install')
-#    - name: Install packages based on bower.json
-#      bower: path={{ project_root }}
-#
 
-#    - name: Install specified python requirements.
-#      pip: requirements={{ project_root }}/requirements.txt
-#      become: yes
+    #
+    # Install bower dependencies
+    #
+    - name: Install packages based on bower.json
+      bower: path={{ project_root }}
 
+
+    #
+    # Create virtual env and install requirements
+    #
     - name: Create virtual environment
+      shell: python3 -m venv {{virtualenv}}
+
+    - name: Update pip
       pip:
-        virtualenv: "{{ virtualenv }}"
-        virtualenv_command: pyvenv
+        name: pip
+        state: latest
+        virtualenv: "{{virtualenv}}"
+
+    - name: Install project requirements
+      pip:
         requirements: "{{project_root}}/requirements.txt"
+        virtualenv: "{{virtualenv}}"
         extra_args: '--quiet'
 
-#
-#      # run('python manage.py collectstatic --noinput --clear --verbosity 1')
-#    - name: Collecting static
-#      django_manage: >
-#        command="collectstatic --verbosity 0 --noinput "
-#        app_path={{ project_root }}
-#
-#      # run('python manage.py migrate')
-#    - name: Django migrate
-#      django_manage: >
-#        command=migrate
-#        app_path={{ project_root }}
-#
-#      # run('touch /tmp/pdfupload.reload')
-#    - name: Restart uwsgi
-#      command: touch /tmp/pdfupload.reload
 
-      # run('echo `date +"%H:%m %d.%m.%Y"` > timestamp')
+    #
+    # Collect static
+    #
+    - name: Ensure static dir present
+      file:
+        path: "{{user_home}}/static_root"
+        state: directory
+
+    - name: Collecting static
+      django_manage:
+        command: "collectstatic --verbosity 0 --noinput "
+        app_path: "{{project_root}}"
+
+
+    #
+    # Migrate
+    #
+
+    #    - name: Run Django database migration
+    #      shell: "source {{ virtualenv }}/bin/activate && python manage.py migrate"
+    #      args:
+    #        chdir: "{{ project_root }}"
+    #        executable: /bin/bash
+
+    - name: Django migrate
+      django_manage:
+        command: migrate
+        app_path: "{{ project_root }}"
+
+
+    #
+    # Make timestamp of last deploy
+    #
     - name: Make timestamp of deploy
       shell: echo `date +"%H:%m %d.%m.%Y"` > {{project_root}}/timestamp

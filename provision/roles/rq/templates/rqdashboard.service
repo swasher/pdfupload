@@ -5,10 +5,10 @@ After=network.target
 [Service]
 Environment=LC_ALL=C.UTF-8
 Environment=LANG=C.UTF-8
-User=vagrant
+User={{remote_user}}
 Group=www-data
 
-ExecStart=/home/vagrant/virtualenvironment/bin/python /home/vagrant/virtualenvironment/bin/rq-dashboard
+ExecStart=/home/%{User}/virtualenvironment/bin/python /home/%{User}/virtualenvironment/bin/rq-dashboard
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 

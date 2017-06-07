@@ -1,6 +1,6 @@
 ---
 
-- name: remove
+- name: Remove project sources
   file:
     path: "{{project_root}}"
     state: absent

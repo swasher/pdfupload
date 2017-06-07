@@ -6,13 +6,12 @@
   roles:
     - system
     - dbbackup
-    - get-source
+    - project
     - smsc
     - redis
     - postgres
     - hotfolder
     - npm
-    - project
     - django
     - gunicorn
     - nginx

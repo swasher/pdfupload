@@ -43,6 +43,7 @@ db_password:       "{{ vault_db_password }}"
 
 # for create ~/.ssh/config on every machine.
 # So machines can know how connect by ssh to each other.
+# Password use only once for copy ssh keys
 
 production_ip:     "{{ vault_production_ip }}"
 production_port:   "{{ vault_production_port }}"
@@ -51,6 +52,7 @@ production_user:   "{{ vault_production_user }}"
 staging_ip:        "{{ vault_staging_ip }}"
 staging_port:      "{{ vault_staging_port }}"
 staging_user:      "{{ vault_staging_user }}"
+staging_password:  "{{ vault_staging_password }}"
 
 backup_ip:         "{{ vault_backup_ip }}"
 backup_port:       "{{ vault_backup_port }}"

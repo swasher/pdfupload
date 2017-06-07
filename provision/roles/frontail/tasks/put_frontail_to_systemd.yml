@@ -1,18 +1,18 @@
 ---
 - name: ensure tailing log file is present
-  file: >
-    path="{{frontail_log}}"
-    state=touch
+  file:
+    path: "{{frontail_log}}"
+    state: touch
 
 - name: frontail start as systemd service
-  template: >
-    src=frontail.service.j2
-    dest=/etc/systemd/system/{{frontail_service}}
-    mode=0644
-    owner=root
-    group=root
+  template:
+    src: frontail.service.j2
+    dest: /etc/systemd/system/{{frontail_service}}
+    mode: 0644
+    owner: root
+    group: root
   notify:
-  - restart frontail
+    - restart frontail
   become: yes
 
 

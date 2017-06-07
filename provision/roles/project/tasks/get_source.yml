@@ -1,15 +1,29 @@
 ---
+
+- name: remove
+  file:
+    path: "{{project_root}}"
+    state: absent
+  tags: prod
+
+
 # Determine if a project path exists and is a directory.  Note that we need to test
 # both that p.stat.isdir actually exists, and also that it's set to true
-- stat: path={{project_root}}
+- stat:
+    path: "{{project_root}}"
   register: p
-- debug: msg="Project dir exists"
+
+- debug:
+    msg: "Project dir exists"
   when: p.stat.isdir is defined and p.stat.isdir
 
 
 # skip clone if {{project_root}} already exist OR installing on vagrant (develper) machine
-- git: repo={{project_repo}}
-       dest={{project_root}}
-       accept_hostkey=yes
+- name: Get project sources from github
+  git:
+    repo: "{{project_repo}}"
+    dest: "{{project_root}}"
+    version: python3
+    accept_hostkey: yes
   when: not p.stat.isdir is defined
   tags: prod

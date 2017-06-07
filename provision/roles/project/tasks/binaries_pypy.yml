@@ -14,5 +14,6 @@
     - python3-dev
     - libjpeg-dev  #for pillow
     - libpq-dev    #for psycopg2
+    - gcc          #for pycrypto for pdfminer.six
   become: yes
 

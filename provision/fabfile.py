@@ -33,10 +33,13 @@ def provision():
     Usage:
     fab [development|staging|production] provision
     """
-    additional_params = '--skip-tags=prod' if env.hosts[0] == 'development' else ''
+    additional_params = ' -v '
 
-    # Want more verbose output? Uncomment it.
-    additional_params += '-v'
+    if env.hosts[0] == 'development':
+        additional_params += " --skip-tags 'prod' "
+
+    if env.hosts[0] == 'staging' or env.hosts[0] == 'production':
+        additional_params += " --skip-tags 'dev' "
 
     local('ansible-playbook -i inventories/all --limit {target} {additional_params} provision.yml'.
           format(target=env.hosts[0], additional_params=additional_params))

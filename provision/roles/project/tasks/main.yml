@@ -2,5 +2,6 @@
 - include: binaries_system.yml
 - include: binaries_pypy.yml
 - include: pdf_utilities.yml
+- include: get_source.yml
 - include: create_virtualenv.yml
 

@@ -65,7 +65,7 @@
     #
     # Install bower dependencies
     #
-    - name: Install packages based on bower.json
+    - name: Install bower packages
       bower: path={{ project_root }}
 
 

@@ -218,8 +218,7 @@ def analyze_colorant(pdf):
             plates += len(color)
     else:
         plates, colors = 0, None
-    import pydevd
-    pydevd.settrace('192.168.0.10', port=9111, stdoutToServer=True, stderrToServer=True)
+
     return plates, colors
 
 

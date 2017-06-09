@@ -1,7 +1,4 @@
 ---
-# Renaming file must be done due .gitignore match purpose:
-# *secret* is ignore by .gitignore, but *secure* is not.
-
 - name: Copy secret settings
   template:
     src: settings.env.j2

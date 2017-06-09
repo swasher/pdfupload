@@ -10,10 +10,9 @@ log_dir:           "{{ user_home }}/log"
 input_dir:         "{{ user_home }}/input"
 
 # deprecated in gunicorn favor:
-# ram_dir:           "/run/uwsgi"
-# touchfile:         "/tmp/pdfupload.reload" # `touch` it for restart uswgi vassal
-ram_dir:           "/run/{{project_name}}"
-socket:            "{{ram_dir}}/gunicorn.socket"
+socket_file:       "/run/gunicorn.socket"
+socket:            "unix:{{socket_file}}"
+pid:               "/tmp/gunicorn.pid"
 
 
 # credentials for http://smsc.ua/

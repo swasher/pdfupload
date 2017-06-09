@@ -26,10 +26,3 @@
     name: "{{gunicorn_socket_name}}"
     enabled: yes
   become: yes
-
-# Service do not need autostart, only socket
-#- name: Enable gunicorn autostart
-#  service:
-#    name: "{{gunicorn_service_name}}"
-#    enabled: yes
-#  become: yes

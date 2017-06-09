@@ -1,0 +1,6 @@
+---
+#
+# Make timestamp of last deploy
+#
+- name: Make timestamp of deploy
+  shell: echo `date +"%H:%m %d.%m.%Y"` > {{project_root}}/timestamp

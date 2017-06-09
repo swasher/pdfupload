@@ -124,11 +124,25 @@ Creating [staging|production] server:
 - [optional] if using DHCP, setting up static IP for new server (on router)
 - setup FQDN resolution for name of new server in local network (via router or hosts file). Name must be [staging|production]
 - reboot machine
-- on ansible master machine, write the connection data to provision/group_vars/all.yml. Please attention, that there is many variables stored
-in crypted vault `vault.yml`
+- on ansible master machine, write the connection data to provision/group_vars/all.yml. Please attention, that there is
+  some variables stored in crypted vault `vault.yml`
 - on develping machine, copy ssh key to target machine: ssh-copy-id [staging|production]
 - start provision: `fab staging provision`
-- deploy code: `fan staging deploy`
+
+----------------
+
+- create fresh ubuntu machine on ESXi (testing on MINI 16.10). Choose only `OpenSSH Server`.
+- after reboting, install python2 which required by ansible: `apt install python`
+- [optional] set up custom ssh port in /etc/ssh/sshd-config
+- [optional] if using DHCP, setting up static IP for new server (on router)
+- setup FQDN resolution of new server in local network (via router or hosts file). Name must be [staging|production]
+
+It's all for server machine. The rest of work is done on ansible host:
+
+- Ensure connection data in provision/group_vars/all.yml is correct. Attention please, there is
+  some variables stored in crypted vault `vault.yml`
+- copy ssh key: ssh-copy-id [staging|production]
+- start provision: `fab staging|production provision`
 
 
 
@@ -265,6 +279,8 @@ Misc
 
 ##### uWSGI
 
+**DEPRECATED: use systemd instead**
+
 В корне проекта лежит файл настроек uWSGI. Так же проверяем пути. Последней строкой автоматически запускается 
 менеджер очередей rq. `/home/swasher/pdfupload/uwsgi.ini`:
 
@@ -315,6 +331,8 @@ Misc
     user=swasher
 
 ##### Uwsgi emperor
+
+**DEPRECATED: use systemd instead**
 
 В ubuntu можно поставить uwsgi через менеджер пакетов apt, и тогда вместе с ним ставится
 и демон emperor. Но uwsgi там не самый свежий, поэтому мы будем ставим его через pip.
@@ -401,6 +419,7 @@ TROUBLESHOOTING
 Куда смотреть, если что-то не работает:
 
 - запустить джанго в командной строке и посмотреть браузером: `python manage.py runserver 0.0.0.0:8080`
+- запустить ручками gunicorn: `gunicorn --bind 0.0.0.0:8000 pdfupload.wsgi`
 - можно перезапустить nginx командой `pdfupload_restart.sh`
 - руками запустить python `path/to/putting_job_in_the_queue.py <filename>.pdf`. Помогает при ошибках компиляции скрипта.
 - если ошибка возникает в rq, то это можно увидеть в выводе `python manage.py rqworker` или запускаем `rq-dashboard`, смотрим браузером в порт 9181   

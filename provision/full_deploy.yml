@@ -1,0 +1,137 @@
+---
+#
+# Full deploy - include recreate virtual environment, bower dependencied, collect static, migrate, etc
+#
+
+- hosts: all
+  gather_facts: no
+  vars_files:
+    - group_vars/vault.yml
+  vars:
+    branch: python3 # Choose branch for deploy
+
+#
+# Original fabric script:
+#
+#  run('git fetch origin')
+#  run('git reset --hard origin/master')
+#  run('bower install')
+#  run('sudo pip install -r requirements.txt')
+#  run('python manage.py collectstatic --noinput --clear --verbosity 1')
+#  run('python manage.py migrate')
+#  run('touch /tmp/pdfupload.reload')
+#  run('echo `date +"%H:%m %d.%m.%Y"` > stamp')
+
+
+#
+# TODO
+# Копировать на удаленный сервер файл vault при каждом деплое
+#
+
+  tasks:
+
+    - name: Check target
+      fail:
+        msg: "Deploy cant'n perform on development machine"
+      when: group_names[0]=='development'
+
+    #    - shell: whoami
+    #      register: who
+    #
+    #    - debug: var=who.stdout
+    #
+    #    - fail: msg='stop'
+
+    #
+    # Remove old source code and virtual env
+    #
+    - name: Remove source code
+      file:
+        path: "{{ project_root }}"
+        state: absent
+
+    - name: Remove virtual environment
+      file:
+        path: "{{ virtualenv }}"
+        state: absent
+
+
+    #
+    # Get source code from github
+    #
+    - name: Fetch source code
+      git:
+        repo: "{{ project_repo }}"
+        dest: "{{ project_root }}"
+        version: "{{ branch }}"
+
+    - name: Copy secret settings
+      template:
+        src: roles/django/templates/settings.env.j2
+        dest: "{{project_root}}/.env"
+        force: no
+
+
+    #
+    # Install bower dependencies
+    #
+    - name: Install bower packages
+      bower: path={{ project_root }}
+
+
+    #
+    # Create virtual env and install requirements
+    #
+    - name: Create virtual environment
+      shell: python3 -m venv {{virtualenv}}
+
+    - name: Update pip
+      pip:
+        name: pip
+        state: latest
+        virtualenv: "{{virtualenv}}"
+
+    - name: Install pip requirements
+      pip:
+        requirements: "{{project_root}}/requirements.txt"
+        virtualenv: "{{virtualenv}}"
+        extra_args: '--quiet'
+
+
+    #
+    # Collect static
+    #
+    - name: Ensure static dir present
+      file:
+        path: "{{user_home}}/static_root"
+        state: directory
+
+    - name: Collecting static
+      django_manage:
+        command: "collectstatic --verbosity 0 --noinput "
+        app_path: "{{project_root}}"
+        virtualenv: "{{ virtualenv }}"
+
+
+    #
+    # Migrate
+    #
+
+    #    - name: Run Django database migration
+    #      shell: "source {{ virtualenv }}/bin/activate && python manage.py migrate"
+    #      args:
+    #        chdir: "{{ project_root }}"
+    #        executable: /bin/bash
+
+    - name: Django migrate
+      django_manage:
+        command: migrate
+        app_path: "{{ project_root }}"
+        virtualenv: "{{ virtualenv }}"
+
+
+    #
+    # Make timestamp of last deploy
+    #
+    - name: Make timestamp of deploy
+      shell: echo `date +"%H:%m %d.%m.%Y"` > {{project_root}}/timestamp

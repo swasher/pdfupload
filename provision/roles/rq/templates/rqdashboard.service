@@ -8,7 +8,7 @@ Environment=LANG=C.UTF-8
 User={{remote_user}}
 Group=www-data
 
-ExecStart=/home/%{User}/virtualenvironment/bin/python /home/%{User}/virtualenvironment/bin/rq-dashboard
+ExecStart=/home/{{remote_user}}/virtualenvironment/bin/python /home/{{remote_user}}/virtualenvironment/bin/rq-dashboard
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 

@@ -6,3 +6,4 @@
 - include: pip_completions.yml
 - include: django_completions.yml
 - include: ansible_editor.yml
+- include: various.yml

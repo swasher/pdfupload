@@ -6,7 +6,7 @@ After=network.target
 User={{remote_user}}
 Group=www-data
 
-ExecStart=/home/%{User}/virtualenvironment/bin/python /home/%{User}/pdfupload/manage.py rqworker default
+ExecStart=/home/{{remote_user}}/virtualenvironment/bin/python /home/{{remote_user}}/pdfupload/manage.py rqworker default
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 

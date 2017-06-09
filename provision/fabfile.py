@@ -47,7 +47,8 @@ def provision():
 
 def deploy():
     """
-    Deploy latest source code from github to staging or provision server
+    Deploy latest source code from github to staging or provision server.
+    Quick deploy - only fetch source code.
 
     Usage:
     fab [staging|production] deploy
@@ -57,6 +58,22 @@ def deploy():
     # additional_params += '-vvv '
 
     local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
+          format(target=env.hosts[0], additional_params=additional_params))
+
+
+def full_deploy():
+    """
+    Deploy latest source code from github to staging or provision server.
+    Full deploy - include recreate virtual environment, bower dependencied, collect static, migrate, etc
+
+    Usage:
+    fab [staging|production] full_deploy
+    """
+
+    additional_params = ''
+    # additional_params += '-vvv '
+
+    local('ansible-playbook -i inventories/all --limit {target} {additional_params} full_deploy.yml'.
           format(target=env.hosts[0], additional_params=additional_params))
 
 

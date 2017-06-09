@@ -63,3 +63,9 @@
     #
     - name: Make timestamp of deploy
       shell: echo `date +"%H:%m %d.%m.%Y"` > {{project_root}}/timestamp
+
+    - name: Copy secret settings
+      template:
+        src: roles/django/templates/settings.env.j2
+        dest: "{{project_root}}/.env"
+        force: no

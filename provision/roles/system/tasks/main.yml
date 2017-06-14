@@ -4,5 +4,4 @@
 - include: copy_ssh_config.yml
 - include: copy_ssh_keys.yml
 - include: tz.yml
-- include: set_server_type.yml
 - include: set_locale.yml

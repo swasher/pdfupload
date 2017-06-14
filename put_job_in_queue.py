@@ -16,4 +16,5 @@ pdfName = sys.argv[1]
 
 # Если не поставить timeout, то на больших файлах, которые долго крутятся, будет вываливаться ошибка
 # JobTimeoutException: Job exceeded maximum timeout value (180 seconds).
-django_rq.enqueue(processing, pdfName, timeout=3600)
+#django_rq.enqueue(processing, pdfName, timeout=3600)
+django_rq.enqueue(processing, pdfName, timeout=120)

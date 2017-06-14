@@ -1,5 +1,0 @@
----
-- name: Set server type
-  lineinfile: dest=/etc/environment
-              line='SERVER_TYPE={{group_names[0]}}'
-  become: yes

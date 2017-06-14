@@ -1,26 +1,28 @@
 # coding: utf-8
 from decouple import config
-import os
+from os.path import join
+
 import pdfupload.marks
 from pathlib import Path
 from pdfupload import marks
+
 
 #
 # PATH SETUP
 #
 
-BASE_DIR = Path(__file__).parent.parent
+BASE_DIR = str(Path(__file__).parent.parent)
 
 # HOME на один уровень выше, чем BASE. Я хочу, чтобы media, log и другие директории лежили *рядом* с проектом, а не внутри
-HOME_DIR = BASE_DIR.parent
+HOME_DIR = str(Path(__file__).parent.parent.parent)
 
-INPUT_PATH = str(HOME_DIR / 'input')
-TEMP_PATH = str(HOME_DIR / 'tmp')
+INPUT_PATH = join(HOME_DIR, 'input')
+TEMP_PATH = join(HOME_DIR, 'tmp')
 
-STATIC_ROOT = str(HOME_DIR / 'static_root')
+STATIC_ROOT = join(HOME_DIR, 'static_root')
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = str(HOME_DIR / 'media')
+MEDIA_ROOT = join(HOME_DIR, 'media')
 MEDIA_URL = "/media/"
 
 #LOGIN_URL = '/login_redirect'
@@ -34,6 +36,7 @@ STATICFILES_DIRS =[
 #
 # ENVIRONMENT SETUP
 #
+DEBUG = config('DEBUG', cast=bool)
 
 MARKS_MACHINE = marks.MARKS_MACHINE
 MARKS_PAPER = marks.MARKS_PAPER
@@ -42,12 +45,11 @@ MARKS_OUTPUTTER = marks.MARKS_OUTPUTTER
 SECRET_KEY = config('SECRET_KEY')
 SMSC_LOGIN = config('SMSC_LOGIN')
 SMSC_PASSWORD = config('SMSC_PASSWORD')
-TELEGRAM_API_KEY = config('TELEGRAM_API_KEY')
-TELEGRAM_CHAT_ID = config('TELEGRAM_CHAT_ID')
+#TELEGRAM_API_KEY = config('TELEGRAM_API_KEY')
+TELEGRAM_API_KEY = config('TELEGRAM_API_KEY_DEV')
+# deprecated TELEGRAM_CHAT_ID = config('TELEGRAM_CHAT_ID')
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS')
-
-DEBUG = config('DEBUG', cast=bool)
 
 #
 # APPLICATION SETUP
@@ -172,12 +174,16 @@ LOGGING = {
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
+        'rq_console': {
+            "format": "%(asctime)s %(message)s",
+            "datefmt": "%H:%M:%S",
+        },
     },
     'handlers': {
         'file': {
             'level': 'WARNING',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': str(HOME_DIR / 'log' / 'django.log'),
+            'filename': join(HOME_DIR, 'log', 'django.log'),
             'maxBytes': 1024 * 1024 * 15,  # 15MB
             'backupCount': 10,
             'formatter': 'verbose'
@@ -185,11 +191,19 @@ LOGGING = {
         'userfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': str(HOME_DIR / 'log' / 'user.log'),
+            'filename': join(HOME_DIR, 'log', 'user.log'),
             'maxBytes': 1024 * 1024 * 15,  # 15MB
             'backupCount': 10,
             'encoding': 'utf8',
             'formatter': 'simple'
+        },
+        'rq_console': {
+            "level": "DEBUG",
+            #"class": "rq.utils.ColorizingStreamHandler",
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': join(HOME_DIR, 'log', 'rq.log'),
+            'formatter': "rq_console",
+            #"exclude": ["%(asctime)s"],
         },
     },
     'loggers': {
@@ -201,6 +215,10 @@ LOGGING = {
         'workflow': {
             'handlers': ['userfile'],
             'level': 'DEBUG',
+        },
+        'rq.worker': {
+            "handlers": ["rq_console"],
+            "level": "DEBUG"
         },
     }
 }

@@ -66,7 +66,7 @@ def report(request):
 
     ### График - всего плит за месяц VERSION2
     chart1 = []
-    logger.info('\n')
+    logger.info('')
     for year in range(min_year, max_year+1):
         plates_array = []
         area_array = []

@@ -201,14 +201,6 @@ from decouple import config
 def processing(pdfName):
     # socket.setdefaulttimeout(10.0)
 
-    server = config('SERVER')   #TEST
-
-    logger.info('')
-    logger.info('')
-    logger.info('START PROCESSING {}'.format(pdfName))
-    logger.info('{}'.format('-' * (len(pdfName)+17)))
-    logger.info('SERVER_TYPE={}'.format(server))   #TEST
-
     pdf = PDF(pdfName)
 
     # Переименовываем - из названия PDF удаляется имя выводильщика

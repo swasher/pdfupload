@@ -201,9 +201,9 @@ Misc
 Создаем событие inotify через incrontab (`incrontab -e`), из-под непривелигированного пользователя, который
 был добавлен в `incron.allow`:
 
-    /home/swasher/pdfupload/input IN_CLOSE_WRITE python /home/swasher/pdfupload/putting_job_in_the_queue.py $#
+    /home/swasher/pdfupload/input IN_CLOSE_WRITE python /home/swasher/pdfupload/put_job_in_queue.py $#
 
-Файл putting_job_in_the_queue.py создает запись в очереди. В нем должны быть настройки, чтобы интерпретатор питон
+Файл put_job_in_queue.py создает запись в очереди. В нем должны быть настройки, чтобы интерпретатор питон
 понял, что это код джанго. В последней строке вызывается вьюха джанго, и в нее передается параметр - имя файла.
 
     import os
@@ -421,7 +421,7 @@ TROUBLESHOOTING
 - запустить джанго в командной строке и посмотреть браузером: `python manage.py runserver 0.0.0.0:8080`
 - запустить ручками gunicorn: `gunicorn --bind 0.0.0.0:8000 pdfupload.wsgi`
 - можно перезапустить nginx командой `pdfupload_restart.sh`
-- руками запустить python `path/to/putting_job_in_the_queue.py <filename>.pdf`. Помогает при ошибках компиляции скрипта.
+- руками запустить python `path/to/put_job_in_queue.py <filename>.pdf`. Помогает при ошибках компиляции скрипта.
 - если ошибка возникает в rq, то это можно увидеть в выводе `python manage.py rqworker` или запускаем `rq-dashboard`, смотрим браузером в порт 9181   
 
 

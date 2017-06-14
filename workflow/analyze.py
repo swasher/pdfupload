@@ -89,7 +89,7 @@ def analyze_machine(pdf):
     :return: machine - словарь или None, если не удалось определить
     """
 
-    logger.info('\n')
+    logger.info('')
     logger.info('――> Detect machine')
     machines = {}
     if pdf.marks:
@@ -196,6 +196,8 @@ def analyze_colorant(pdf):
     :param pdf: объект pdf
     :return plates, colors: int, dict
     """
+    logger.info('')
+    logger.info('――> Analyze colorant')
     if pdf.is_signastation:
         fileobj = PdfFileReader(open(pdf.abspath, "rb"))
         pages = list(fileobj.pages)
@@ -216,6 +218,8 @@ def analyze_colorant(pdf):
 
             colors[page] = color
             plates += len(color)
+
+            logger.info('····page {}, colors: {}'.format(page, ', '.join(colors[page])))
     else:
         plates, colors = 0, None
 
@@ -228,6 +232,7 @@ def detect_ctpbureau(pdf):
     :param pdf: объект pdf
     :return: outputter (instance of FTP_server)
     """
+    logger.info('')
     logger.info('――> Detect ctp bureau')
     try:
         #
@@ -261,7 +266,7 @@ def detect_ctpbureau(pdf):
                 outputter = bureau
 
     if 'outputter' in locals():
-        logger.info('····detected: {}\n'.format(outputter))
+        logger.info('····detected: {}'.format(outputter))
     else:
         logger.error('····FAILED: Outputter cant be detected.\nExit!')
         exit()

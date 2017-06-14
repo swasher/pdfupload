@@ -360,9 +360,72 @@ def send_sms(pdf):
         logger.warning('····sms NOT sent. Reason: failed upload')
 
 
+# def send_telegram_DEPRECATED(pdf):
+#     """
+#     Отсылается сообщение через telegram bot. Получатель определяется по полю user.employee.sms_notify
+#     :param pdf:
+#     :return:
+#     """
+#     import_mode = read_shelve()
+#
+#     logger.info('')
+#     logger.info('――> Telegram:')
+#
+#     if import_mode:
+#         logger.info('····skip due import mode')
+#         return None
+#
+#     if pdf.upload_to_ctpbureau_status:
+#
+#         if pdf.ctpbureau.name == 'Admin':
+#             # TODO прибито гвоздями; можно сделать в настройках что-то вроде, - пропускать, если есть стоп-слова в названии. Но опять таки - что пропускать? Аплоад? Смс? Нотификации? Если все пропускать, тогда дебажить не получится
+#             # debugging purpose; if outputter is Admin then telegram send only to first superuser
+#             receivers = Employee.objects.filter(user__is_superuser=True)
+#         else:
+#             receivers = Employee.objects.filter(telegram_notify=True)
+#
+#         for each in receivers:
+#
+#             telegram_id = each.telegram_id
+#             bot = TelegramBot(settings.TELEGRAM_API_KEY)
+#
+#             message = """
+# №{} {}
+# Плит: {}, Машина: {}, Вывод: {}
+# """.format(pdf.order, pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name)
+#
+#             # logger.debug('telegram_id={}'.format(telegram_id))
+#             # logger.debug('username={}'.format(each.user.username))
+#
+#             responce = bot.send_message(chat_id=telegram_id, text=message).wait()
+#
+#             if isinstance(responce, twx.botapi.botapi.Message):
+#                 logger.info('··· {} receive notify'.format(responce.chat.username))
+#             elif isinstance(responce, twx.botapi.botapi.Error):
+#                 logger.error(responce)
+#             else:
+#                 logger.error('Critical telegram twx bug:')
+#                 logger.error(responce)
+#
+#     else:
+#         # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status
+#         logger.warning('····telegram NOT sent. Reason: failed upload')
+
+
 def send_telegram(pdf):
     """
-    Отсылается сообщение через telegram bot. Получатель определяется по полю user.employee.sms_notify
+    Полезная инфа:
+    How to get an id to use on Telegram Messenger - https://github.com/GabrielRF/telegram-id#web-channel-id
+    
+    Процедура создание канала:
+    - создаем приватный канал (channel)
+    - добавляем в администраторы канала наш бот (right-click -> View channel info -> Administrators, далее в строке поиска нужно вручную вбить имя бота)
+    - идем в веб-интерфейс телеграма и находим там наш канал
+    - смотрим URL: https://web.telegram.org/#/im?p=s1041843721_16434430556517118330
+    - находим то, что после `s`: 1041843721.
+    - добавляем префикс -100: -1001041843721, получаем id канала.
+    - отправляем сообщение в приватный канал: bot.send_message(chat_id='-1001041843721', text=message).wait()
+    
     :param pdf:
     :return:
     """
@@ -377,35 +440,22 @@ def send_telegram(pdf):
 
     if pdf.upload_to_ctpbureau_status:
 
-        if pdf.ctpbureau.name == 'Admin':
-            # TODO прибито гвоздями; можно сделать в настройках что-то вроде, - пропускать, если есть стоп-слова в названии. Но опять таки - что пропускать? Аплоад? Смс? Нотификации? Если все пропускать, тогда дебажить не получится
-            # debugging purpose; if outputter is Admin then telegram send only to first superuser
-            receivers = Employee.objects.filter(user__is_superuser=True)
-        else:
-            receivers = Employee.objects.filter(telegram_notify=True)
+        bot = TelegramBot(settings.TELEGRAM_API_KEY)
 
-        for each in receivers:
-
-            telegram_id = each.telegram_id
-            bot = TelegramBot(settings.TELEGRAM_API_KEY)
-
-            message = """
+        message = """
 №{} {}
 Плит: {}, Машина: {}, Вывод: {}
 """.format(pdf.order, pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name)
 
-            # logger.debug('telegram_id={}'.format(telegram_id))
-            # logger.debug('username={}'.format(each.user.username))
+        responce = bot.send_message(chat_id='-1001136373510', text=message).wait()
 
-            responce = bot.send_message(chat_id=telegram_id, text=message).wait()
-
-            if isinstance(responce, twx.botapi.botapi.Message):
-                logger.info('··· {} receive notify'.format(responce.chat.username))
-            elif isinstance(responce, twx.botapi.botapi.Error):
-                logger.error(responce)
-            else:
-                logger.error('Critical telegram twx bug:')
-                logger.error(responce)
+        if isinstance(responce, twx.botapi.botapi.Message):
+            logger.info('··· Sent to channel: {}'.format(responce.chat.title))
+        elif isinstance(responce, twx.botapi.botapi.Error):
+            logger.error(responce)
+        else:
+            logger.error('Critical telegram twx bug:')
+            logger.error(responce)
 
     else:
         # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status

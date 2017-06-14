@@ -1,4 +1,4 @@
 ---
 tmpfolder: "/home/{{remote_user}}/tmp/"
-python_handler: putting_job_in_the_queue.py
+python_handler: put_job_in_queue.py
 workgroup: TES

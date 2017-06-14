@@ -3,7 +3,9 @@ import os
 import tempfile
 import shutil
 import logging
+import datetime
 
+from decouple import config
 from pdfupload.settings import INPUT_PATH as inputpath
 from pdfupload.settings import TEMP_PATH as tmppath
 
@@ -18,12 +20,15 @@ from .analyze import analyze_order
 from .analyze import analyze_date
 from .analyze import analyze_ordername
 from .signamarks import mark_extraction
+from .util import humansize
 
 logger = logging.getLogger(__name__)
 
 class PDF:
 
-    name = ''            # имя pdf-файла
+    starttime = None     # время начала обработки
+    endtime = None       # время окончания обработки
+    name = None          # имя pdf-файла
     ordername = ''       # название работы
     created = ''         # дата (или now(), или дата создания файла, зависит от IMPORT_MODE)
     order = ''           # номер заказа
@@ -53,11 +58,13 @@ class PDF:
 
 
     def __init__(self, pdf_name):
+        self.starttime = datetime.datetime.now()
+        self.tmpdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
         self.name = pdf_name.strip("'") # Remove quote added by incron. Through quotes whitespace-contained filenames are supported.
+        self.move_to_temp()
+        self.welcome()
         self.ordername = analyze_ordername(self)
         self.created = analyze_date(os.path.join(inputpath, self.name))
-        self.tmpdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
-        self.move_to_temp()
         self.is_pdf, self.filetype = detect_is_pdf(self)
         self.is_signastation, self.creator = detect_is_signastation(self)
         self.marks = mark_extraction(self)
@@ -67,6 +74,18 @@ class PDF:
         self.plates, self.colors = analyze_colorant(self)
         self.ctpbureau = detect_ctpbureau(self)
         self.order = analyze_order(self)
+
+
+    def welcome(self):
+        server = config('SERVER')   #TEST
+        welcome = 'START PROCESSING {} at {}'.format(self.name, self.starttime.strftime("%b %d, %Y %H:%M:%S"))
+
+        logger.info('')
+        logger.info('')
+        logger.info(welcome)
+        logger.info('-' * (len(welcome)))
+        logger.info('SERVER_TYPE={}'.format(server))   #TEST
+        logger.info('File size: {}'.format(self.filesize()))
 
     @property
     def abspath(self):
@@ -87,3 +106,11 @@ class PDF:
         except Exception as e:
             logger.error('{}: Can`t move to temp: {}'.format(self.name, e))
             exit()
+
+    def filesize(self):
+        """
+        Print filesize in Welcome
+        :return: 
+        """
+        size = os.path.getsize(self.abspath)
+        return humansize(size)

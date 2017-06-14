@@ -29,6 +29,17 @@ def pt(mm):
     return int(float(mm)*72/25.4)
 
 
+def humansize(nbytes):
+    suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+    if nbytes == 0: return '0 B'
+    i = 0
+    while nbytes >= 1024 and i < len(suffixes)-1:
+        nbytes /= 1024.
+        i += 1
+    f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
+    return '%s %s' % (f, suffixes[i])
+
+
 def dict_to_multiline(dic):
     """
     Функция преобразует словарь в текстовый объект, где каждая строка вида key: value1 value.

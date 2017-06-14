@@ -12,5 +12,9 @@ ExecStart=/home/{{remote_user}}/virtualenvironment/bin/python /home/{{remote_use
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 
+Restart=on-failure
+SyslogIdentifier=rq-dashboard
+StandardOutput=null
+
 [Install]
 WantedBy=multi-user.target

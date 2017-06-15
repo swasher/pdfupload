@@ -1,9 +1,9 @@
 arrow==0.10.0
 chardet==3.0.2
 click==6.7
-Django==1.11.1
+Django==1.11.2
 django-bootstrap3==8.1.0
--e git+https://github.com/swasher/django-bootstrap3-datetimepicker.git@cc0ebd5feb3c58b05c0ce6918e4aa76172390b13#egg=django_bootstrap3_datetimepicker_2
+-e git+https://github.com/swasher/django-bootstrap3-datetimepicker.git@bd6b63b3ebe8ae9c7b2d29e1804617e265f7c939#egg=django_bootstrap3_datetimepicker_2
 django-crispy-forms==1.6.1
 django-debug-toolbar==1.6
 django-nvd3==0.9.7
@@ -14,11 +14,12 @@ itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
 olefile==0.44
-pdfminer.six==20170419
+-e git+https://github.com/goulu/pdfminer@baddb25df66c8830a4fce30f7cdf01d90c222a5d#egg=pdfminer.six
 Pillow==4.0.0
 pkg-resources==0.0.0
 psycopg2==2.6.2
 pycrypto==2.6.1
+pydevd==1.0.0
 -e git+https://github.com/mstamy2/PyPDF2@2a9d76d1244444f7bdd1e8f42eaeee159eadf7fa#egg=PyPDF2
 python-dateutil==2.6.0
 python-decouple==3.0

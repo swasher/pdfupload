@@ -322,17 +322,33 @@ def detect_mark(list_of_available_marks, pdf_extracted_marks):
 
 
 if __name__ == '__main__':
-    # debugging
     import os
     import sys
     import django
+
+    # Setup argument parser
+    #
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("absolute_path", help='Тестируем только один файл', default='00000')
+    args = parser.parse_args()
+    print(args.absolute_path)
+
+    # Initialize django
+    #
     sys.path.append("/home/vagrant/pdfupload")
     os.environ['DJANGO_SETTINGS_MODULE'] = 'pdfupload.settings'
     django.setup()
     from workflow.classes import PDF
 
     test_path = '/home/vagrant/!!print/pdf_for_testing'
+
+    pdf_files = []
+    print(args.absolute_path)
+    print(2)
+
     if len(sys.argv) == 1:
+        # Если аргумент не указан, то тестируем все файлы в test_path
         f = os.path.join(test_path, '0007_Operniy_Afihsa_S16_NEWMARKS_Admin.pdf')
         #f = '../test/pdf_for_testing/test_search_dominant_mark.pdf'
         #f = '../test/pdf_for_testing/0059_Mig_Gazeta_Leonov.pdf'

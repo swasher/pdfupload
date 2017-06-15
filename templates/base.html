@@ -48,7 +48,7 @@
         // возвращенным из вььхи значением [для Import mode]
         $(importid).click( function() {
             $.getJSON("/change_import/", function(json) {
-                $(importid).html('Import mode: ' + json['import_mode']);
+                // $(importid).html('Import mode: ' + json['import_mode']);
                 if (json['import_mode']) {
                     $(importid).html('Import mode');
                     $(importid).removeClass('label-success');
@@ -153,9 +153,9 @@
                 </form>
                     <div class="navbar-text pull-right">
                         {% if import_mode %}
-                            <span class="label label-danger">Import mode: ON</span>
+                            <span class="label label-danger">Import mode</span>
                         {% else %}
-                            <span class="label label-success">Import mode: OFF</span>
+                            <span class="label label-success">Normal mode</span>
                         {% endif %}
                     </div>
             {% endif %}

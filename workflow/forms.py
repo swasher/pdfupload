@@ -13,8 +13,8 @@ class FilterForm(forms.ModelForm):
         widget=DateTimePicker(options={"format": "DD.MM.YYYY",
                                        "locale": 'ru'
                                        },
-                                attrs = {'class': 'form-control input-sm',
-                                         'placeholder':'начальная дата'}
+                              attrs={'class': 'form-control input-sm',
+                                     'placeholder':'начальная дата'}
                               ),
         required=False
     )
@@ -23,7 +23,7 @@ class FilterForm(forms.ModelForm):
         widget=DateTimePicker(options={"format": "DD.MM.YYYY",
                                        "locale": 'ru'
                                        },
-                              attrs = {'class': 'form-control input-sm',
+                              attrs={'class': 'form-control input-sm',
                                        'placeholder':'конечная дата'
                                        }
                               ),

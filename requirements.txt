@@ -14,13 +14,16 @@ itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
 olefile==0.44
--e git+https://github.com/goulu/pdfminer@baddb25df66c8830a4fce30f7cdf01d90c222a5d#egg=pdfminer.six
+pdfminer3k==1.3.1
 Pillow==4.0.0
 pkg-resources==0.0.0
+ply==3.10
 psycopg2==2.6.2
+py==1.4.34
 pycrypto==2.6.1
 pydevd==1.0.0
 -e git+https://github.com/mstamy2/PyPDF2@2a9d76d1244444f7bdd1e8f42eaeee159eadf7fa#egg=PyPDF2
+pytest==3.1.2
 python-dateutil==2.6.0
 python-decouple==3.0
 python-nvd3==0.14.2

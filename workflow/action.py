@@ -13,6 +13,7 @@ import twx
 from .smsc_api import SMSC
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from django.conf import settings
+from django.utils import timezone
 from subprocess import call
 from ftplib import FTP
 from twx.botapi import TelegramBot
@@ -271,7 +272,7 @@ def upload_to_press(pdf):
     import_mode = read_shelve()
 
     if import_mode:
-        logger.info('····skipping upload due import mode')
+        logger.info('····skip upload to [{}] due import mode'.format(pdf.machines[1].uploadtarget.name))
         return False, 'Skipping upload due import mode'
 
     if not os.path.isfile(pdf.compressed_file.name):
@@ -295,7 +296,7 @@ def upload_to_ctpbureau(pdf):
     import_mode = read_shelve()
 
     if import_mode:
-        logger.info('····skipping upload due import mode')
+        logger.info('····skip upload to [{}] due import mode'.format(pdf.machines[1].uploadtarget.name))
         return False, 'Skipping upload due import mode'
 
     if not os.path.isfile(pdf.abspath):
@@ -550,7 +551,10 @@ def cleaning_temps(pdf):
         os.unlink(pdf.cropped_file.name)
         os.unlink(pdf.compressed_file.name)
         shutil.rmtree(pdf.tmpdir)
-        logger.info('····done')
+
+        end_time = timezone.now()
+        duration = end_time - pdf.starttime
+        logger.info('····done [{}]'.format(str(duration).split('.')[0]))
     except Exception as e:
         logger.error('····FAILED: {}'.format(e))
 

@@ -3,17 +3,14 @@
 import os
 import logging
 import re
-import datetime
 
 from subprocess import Popen, PIPE
 from django.conf import settings
-from django.utils import timezone
 from PyPDF2 import PdfFileReader
 
 from .util import mm
 from .signamarks import detect_mark
 from .models import PrintingPress, Ctpbureau
-from .util import read_shelve
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +90,7 @@ def analyze_machine(pdf):
     logger.info('――> Detect machine')
     machines = {}
     if pdf.marks:
-        logger.info('····detecting by signa mark')
+        logger.info('····method: by signa mark')
         machine_mark_name, machine_mark_regex = detect_mark(settings.MARKS_MACHINE, pdf.marks)
 
         for page, piece_info in pdf.marks.items():
@@ -118,7 +115,7 @@ def analyze_machine(pdf):
             else:
                 machines[page_number] = None
     else:
-        logger.info('····signa mark missed, trying detect by plate size')
+        logger.info('····method: signa mark missed, trying detect by plate size')
         # Если первый способ провалился, пробуем определить машину, основываясь на размере пластины.
 
         # Тут есть проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?
@@ -137,7 +134,7 @@ def analyze_machine(pdf):
     #Check if machine detected
     #-----------------------------------------------------------------
     if machines:
-        logger.info('····Detected [by 1st page]: {}'.format(machines[1].name))
+        logger.info('····detected [by 1st page]: {}'.format(machines[1].name))
     else:
         os.unlink(pdf.abspath)
         os.removedirs(pdf.tmpdir)
@@ -312,22 +309,6 @@ def analyze_order(pdf):
     order = re.findall("^(\d+)", name)
     order = order[0] if order else None
     return order
-
-
-def analyze_date(pdf):
-    """
-    Если установлен режим импорта, то дата берется как дата создания файла, иначе - now()
-    :param pdf: объект pdf
-    :return: объект datetime
-    """
-    import_mode = read_shelve()
-
-    if import_mode:
-        modified = os.path.getmtime(pdf)
-        dt = datetime.datetime.fromtimestamp(modified)
-    else:
-        dt = timezone.now()
-    return dt
 
 
 def analyze_ordername(pdf):

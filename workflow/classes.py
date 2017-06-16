@@ -6,6 +6,8 @@ import logging
 import datetime
 
 from decouple import config
+from django.utils import timezone
+
 from pdfupload.settings import INPUT_PATH as inputpath
 from pdfupload.settings import TEMP_PATH as tmppath
 
@@ -17,10 +19,11 @@ from .analyze import analyze_colorant
 from .analyze import analyze_papersize
 from .analyze import detect_ctpbureau
 from .analyze import analyze_order
-from .analyze import analyze_date
+#from .analyze import analyze_date
 from .analyze import analyze_ordername
 from .signamarks import mark_extraction
 from .util import humansize
+from .util import read_shelve
 
 logger = logging.getLogger(__name__)
 
@@ -60,11 +63,11 @@ class PDF:
     def __init__(self, pdf_name):
         self.starttime = datetime.datetime.now()
         self.tmpdir = tempfile.mkdtemp(suffix='/', dir=tmppath)
-        self.name = pdf_name.strip("'") # Remove quote added by incron. Through quotes whitespace-contained filenames are supported.
+        self.name = pdf_name.strip("'") # Remove quotes which added by incron. Through quotes whitespace-contained filenames are supported.
         self.move_to_temp()
         self.welcome()
         self.ordername = analyze_ordername(self)
-        self.created = analyze_date(os.path.join(inputpath, self.name))
+        self.created = self.analyze_date()
         self.is_pdf, self.filetype = detect_is_pdf(self)
         self.is_signastation, self.creator = detect_is_signastation(self)
         self.marks = mark_extraction(self)
@@ -78,13 +81,14 @@ class PDF:
 
     def welcome(self):
         server = config('SERVER')   #TEST
-        welcome = 'START PROCESSING {} at {}'.format(self.name, self.starttime.strftime("%b %d, %Y %H:%M:%S"))
+        welcome = 'START PROCESSING {}'.format(self.name)
 
         logger.info('')
         logger.info('')
         logger.info(welcome)
         logger.info('-' * (len(welcome)))
         logger.info('SERVER_TYPE={}'.format(server))   #TEST
+        logger.info('Start time: {}'.format(self.starttime.strftime("%b %d, %Y %H:%M:%S")))
         logger.info('File size: {}'.format(self.filesize()))
 
     @property
@@ -114,3 +118,19 @@ class PDF:
         """
         size = os.path.getsize(self.abspath)
         return humansize(size)
+
+
+    def analyze_date(self):
+        """
+        Если установлен режим импорта, то дата берется как дата создания файла, иначе - now()
+        :param pdf: объект pdf
+        :return: объект datetime
+        """
+        import_mode = read_shelve()
+
+        if import_mode:
+            modified = os.path.getmtime(self.abspath)
+            dt = datetime.datetime.fromtimestamp(modified)
+        else:
+            dt = timezone.now()
+        return dt

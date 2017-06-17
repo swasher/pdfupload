@@ -115,7 +115,7 @@ def analyze_machine(pdf):
             else:
                 machines[page_number] = None
     else:
-        logger.info('····method: signa mark missed, trying detect by plate size')
+        logger.info('····method: signa marks missed, trying detect by plate size')
         # Если первый способ провалился, пробуем определить машину, основываясь на размере пластины.
 
         # Тут есть проблема - что делать с двумя машинами с одинаковыми форматами, например Speedmaster и FS_Speedmaster?
@@ -312,6 +312,11 @@ def analyze_order(pdf):
 
 
 def analyze_ordername(pdf):
+    """
+    Извлекает название заказа
+    :param pdf: 
+    :return: 
+    """
     name, ext = os.path.splitext(pdf.name)
     parts = name.split("_")
 

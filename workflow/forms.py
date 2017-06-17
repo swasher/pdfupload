@@ -35,7 +35,7 @@ class FilterForm(forms.ModelForm):
         queryset=Ctpbureau.objects.all(),
         required=False,
         empty_label='Подрядчик',
-        widget=forms.Select(attrs={'class': 'selectpicker'})   # work with Bootstrap 3 and bootstrap-select
+        widget=forms.Select(attrs={'class': 'selectpicker col-sm'})   # work with Bootstrap 3 and bootstrap-select
     )
 
     machine = forms.ModelChoiceField(
@@ -43,7 +43,7 @@ class FilterForm(forms.ModelForm):
         queryset=PrintingPress.objects.all(),
         required=False,
         empty_label='Машина',
-        widget=forms.Select(attrs={'class': 'selectpicker'})   # work with Bootstrap 3 and bootstrap-select
+        widget=forms.Select(attrs={'class': 'selectpicker col-sm'})   # work with Bootstrap 3 and bootstrap-select
     )
 
     filename = forms.CharField(

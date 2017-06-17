@@ -135,3 +135,13 @@
     #
     - name: Make timestamp of deploy
       shell: echo `date +"%H:%m %d.%m.%Y"` > {{project_root}}/timestamp
+
+
+    #
+    # Restart rq worker
+    #
+    - name: Restart worker
+      service:
+        name: rqworker.service
+        state: restarted
+      become: yes

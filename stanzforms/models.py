@@ -8,6 +8,13 @@ from technologichka.models import Contractor
 STANZ = 'stanz'
 
 def get_spusk_file_path(instance, filename):
+    """
+    Возвращает имя файла с картинкой (PNG), содержащей скриншот спуска из сигны вместе с изделиями,
+    вида <АРТИКУЛ ДОСКИ>_spusk_<НАЗВАНИЕ ИЗДЕЛИЙ>    
+    :param instance: 
+    :param filename: 
+    :return: 
+    """
     try:
         filename.lower().index('spusk', 0, 5)
     except ValueError:
@@ -16,6 +23,13 @@ def get_spusk_file_path(instance, filename):
     return os.path.join(STANZ, filename)
 
 def get_doska_file_path(instance, filename):
+    """
+    Возвращает имя файла с картинкой (PNG), содержащей изображдение доски, в таком виде,
+    как она посылалсь на изготовление, вида <АРТИКУЛ ДОСКИ>_doska_<НАЗВАНИЕ ДОСКИ>
+    :param instance: 
+    :param filename: 
+    :return: 
+    """
     try:
         filename.lower().index('doska', 0, 5)
     except ValueError:
@@ -24,6 +38,13 @@ def get_doska_file_path(instance, filename):
     return os.path.join(STANZ, filename)
 
 def get_knife_file_path(instance, filename):
+    """
+    Возвращает имя файла (PNG) с образмеренным чертежем, вида <АРТИКУЛ ДОСКИ>_knife_<НАЗВАНИЕ НОЖА>
+    Логически соответствует get_drawing_file_path.    
+    :param instance: 
+    :param filename: 
+    :return: 
+    """
     try:
         filename.lower().index('knife', 0, 5)
     except ValueError:
@@ -32,6 +53,13 @@ def get_knife_file_path(instance, filename):
     return os.path.join(STANZ, filename)
 
 def get_drawing_file_path(instance, filename):
+    """
+    Возвращает имя файла (PDF) с чертежом, вида <АРТИКУЛ ДОСКИ>_drawing_<НАЗВАНИЕ НОЖА>
+    Логически соответствует get_knife_file_path.
+    :param instance: 
+    :param filename: 
+    :return: 
+    """
     try:
         filename.lower().index('drawing', 0, 7)
     except ValueError:

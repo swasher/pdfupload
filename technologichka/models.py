@@ -6,13 +6,14 @@ from django.contrib.auth.models import User
 from workflow.models import PrintingPress
 
 
-
 class Customer(models.Model):
     name = models.CharField(max_length=150)
     address = models.CharField(max_length=250, blank=True)
     fio = models.CharField(max_length=150, blank=True, verbose_name='ФИО', help_text='ФИО и должность контактного лица')
     phone = models.CharField(max_length=50, blank=True, help_text='Телефон контактного лица')
     remarks = models.TextField(blank=True, verbose_name='Примечания')
+    allow_access = models.BooleanField(blank=False, default=False) # customer allow access to their Products
+    unc = models.CharField(max_length=150, blank=True, ) # path to source products \\Server\SharedFolder\Customer\Files
 
     def __str__(self):
         if self.fio:

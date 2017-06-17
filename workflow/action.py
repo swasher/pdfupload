@@ -18,8 +18,10 @@ from subprocess import call
 from ftplib import FTP
 from twx.botapi import TelegramBot
 
+#from core.models import Employee
+from workflow.models import Employee
+
 from .models import Ctpbureau
-from .models import Employee
 from .models import Grid
 from .util import pt, mm
 from .util import reduce_image

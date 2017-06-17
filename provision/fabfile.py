@@ -33,7 +33,8 @@ def provision():
     Usage:
     fab [development|staging|production] provision
     """
-    additional_params = ' -v '
+    #additional_params = ' -v '
+    additional_params = ' '
 
     if env.hosts[0] == 'development':
         additional_params += " --skip-tags 'prod' "
@@ -115,7 +116,7 @@ def restore_db_from_backup():
         if env.answer != 'yes':
             exit('Terminate.')
 
-    additional_params = ''
+    additional_params = '-v'
     #additional_params += '--skip-tags=vagrant_skip ' if env.hosts[0] == 'development' else ''
     #additional_params += '-vvv '
 

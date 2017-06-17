@@ -9,6 +9,7 @@
     - rsync
     - mc
     - git
+    - bash-completion
   become: yes
 
 # Note that mc required en_US.utf8 or C.utf8 locale.

@@ -119,9 +119,11 @@ That's all!
 Creating [staging|production] server:
 ---------------------------------------------------------
 
-- create fresh ubuntu machine on ESXi (testing on 15.10). During install select `OpenSSH Server`.
+- create fresh ubuntu machine on ESXi (testing on Ubuntu mini 15.10). During install select `OpenSSH Server`.
 - [optional] set up custom ssh port in /etc/ssh/sshd-config
 - [optional] if using DHCP, setting up static IP for new server (on router)
+- [required] ensure there is python 2, required by ansible, it can be installed via `sudo apt install python`
+- [required] make ssh key and copy it to `backup` server 
 - setup FQDN resolution for name of new server in local network (via router or hosts file). Name must be [staging|production]
 - reboot machine
 - on ansible master machine, write the connection data to provision/group_vars/all.yml. Please attention, that there is

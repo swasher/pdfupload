@@ -8,14 +8,14 @@ class Product(models.Model):
     This model describe a box or a label and his relation to Customer.
     """
     customer = models.ForeignKey(Customer)
-    filename = models.CharField() # Название файла этикетки или коробки. Абсолютный путь - os.path.join(customer.unc, filename)
+    remote_filename = models.CharField(max_length=256) # Название файла этикетки или коробки. Абсолютный путь - os.path.join(customer.unc, filename)
     name = models.CharField(max_length=150)
     last_change = models.DateField() # нужно ли указывать время изменения или достачто только даты?
-    approved = models.BooleanField()
-    approved_date = models.DateField() # Если макет изменился со времени последнего подтверждения, что галка Approved снимается
+    approved = models.BooleanField(help_text='Заказчик утвердил макет')
+    approved_date = models.DateField(help_text='Дата утверждения') # Если макет изменился со времени последнего подтверждения, что галка Approved снимается
     thumb = models.ImageField() # small image for grid, about 100x100 px
     preview = models.ImageField() # big image about screen width
-    size = models.CharField() # Размеры изделия в мм, наверное удобнее всего хранить в Char... Не знаю, зачем может понадобится INTxINT
+    size = models.CharField(max_length=20) # Размеры изделия в мм, наверное удобнее всего хранить в Char... Не знаю, зачем может понадобится INTxINT
     is_cutting = models.BooleanField() # Если изделие высекается, то можно связать с ним Нож
     knife = models.ForeignKey(Knife, blank=True)
 
@@ -38,12 +38,3 @@ class Product(models.Model):
     
     """
 
-    def scan(self, customer):
-        """
-        Scanning specific Customer folder by UNC path and fill model.
-        
-        Тут надо подумать - при новом скане некоторые поля должные перезаписываться (например,
-        превьюхи, а другие - оставаться неизменными - типа введенные вручную названия изделий.
-        :return: 
-        """
-        pass

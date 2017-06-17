@@ -4,8 +4,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
-from workflow.models import Ftp, Ctpbureau, PrintingPress, Employee, Grid
-
+from workflow.models import Ftp, Ctpbureau, PrintingPress, Grid
+#from core.models import Employee
+from workflow.models import Employee
 
 class GridAdmin(admin.ModelAdmin):
     list_display = ('order', 'datetime', 'pdfname', 'machine', 'total_pages', 'total_plates', 'contractor')

@@ -21,7 +21,6 @@ smsc_password:     "{{ vault_smsc_password }}"
 
 # telegram bot
 telegram_api_key: "{{ vault_telegram_api_key }}"
-telegram_chat_id: "{{ vault_telegram_chat_id }}"
 
 # django secret key
 secret_key:        "{{ vault_secret_key }}"

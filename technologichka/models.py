@@ -4,6 +4,8 @@ from django.db import models
 # from django.db.models import Max
 from django.contrib.auth.models import User
 from workflow.models import PrintingPress
+#from core.models import Customer
+#from core.models import Contractor
 
 
 class Customer(models.Model):
@@ -13,7 +15,7 @@ class Customer(models.Model):
     phone = models.CharField(max_length=50, blank=True, help_text='Телефон контактного лица')
     remarks = models.TextField(blank=True, verbose_name='Примечания')
     allow_access = models.BooleanField(blank=False, default=False) # customer allow access to their Products
-    unc = models.CharField(max_length=150, blank=True, ) # path to source products \\Server\SharedFolder\Customer\Files
+    unc = models.CharField(max_length=150, blank=True, null=True) # path to source products \\Server\SharedFolder\Customer\Files
 
     def __str__(self):
         if self.fio:
@@ -152,5 +154,3 @@ class Detal(models.Model):
             return '{} [{}]'.format(self.name, self.size)
         else:
             return self.name
-
-

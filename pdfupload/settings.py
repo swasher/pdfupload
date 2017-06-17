@@ -91,10 +91,12 @@ INSTALLED_APPS = [
     'bootstrap3_datetime',
     'django_nvd3',
     'crispy_forms',
+    'core',
     'accounts',
     'technologichka',
     'stanzforms',
     'workflow',
+    'depot',
 ]
 if DEBUG:
     INSTALLED_APPS.insert(0, 'debug_toolbar')

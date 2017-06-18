@@ -1,7 +1,8 @@
 # --- coding: utf-8 ---
 
 from fabric.api import local, hosts, env, run, task
-from fabric.operations import prompt
+from fabric.context_managers import lcd
+
 
 # For use server names, we must have hosts description at any machine in ~/.shh/config with following format:
 # Host hostname
@@ -46,8 +47,9 @@ def provision():
     if env.hosts[0] == 'staging' or env.hosts[0] == 'production':
         additional_params += " --skip-tags 'dev' "
 
-    local('ansible-playbook -i inventories/all --limit {target} {additional_params} provision.yml'.
-          format(target=env.hosts[0], additional_params=additional_params))
+    with lcd('provision'):
+        local('ansible-playbook -i inventories/all --limit {target} {additional_params} provision.yml'.
+            format(target=env.hosts[0], additional_params=additional_params))
 
 
 def deploy():
@@ -62,8 +64,9 @@ def deploy():
     additional_params = ''
     # additional_params += '-vvv '
 
-    local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
-          format(target=env.hosts[0], additional_params=additional_params))
+    with lcd('provision'):
+        local('ansible-playbook -i inventories/all --limit {target} {additional_params} deploy.yml'.
+            format(target=env.hosts[0], additional_params=additional_params))
 
 
 def full_deploy():
@@ -78,8 +81,9 @@ def full_deploy():
     additional_params = ''
     # additional_params += '-vvv '
 
-    local('ansible-playbook -i inventories/all --limit {target} {additional_params} full_deploy.yml'.
-          format(target=env.hosts[0], additional_params=additional_params))
+    with lcd('provision'):
+        local('ansible-playbook -i inventories/all --limit {target} {additional_params} full_deploy.yml'.
+            format(target=env.hosts[0], additional_params=additional_params))
 
 
 @hosts('staging')
@@ -102,7 +106,8 @@ def restore_staging():
     #
     # run('touch /tmp/pdfupload')
 
-    local('ansible-playbook -i inventories/all --limit staging restore_staging.yml')
+    with lcd('provision'):
+        local('ansible-playbook -i inventories/all --limit staging restore_staging.yml')
 
 
 def restore_db_from_backup():
@@ -124,18 +129,17 @@ def restore_db_from_backup():
     #additional_params += '--skip-tags=vagrant_skip ' if env.hosts[0] == 'development' else ''
     #additional_params += '-vvv '
 
-    local('ansible-playbook -i inventories/all --limit {target} {additional_params} restore_db_from_backup.yml'.
-          format(target=env.hosts[0], additional_params=additional_params))
+    with lcd('provision'):
+        local('ansible-playbook -i inventories/all --limit {target} {additional_params} restore_db_from_backup.yml'.
+            format(target=env.hosts[0], additional_params=additional_params))
 
 # === end of useful task
 
 
 def testing():
     additional_params = '--skip-tags=vagrant_skip' if env.hosts[0] == 'development' else ''
-    local('ansible-playbook -i inventories/all --limit {target} -vvv testing.yml'.format(target=env.hosts[0]))
-
-def test():
-    run('hostname -f')
+    with lcd('provision'):
+        local('ansible-playbook -i inventories/all --limit {target} -vvv testing.yml'.format(target=env.hosts[0]))
 
 
 def replicate_db(source, target):

@@ -24,6 +24,10 @@ def development():
     env.hosts = ['development']
 
 
+def github():
+    local("eval \"$(ssh-agent -s)\"", shell='/bin/bash')
+    local("ssh-add ~/.ssh/github", shell='/bin/bash')
+
 def provision():
     """
     Install needed software, source code and databases on clean machine.

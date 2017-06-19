@@ -26,8 +26,13 @@ def development():
 
 
 def github():
-    local("eval \"$(ssh-agent -s)\"", shell='/bin/bash')
-    local("ssh-add ~/.ssh/github", shell='/bin/bash')
+    local('ssh-add ~/.ssh/github')
+
+
+@hosts('production')
+def backup_production_db():
+    run("pg_dump 'pdfuploaddb' | ssh swasher@backup \'cat > ~/pdfupload/dump_`date +\%d.\%m.\%Y-\%H.\%M.\%S`_extraordinary\'")
+
 
 def provision():
     """

@@ -1,12 +1,7 @@
 # coding: utf-8
 
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
-from django.contrib.auth.models import Group
 from workflow.models import Ftp, Ctpbureau, PrintingPress, Grid
-#from core.models import Employee
-from workflow.models import Employee
 
 class GridAdmin(admin.ModelAdmin):
     list_display = ('order', 'datetime', 'pdfname', 'machine', 'total_pages', 'total_plates', 'contractor')
@@ -36,20 +31,11 @@ class PrintingPressAdmin(admin.ModelAdmin):
     list_display = ('name', 'plate_w', 'plate_h')
 
 
-class EmployeeInline(admin.TabularInline):
-    model = Employee
-    can_delete = False
-    verbose_name_plural = 'Доп. инфо'
 
-
-class UserAdmin(BaseUserAdmin):
-    inlines = (EmployeeInline, )
 
 
 admin.site.register(Ftp, FtpAdmin)
 admin.site.register(Ctpbureau, OutputterAdmin)
 admin.site.register(PrintingPress, PrintingPressAdmin)
 admin.site.register(Grid, GridAdmin)
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
-admin.site.unregister(Group)
+

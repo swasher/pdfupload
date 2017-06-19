@@ -2,21 +2,21 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+#from core.models import Employee
 
-
-class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=13, blank=True)
-    telegram_id = models.IntegerField(blank=True, null=True)
-    telegram_notify = models.BooleanField(default=False)
-    sms_notify = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = 'Сотрудник'
-        verbose_name_plural = 'Сотрудники'
-
-    def __str__(self):
-        return ' '.join(self.user.username)
+# class Employee(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='+')
+#     phone = models.CharField(max_length=13, blank=True)
+#     telegram_id = models.IntegerField(blank=True, null=True)
+#     telegram_notify = models.BooleanField(default=False)
+#     sms_notify = models.BooleanField(default=False)
+#
+#     class Meta:
+#         verbose_name = 'Сотрудник'
+#         verbose_name_plural = 'Сотрудники'
+#
+#     def __str__(self):
+#         return ' '.join(self.user.username)
 
 
 class Ftp(models.Model):

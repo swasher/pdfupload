@@ -1,5 +1,5 @@
 from django import forms
-from technologichka.models import Customer
+from core.models import Customer
 
 class MyForm(forms.ModelForm):
     pass

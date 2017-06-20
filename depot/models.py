@@ -1,6 +1,6 @@
 # coding: utf-8
 from django.db import models
-from technologichka.models import Customer
+from core.models import Customer
 from stanzforms.models import Knife
 
 # class Product(models.Model):

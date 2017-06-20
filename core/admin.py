@@ -18,6 +18,17 @@ class UserAdmin(BaseUserAdmin):
     inlines = (EmployeeInline, )
 
 
+class EmployeeAdmin(admin.ModelAdmin):
+    model = Employee
+    list_display = ('get_username', 'user', 'phone', 'sms_notify','telegram_id', 'telegram_notify')
+
+    def get_username(self, obj):
+        return ' '.join([obj.user.first_name, obj.user.last_name])
+    get_username.short_description = 'ФИО'
+
+
+admin.site.register(Employee, EmployeeAdmin)
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)

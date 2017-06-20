@@ -4,5 +4,5 @@
     name: "Backup postgresql database"
     hour: "*/1"
     user: "{{remote_user}}"
-    job: pg_dump "{{db_name}}" | ssh "{{remote_user}}"@backup \'cat > ~/{{project_name}}/dump_`date +\%d.\%m.\%Y-\%H.\%M.\%S`\'
+    job: pg_dump {{db_name}} | ssh {{remote_user}}@backup 'cat > ~/{{project_name}}/dump_`date +\%d.\%m.\%Y-\%H.\%M.\%S`'
   when: group_names[0] == "production"

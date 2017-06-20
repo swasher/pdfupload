@@ -35,23 +35,23 @@ class Customer(models.Model):
     class Meta:
         verbose_name = 'Заказчик'
         verbose_name_plural = 'Заказчики'
-#
-#
-# class Contractor(models.Model):
-#     PRODUCE = (
-#         ('ctp', 'Формы'),
-#         ('kli', 'Клише'),
-#         ('sta', 'Штанцы'),
-#         ('all', 'Разное'),
-#     )
-#     name = models.CharField(max_length=100, verbose_name='Организация', unique=True)
-#     produce = models.CharField(blank=True, null=True, max_length=3, choices=PRODUCE, verbose_name='Производство')
-#     phone = models.CharField(max_length=50, blank=True, verbose_name='Телефон')
-#     remarks = models.TextField(blank=True, verbose_name='Примечания')
-#
-#     def __str__(self):
-#         return u'{}'.format(self.name)
-#
-#     class Meta:
-#         verbose_name = 'Подрядчик'
-#         verbose_name_plural = 'Подрядчики'
+
+
+class Contractor(models.Model):
+    PRODUCE = (
+        ('ctp', 'Формы'),
+        ('kli', 'Клише'),
+        ('sta', 'Штанцы'),
+        ('all', 'Разное'),
+    )
+    name = models.CharField(max_length=100, verbose_name='Организация', unique=True)
+    produce = models.CharField(blank=True, null=True, max_length=3, choices=PRODUCE, verbose_name='Производство')
+    phone = models.CharField(max_length=50, blank=True, verbose_name='Телефон')
+    remarks = models.TextField(blank=True, verbose_name='Примечания')
+
+    def __str__(self):
+        return u'{}'.format(self.name)
+
+    class Meta:
+        verbose_name = 'Подрядчик'
+        verbose_name_plural = 'Подрядчики'

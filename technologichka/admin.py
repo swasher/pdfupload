@@ -7,7 +7,8 @@ from django.utils.safestring import mark_safe
 from django.db.models import Max
 from django.forms import Textarea, TextInput
 
-from technologichka.models import Order, Contractor, PrintSheet, OperationList, Operation, Detal
+from technologichka.models import Order, PrintSheet, OperationList, Operation, Detal
+from core.models import Contractor
 
 
 #from nested_inline.admin import NestedStackedInline, NestedTabularInline, NestedModelAdmin

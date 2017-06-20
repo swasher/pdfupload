@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from core.models import Employee
+from core.models import Customer
 #from workflow.models import Employee
 
 admin.site.site_header = 'TES: Управление данными'
@@ -26,8 +27,11 @@ class EmployeeAdmin(admin.ModelAdmin):
         return ' '.join([obj.user.first_name, obj.user.last_name])
     get_username.short_description = 'ФИО'
 
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'address', 'fio', 'phone', 'remarks')
 
 admin.site.register(Employee, EmployeeAdmin)
+admin.site.register(Customer, CustomerAdmin)
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

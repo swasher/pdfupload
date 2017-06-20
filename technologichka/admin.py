@@ -8,7 +8,7 @@ from django.db.models import Max
 from django.forms import Textarea, TextInput
 
 from technologichka.models import Order, Contractor, PrintSheet, OperationList, Operation, Detal
-from core.models import Customer
+
 
 #from nested_inline.admin import NestedStackedInline, NestedTabularInline, NestedModelAdmin
 
@@ -191,16 +191,11 @@ class PrintSheetAdmin(admin.ModelAdmin):
     inlines = [DetalAdminInLine]
 
 
-class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'fio', 'phone', 'remarks')
-
-
 class ContractorAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'remarks')
 
 
 admin.site.register(Order, OrderAdmin)
-admin.site.register(Customer, CustomerAdmin)
 admin.site.register(Contractor, ContractorAdmin)
 admin.site.register(OperationList)
 admin.site.register(PrintSheet, PrintSheetAdmin)

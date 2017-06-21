@@ -41,4 +41,6 @@ class DoskaAdmin(admin.ModelAdmin):
 
     inlines = [KnifeAdminInLine]
 
+
 admin.site.register(Doska, DoskaAdmin)
+admin.site.register(Knife)

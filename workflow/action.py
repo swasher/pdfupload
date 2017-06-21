@@ -372,9 +372,11 @@ def send_telegram(pdf):
     
     Алгоритм такой:
     - посылаем ВСЕМ Пользователям, у которых стоит галка telegram_notify
-    - проверяем Заказчика в ПДФ файле. Если есть галка telegram_notify - посылаем. Тут вопрос такой, что у нас не связана таблица Заказчиков
-      с тем, что мы пишем в пзф. Надо как-то прилинковать (можно в Заказчиках сделать поле signaname и там писать, как я его называю в сигне)
-    - проверяем Выводильщика в ПДФ файле. Если есть галка telegram_notify - посылаем (создать в таблице Ctpbureau поля telegram_id и telegram_notify) 
+    - проверяем Заказчика в ПДФ файле. Если есть галка telegram_notify - посылаем. Тут вопрос такой, что у нас не 
+      связана таблица Заказчиков с тем, что мы пишем в пзф. Надо как-то прилинковать (можно в Заказчиках сделать 
+      поле signaname и там писать, как я его называю в сигне)
+    - проверяем Выводильщика в ПДФ файле. Если есть галка telegram_notify - посылаем (создать в таблице Ctpbureau 
+      поля telegram_id и telegram_notify) 
     
     :param pdf:
     :return:
@@ -385,15 +387,12 @@ def send_telegram(pdf):
     logger.info('――> Telegram:')
 
     if import_mode:
-        logger.info('····skip due import mode')
-        return None
+        logger.info('····import mode: only Superuser will notified')
 
     if pdf.upload_to_ctpbureau_status:
 
-        if pdf.ctpbureau.name == 'Admin':
-            # TODO прибито гвоздями; можно сделать в настройках что-то вроде, - пропускать, если есть стоп-слова в названии. Но опять таки - что пропускать? Аплоад? Смс? Нотификации? Если все пропускать, тогда дебажить не получится
-            # debugging purpose; if outputter is Admin then telegram send only to first superuser
-            receivers = Employee.objects.filter(user__is_superuser=True)
+        if pdf.ctpbureau.name == 'Admin' or import_mode:
+            receivers = Employee.objects.filter(user__is_superuser=True).filter(telegram_notify=True)
         else:
             receivers = Employee.objects.filter(telegram_notify=True)
 
@@ -442,7 +441,8 @@ def send_telegram_group_or_channel(pdf):
     
     Процедура создание канала:
     - создаем приватный канал (channel)
-    - добавляем в администраторы канала наш бот (right-click -> View channel info -> Administrators, далее в строке поиска нужно вручную вбить имя бота)
+    - добавляем в администраторы канала наш бот (right-click -> View channel info -> Administrators, далее в строке 
+      поиска нужно вручную вбить имя бота)
     - идем в веб-интерфейс телеграма и находим там наш канал
     - смотрим URL: https://web.telegram.org/#/im?p=s1041843721_16434430556517118330
     - находим то, что после `s`: 1041843721.

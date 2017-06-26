@@ -1,0 +1,10 @@
+---
+- name: Download django completions
+  get_url: >
+    url=https://raw.githubusercontent.com/underself/fabric-completion/master/fabric-completion.bash
+    dest="/home/vagrant/{{dotfiles}}/fabric-completion.bash"
+
+- name: Add django completions to bashrc
+  lineinfile: >
+    dest=/home/{{remote_user}}/.bashrc
+    line="source /home/{{remote_user}}/{{dotfiles}}/fabric-completion.bash"

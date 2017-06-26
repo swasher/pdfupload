@@ -16,11 +16,9 @@ from django.conf import settings
 from django.utils import timezone
 from subprocess import call
 from ftplib import FTP
-from twx.botapi import TelegramBot
+
 
 from core.models import Employee
-#from workflow.models import Employee
-
 from .models import Ctpbureau
 from .models import Grid
 from .util import pt, mm
@@ -32,6 +30,7 @@ from .util import dict_to_multiline
 from .util import inks_to_multiline
 from .util import get_bbox
 from .util import read_shelve
+from .util import sending_telegram_messages
 
 
 logger = logging.getLogger(__name__)
@@ -256,63 +255,6 @@ def custom_operations(pdf):
         pdf.name = newname
 
 
-# TODO Эти две функции - бесполезные обертки вокруг sendfile.
-# TODO Это надо отрефакторить, чтобы sendfile принимал нужные аргуметны (в частности, фтп), и возвращал статус
-# TODO и переписать код, чтобы статусы напрямую возвращалсиь из sendfile
-# TODO Так же эти проверки на присутствие файла, присутствие фтп тоже внедрить в sendfile
-
-# Или наоборот, убрать из sendfile абсолютно всю логику, и сделать разделение -
-# sendfile - только умеет заливать на фтп, а логика в обертках. Так же подумать,
-# может обертки стоит сделать как декораторы.
-
-def upload_to_press(pdf):
-    """
-    Отсылает обрезанный и сжатый файл на фтп печатной машины
-    :param pdf:
-    :return: upload_to_ctpbureau_status, upload_to_ctpbureau_error
-    """
-    import_mode = read_shelve()
-
-    if import_mode:
-        logger.info('····skip upload to [{}] due import mode'.format(pdf.machines[1].uploadtarget.name))
-        return False, 'Skipping upload due import mode'
-
-    if not os.path.isfile(pdf.compressed_file.name):
-        logger.error('Uploading: Preview PDF file not found')
-        return False, 'Preview PDF not found'
-
-    if pdf.machines[1].uploadtarget:
-        status, e = sendfile(pdf, pdf.machines[1].uploadtarget)
-        return status, e
-    else:
-        logger.error("Missing ftp credentials")
-        return False, "Missing ftp credentials"
-
-
-def upload_to_ctpbureau(pdf):
-    """
-    Отсылает оригинальный файл на вывод
-    :param pdf:
-    :return: upload_to_ctpbureau_status, upload_to_ctpbureau_error
-    """
-    import_mode = read_shelve()
-
-    if import_mode:
-        logger.info('····skip upload to [{}] due import mode'.format(pdf.machines[1].uploadtarget.name))
-        return False, 'Skipping upload due import mode'
-
-    if not os.path.isfile(pdf.abspath):
-        logger.error('Uploading: PDF file not found')
-        return False, 'PDF not found'
-
-    if pdf.ctpbureau.ftp_account:
-        status, e = sendfile(pdf, pdf.ctpbureau.ftp_account)
-        return status, e
-    else:
-        logger.error("Missing ftp credentials")
-        return False, "Missing ftp credentials"
-
-
 def send_sms(pdf):
     """
     Отсылается смс. Получатель определяется по полю user.employee.sms_notify
@@ -332,7 +274,7 @@ def send_sms(pdf):
         logger.info('····skip due admin mode')
         return None
 
-    if pdf.upload_to_ctpbureau_status:
+    if pdf.ctpbureau_status:
 
         receivers = Employee.objects.filter(sms_notify=True)
 
@@ -359,7 +301,7 @@ def send_sms(pdf):
             else:
                 logger.warning('····skip send sms [possible import mode on]')
     else:
-        # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status
+        # если по какой-то причине у нас не софрмирован ctpbureau_status
         logger.warning('····sms NOT sent. Reason: failed upload')
 
 
@@ -386,42 +328,29 @@ def send_telegram(pdf):
     logger.info('')
     logger.info('――> Telegram:')
 
-    if import_mode:
-        logger.info('····import mode: only Superuser will notified')
+    AHTUNG = "*AHTUNG!!! AHTUNG!!! ЗАЛИВКА НЕ ПРОШЛА!!!*"
 
-    if pdf.upload_to_ctpbureau_status:
+    if pdf.ctpbureau.name == 'Admin' or import_mode:
+        logger.info('····only Superusers will notified')
+        receivers = Employee.objects.filter(user__is_superuser=True).filter(telegram_notify=True)
+    else:
+        receivers = Employee.objects.filter(telegram_notify=True)
 
-        if pdf.ctpbureau.name == 'Admin' or import_mode:
-            receivers = Employee.objects.filter(user__is_superuser=True).filter(telegram_notify=True)
-        else:
-            receivers = Employee.objects.filter(telegram_notify=True)
-
-        for each in receivers:
-
-            telegram_id = each.telegram_id
-            bot = TelegramBot(settings.TELEGRAM_API_KEY)
-
-            message = """
+    message = """
 №{} {}
 Плит: {}, Машина: {}, Вывод: {}
-""".format(pdf.order, pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name)
+ФТП: {}, Статус: {}
+ФТП: {}, Статус: {}""".format(
+        pdf.order,
+        pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name,
+        pdf.ctpbureau.name, error_text(pdf.ctpbureau_status, pdf.ctpbureau_error),
+        pdf.machines[1].uploadtarget, error_text(pdf.press_status, pdf.press_error)
+    )
 
-            # logger.debug('telegram_id={}'.format(telegram_id))
-            # logger.debug('username={}'.format(each.user.username))
+    if not pdf.ctpbureau_status:
+        message = AHTUNG + message
 
-            responce = bot.send_message(chat_id=telegram_id, text=message).wait()
-
-            if isinstance(responce, twx.botapi.botapi.Message):
-                logger.info('··· {} receive notify'.format(responce.chat.username))
-            elif isinstance(responce, twx.botapi.botapi.Error):
-                logger.error(responce)
-            else:
-                logger.error('Critical telegram twx bug:')
-                logger.error(responce)
-
-    else:
-        # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status
-        logger.warning('····telegram NOT sent. Reason: failed upload')
+    sending_telegram_messages(receivers, message)
 
 
 def send_telegram_group_or_channel(pdf):
@@ -452,6 +381,7 @@ def send_telegram_group_or_channel(pdf):
     :param pdf:
     :return:
     """
+    from twx.botapi import TelegramBot
     import_mode = read_shelve()
 
     logger.info('')
@@ -461,7 +391,7 @@ def send_telegram_group_or_channel(pdf):
         logger.info('····skip due import mode')
         return None
 
-    if pdf.upload_to_ctpbureau_status:
+    if pdf.ctpbureau_status:
 
         bot = TelegramBot(settings.TELEGRAM_API_KEY)
 
@@ -482,7 +412,7 @@ def send_telegram_group_or_channel(pdf):
             logger.error(responce)
 
     else:
-        # если по какой-то причине у нас не софрмирован upload_to_ctpbureau_status
+        # если по какой-то причине у нас не софрмирован ctpbureau_status
         logger.warning('····telegram NOT sent. Reason: failed upload')
 
 
@@ -492,11 +422,11 @@ def save_bd_record(pdf):
     :param pdf:
     :return:
     """
-    contractor_error = error_text(pdf.upload_to_ctpbureau_status, pdf.upload_to_ctpbureau_error)
-    preview_error = error_text(pdf.upload_to_press_status, pdf.upload_to_press_error)
-    if not pdf.upload_to_ctpbureau_status:
+    contractor_error = error_text(pdf.ctpbureau_status, pdf.ctpbureau_error)
+    preview_error = error_text(pdf.press_status, pdf.press_error)
+    if not pdf.ctpbureau_status:
         bg = 'danger'
-    elif not pdf.upload_to_press_status:
+    elif not pdf.press_status:
         bg = 'warning'
     else:
         bg = 'default'
@@ -561,18 +491,102 @@ def cleaning_temps(pdf):
         logger.error('····FAILED: {}'.format(e))
 
 
-def sendfile(pdf, receiver):
+# def sendfile(filepath, receiver):
+#     """
+#     Функция выполняет заливку на фтп
+#     :param filepath (str) -- Путь к файлу (абсолютный)
+#     :param receiver (Ftp object instance) -- получатель файлы по фтп
+#     :return: status (boolean) -- флаг удачного или неудачного завершения
+#     :return: e (str) -- код ошибки
+#     """
+#
+#     # bracket is a packet of `blocksize` bytes
+#     blocksize = 8192 # it's default python value
+#
+#     global current_bracket, notify_brackets
+#
+#     def handle(block):
+#         global current_bracket, notify_brackets
+#         current_bracket += 1
+#         if current_bracket in notify_brackets.keys():
+#             logger.info('···· progress {}%'.format(notify_brackets[current_bracket]))
+#
+#     status = True
+#     e = None
+#
+#     #sizeWritten = 0
+#     current_bracket = 0
+#     total_size = os.path.getsize(pdf.abspath)
+#     total_brackets = math.ceil(total_size / float(blocksize)) # becouse int round
+#
+#     # list of percentages, when uploading progress rich percentage in
+#     # notify_percents, performed write to log
+#     notify_percents= [20, 40, 60, 80]
+#
+#     # Заливка производится кусками по 1024 байта. Брекет - это один кусок.
+#     # Словарь определяет номер брекета, который соответствует, например, 20%
+#     notify_brackets = {}
+#     for b in notify_percents:
+#         notify_bracket = int(total_brackets / 100 * b)
+#         notify_brackets[notify_bracket] = b
+#
+#     try:
+#         logger.info('')
+#         logger.info('――> Try connect to {}'.format(receiver.name))
+#         ftp = FTP()
+#         ftp.set_pasv(receiver.passive_mode) #<-- This puts connection into ACTIVE mode when receiver.passive_mode == False
+#         ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
+#         ftp.login(receiver.login, receiver.passw)
+#     except Exception as err:
+#         logger.error('···connect to {} FAILED with error: {}'.format(receiver.name, err))
+#         status = False
+#         e = err
+#     else:
+#         # если коннект и логин прошли удачно, выполняется эта секция
+#         connection_mode = 'passive' if receiver.passive_mode else 'active'
+#         logger.info('···connect passed [{} mode]'.format(connection_mode))
+#         localfile = open(pdf.abspath, "rb")
+#         try:
+#             ftp.cwd(receiver.todir)
+#             logger.info('···Start uploading {} to {} ...'.format(pdf.name, receiver.name))
+#             start = time.time()
+#             ftp.storbinary("STOR " + pdf.name, localfile, blocksize, handle)
+#             #print 'Size in kb ', totalSize/1024
+#             #print 'Time in s ', (time.time()-start)
+#             speed_kb = total_size / (time.time() - start) / 1024
+#             speed_mb = speed_kb * 8 / 1024
+#             logger.info('···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed_kb, speed_mb))
+#         except Exception as err:
+#             logger.error('···upload to {} FAILED with error: {}'.format(receiver.name, err))
+#             status = False
+#             e = err
+#         else:
+#             logger.info('···Upload finished OK')
+#         finally:
+#             localfile.close()
+#     finally:
+#         ftp.close()
+#
+#     return status, e
+
+
+def sendfile(filepath, receiver):
     """
     Функция выполняет заливку на фтп
-    :param pdf_abs_path:str Путь к файлу (абсолютный)
-    :param receiver:Ftp Объект получателя, список получателей в файле ftps, объекты
-    формируются из файла функцией -==-
-    :return: status:boolean - флаг удачного завершения
-                e:exception - код ошибки
+    :param filepath (str) -- Путь к файлу (абсолютный)
+    :param receiver (Ftp object instance) -- получатель файлы по фтп
+    :return: status (boolean) -- флаг удачного или неудачного завершения
+    :return: e (str) -- код ошибки
     """
 
-    # bracket is a packet of `blocksize` bytes
+    filename = os.path.basename(filepath)
+    status = True
+    errortext = ''
 
+    logger.info('')
+    logger.info('――> Uploading {} to {}'.format(filename, receiver.name))
+
+    # bracket is a packet of `blocksize` bytes
     blocksize = 8192 # it's default python value
 
     global current_bracket, notify_brackets
@@ -583,12 +597,15 @@ def sendfile(pdf, receiver):
         if current_bracket in notify_brackets.keys():
             logger.info('···· progress {}%'.format(notify_brackets[current_bracket]))
 
-    status = True
-    e = None
-
     #sizeWritten = 0
     current_bracket = 0
-    total_size = os.path.getsize(pdf.abspath)
+    try:
+        total_size = os.path.getsize(filepath)
+    except FileNotFoundError as e:
+        logger.error(e)
+        status, errortext = False, e
+        return status, errortext
+
     total_brackets = math.ceil(total_size / float(blocksize)) # becouse int round
 
     # list of percentages, when uploading progress rich percentage in
@@ -596,33 +613,32 @@ def sendfile(pdf, receiver):
     notify_percents= [20, 40, 60, 80]
 
     # Заливка производится кусками по 1024 байта. Брекет - это один кусок.
-    # Словарь определяет номер брекета, который соответствует например 20%
+    # Словарь определяет номер брекета, который соответствует, например, 20%
     notify_brackets = {}
     for b in notify_percents:
         notify_bracket = int(total_brackets / 100 * b)
         notify_brackets[notify_bracket] = b
 
     try:
-        logger.info('')
-        logger.info('――> Try connect to {}'.format(receiver.name))
+        logger.info('···Trying connect to {}'.format(receiver.name))
         ftp = FTP()
+        ftp.set_debuglevel(2)
         ftp.set_pasv(receiver.passive_mode) #<-- This puts connection into ACTIVE mode when receiver.passive_mode == False
-        ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
+        ftp.connect(receiver.ip, port=receiver.port, timeout=60)  # timeout is 60 seconds
         ftp.login(receiver.login, receiver.passw)
     except Exception as e:
         logger.error('···connect to {} FAILED with error: {}'.format(receiver.name, e))
-        status = False
-        return status, e
+        status, errortext = False, e
     else:
         # если коннект и логин прошли удачно, выполняется эта секция
         connection_mode = 'passive' if receiver.passive_mode else 'active'
         logger.info('···connect passed [{} mode]'.format(connection_mode))
-        localfile = open(pdf.abspath, "rb")
+        localfile = open(filepath, "rb")
         try:
             ftp.cwd(receiver.todir)
-            logger.info('···Start uploading {} to {} ...'.format(pdf.name, receiver.name))
+            logger.info('···Start uploading {} to {} ...'.format(filename, receiver.name))
             start = time.time()
-            ftp.storbinary("STOR " + pdf.name, localfile, blocksize, handle)
+            ftp.storbinary("STOR " + filename, localfile, blocksize, handle)
             #print 'Size in kb ', totalSize/1024
             #print 'Time in s ', (time.time()-start)
             speed_kb = total_size / (time.time() - start) / 1024
@@ -630,8 +646,7 @@ def sendfile(pdf, receiver):
             logger.info('···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed_kb, speed_mb))
         except Exception as e:
             logger.error('···upload to {} FAILED with error: {}'.format(receiver.name, e))
-            status = False
-            # DEPRECATED return status, e
+            status, errortext = False, e
         else:
             logger.info('···Upload finished OK')
         finally:
@@ -639,4 +654,4 @@ def sendfile(pdf, receiver):
     finally:
         ftp.close()
 
-    return status, e
+    return status, errortext

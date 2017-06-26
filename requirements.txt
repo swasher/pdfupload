@@ -1,5 +1,6 @@
 arrow==0.10.0
-chardet==3.0.2
+certifi==2017.4.17
+chardet==3.0.4
 click==6.7
 Django==1.11.2
 django-bootstrap3==8.1.0
@@ -10,6 +11,7 @@ django-nvd3==0.9.7
 django-rq==0.9.5
 Flask==0.12
 gunicorn==19.7.1
+idna==2.5
 itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
@@ -31,11 +33,12 @@ python-slugify==1.1.4
 pytz==2017.2
 redis==2.10.5
 reportlab==3.3.0
-requests==2.12.4
+requests==2.18.1
 rq==0.7.1
 rq-dashboard==0.3.7
 six==1.10.0
 sqlparse==0.2.2
 twx.botapi==3.1.1
 Unidecode==0.4.20
+urllib3==1.21.1
 Werkzeug==0.11.15

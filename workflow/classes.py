@@ -24,6 +24,7 @@ from .analyze import analyze_ordername
 from .signamarks import mark_extraction
 from .util import humansize
 from .util import read_shelve
+from .action import sendfile
 
 logger = logging.getLogger(__name__)
 
@@ -50,14 +51,14 @@ class PDF:
     colors = ''          # словарь с цветностью страниц
     ctpbureau = ''       # объект, соответствующий подрядчику вывода форм
     cropped_file = ''    # объект типа файл. Имя доступно в свойстве name.
-    compressed_file = '' # путь к кропленному, уменьшеному пдф
+    compressed_file = '' # объект типа tempfile, кропленный, уменьшеный пдф
     jpeg_proof = ''      # абс. путь к джипегу от первой страницы пдф
     jpeg_thumb = ''      # абс. путь к джипегу от первой страницы пдф (совсем маленький)
     inks = ''            # словарь со значениями расхода краски
-    upload_to_ctpbureau_status = '' # статус заливки выводильщику (для решения, отправлять ли смс)
-    upload_to_ctpbureau_error = ''  # код ошибки
-    upload_to_press_status = ''     # статус заливки на печ. машину
-    upload_to_press_error = ''      # код ошибки
+    ctpbureau_status = '' # статус заливки выводильщику
+    ctpbureau_error = ''  # код ошибки
+    press_status = ''     # статус заливки на печатную машину
+    press_error = ''      # код ошибки
 
 
     def __init__(self, pdf_name):
@@ -134,3 +135,35 @@ class PDF:
         else:
             dt = timezone.now()
         return dt
+
+
+    def upload_to_press(self):
+        """
+        # Отсылает обрезанный и сжатый файл на фтп печатной машины
+        # :param pdf:
+        # :return: none. Result store in self.press_status, self.press_error
+        """
+        import_mode = read_shelve()
+
+        if import_mode:
+            logger.info('····skip upload to [{}] due import mode'.format(self.machines[1].uploadtarget.name))
+            self.press_status, self.press_error = False, 'Skipping upload due import mode'
+        else:
+            self.press_status, self.press_error = \
+                sendfile(self.compressed_file.name, self.machines[1].uploadtarget)
+
+
+    def upload_to_ctpbureau(self):
+        """
+        Отсылает оригинальный файл на вывод
+        :param pdf:
+        :return: none. Result store in self.ctpbureau_status, self.ctpbureau_error
+        """
+        import_mode = read_shelve()
+
+        if import_mode:
+            logger.info('····skip upload to [{}] due import mode'.format(self.machines[1].uploadtarget.name))
+            self.ctpbureau_status, self.ctpbureau_error = False, 'Skipping upload due import mode'
+        else:
+            self.ctpbureau_status, self.ctpbureau_error = \
+                sendfile(self.abspath, self.ctpbureau.ftp_account)

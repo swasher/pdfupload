@@ -8,6 +8,8 @@ import shelve
 
 from datetime import datetime
 from django.conf import settings
+from twx.botapi import TelegramBot
+from twx.botapi import botapi
 
 logger = logging.getLogger(__name__)
 
@@ -219,3 +221,30 @@ def write_shelve(mode):
     d = shelve.open(shelf, flag='c')
     d['IMPORT_MODE'] = mode
     d.close()
+
+
+def sending_telegram_messages(receivers, message):
+    """
+    Отсылает сообщение message каждому из получателей в списке receivers
+    :param receivers: str
+    :param message: list of Employee objects
+    :return: Ничего не возвращает, отчет о работе пишется в лог
+    """
+    for each in receivers:
+
+        telegram_id = each.telegram_id
+        bot = TelegramBot(settings.TELEGRAM_API_KEY)
+
+        # logger.debug('telegram_id={}'.format(telegram_id))
+        # logger.debug('username={}'.format(each.user.username))
+
+        #responce = bot.send_message(chat_id=telegram_id, text=message, parse_mode="Markdown").wait()
+        responce = bot.send_message(chat_id=telegram_id, text=message).wait()
+
+        if isinstance(responce, botapi.Message):
+            logger.info('··· {} receive notify'.format(responce.chat.username))
+        elif isinstance(responce, botapi.Error):
+            logger.error(responce)
+        else:
+            logger.error('Critical telegram twx bug:')
+            logger.error(responce)

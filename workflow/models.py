@@ -25,7 +25,7 @@ class Ftp(models.Model):
     port = models.IntegerField()
     login = models.CharField(max_length=30)
     passw = models.CharField(max_length=30)     # пароль хранится в открытом виде
-    todir = models.CharField(max_length=150, blank=True, null=True)    # папка для заливки
+    todir = models.CharField(max_length=150, blank=True, null=False)    # папка для заливки
     passive_mode = models.BooleanField(blank=True, default=True)
 
     class Meta:

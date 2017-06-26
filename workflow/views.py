@@ -39,8 +39,6 @@ from .action import crop
 from .action import compress
 from .action import generating_jpeg
 from .action import custom_operations
-from .action import upload_to_press
-from .action import upload_to_ctpbureau
 from .action import send_sms
 from .action import send_telegram
 from .action import save_bd_record
@@ -195,7 +193,6 @@ def delete_row_ajax(request):
     json = {'order': order}
     return JsonResponse(json)
 
-from decouple import config
 
 @job
 def processing(pdfName):
@@ -221,11 +218,9 @@ def processing(pdfName):
     # Custom operation depends on outputter
     custom_operations(pdf)
 
-    # Send Preview PDF to press FTP
-    pdf.upload_to_press_status, pdf.upload_to_press_error = upload_to_press(pdf)
-
-    # Send Original PDF to Outputter
-    pdf.upload_to_ctpbureau_status, pdf.upload_to_ctpbureau_error = upload_to_ctpbureau(pdf)
+    # Send Preview PDF to press FTP, and Original PDF to Outputter
+    pdf.upload_to_press()
+    pdf.upload_to_ctpbureau()
 
     # Send SMS via http://smsc.ua/
     send_sms(pdf)

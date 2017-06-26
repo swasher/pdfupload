@@ -147,7 +147,7 @@ class PDF:
 
         if import_mode:
             logger.info('····skip upload to [{}] due import mode'.format(self.machines[1].uploadtarget.name))
-            self.press_status, self.press_error = False, 'Skipping upload due import mode'
+            self.press_status, self.press_error = False, 'skip, import mode'
         else:
             self.press_status, self.press_error = \
                 sendfile(self.compressed_file.name, self.machines[1].uploadtarget)
@@ -163,7 +163,7 @@ class PDF:
 
         if import_mode:
             logger.info('····skip upload to [{}] due import mode'.format(self.machines[1].uploadtarget.name))
-            self.ctpbureau_status, self.ctpbureau_error = False, 'Skipping upload due import mode'
+            self.ctpbureau_status, self.ctpbureau_error = False, 'skip, import mode'
         else:
             self.ctpbureau_status, self.ctpbureau_error = \
                 sendfile(self.abspath, self.ctpbureau.ftp_account)

@@ -624,7 +624,8 @@ def sendfile(filepath, receiver):
     #
     import sys, datetime
     saveout = sys.stdout
-    fsock = open('/home/vagrant/log/ftp.log', 'a')
+    ftplog = os.path.join(settings.HOME_DIR, 'log', 'ftp.log')
+    fsock = open(ftplog, 'a')
     sys.stdout = fsock
     print('\n')
     print('=======================================================')

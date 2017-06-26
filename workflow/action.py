@@ -619,6 +619,20 @@ def sendfile(filepath, receiver):
         notify_bracket = int(total_brackets / 100 * b)
         notify_brackets[notify_bracket] = b
 
+    #
+    # debug ftp [10 lines], also remove set_debuglevel
+    #
+    import sys, datetime
+    saveout = sys.stdout
+    fsock = open('/home/vagrant/log/ftp.log', 'a')
+    sys.stdout = fsock
+    print('\n')
+    print('=======================================================')
+    print('\n')
+    t = datetime.datetime.now().strftime("%B %d, %Y  %H:%M")
+    print('Time: {}  File: {}  Outputter: {}'.format(t, filename, receiver.name))
+    print('\n')
+
     try:
         logger.info('···Trying connect to {}'.format(receiver.name))
         ftp = FTP()
@@ -654,4 +668,9 @@ def sendfile(filepath, receiver):
     finally:
         ftp.close()
 
+    #
+    # debug ftp [2 lines]
+    #
+    sys.stdout = saveout
+    fsock.close()
     return status, errortext

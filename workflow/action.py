@@ -144,7 +144,8 @@ def compress(pdf):
     """
     resolution = 150
 
-    pdf.compressed_file = tempfile.NamedTemporaryFile(mode='w+b', dir=pdf.tmpdir, suffix='.pdf', delete=False)
+    #pdf.compressed_file = tempfile.NamedTemporaryFile(mode='w+b', dir=pdf.tmpdir, suffix='.pdf', delete=False)
+    pdf.compressed_file = open(os.path.join(pdf.tmpdir, pdf.order+'_'+pdf.ordername+'_.pdf'), 'w+b')
 
     gs_compress = "gs -sDEVICE=pdfwrite -dDownsampleColorImages=true " \
                   "-dColorImageResolution={resolution} -dCompatibilityLevel=1.4 " \
@@ -489,85 +490,6 @@ def cleaning_temps(pdf):
         logger.info('····done [{}]'.format(str(duration).split('.')[0]))
     except Exception as e:
         logger.error('····FAILED: {}'.format(e))
-
-
-# def sendfile(filepath, receiver):
-#     """
-#     Функция выполняет заливку на фтп
-#     :param filepath (str) -- Путь к файлу (абсолютный)
-#     :param receiver (Ftp object instance) -- получатель файлы по фтп
-#     :return: status (boolean) -- флаг удачного или неудачного завершения
-#     :return: e (str) -- код ошибки
-#     """
-#
-#     # bracket is a packet of `blocksize` bytes
-#     blocksize = 8192 # it's default python value
-#
-#     global current_bracket, notify_brackets
-#
-#     def handle(block):
-#         global current_bracket, notify_brackets
-#         current_bracket += 1
-#         if current_bracket in notify_brackets.keys():
-#             logger.info('···· progress {}%'.format(notify_brackets[current_bracket]))
-#
-#     status = True
-#     e = None
-#
-#     #sizeWritten = 0
-#     current_bracket = 0
-#     total_size = os.path.getsize(pdf.abspath)
-#     total_brackets = math.ceil(total_size / float(blocksize)) # becouse int round
-#
-#     # list of percentages, when uploading progress rich percentage in
-#     # notify_percents, performed write to log
-#     notify_percents= [20, 40, 60, 80]
-#
-#     # Заливка производится кусками по 1024 байта. Брекет - это один кусок.
-#     # Словарь определяет номер брекета, который соответствует, например, 20%
-#     notify_brackets = {}
-#     for b in notify_percents:
-#         notify_bracket = int(total_brackets / 100 * b)
-#         notify_brackets[notify_bracket] = b
-#
-#     try:
-#         logger.info('')
-#         logger.info('――> Try connect to {}'.format(receiver.name))
-#         ftp = FTP()
-#         ftp.set_pasv(receiver.passive_mode) #<-- This puts connection into ACTIVE mode when receiver.passive_mode == False
-#         ftp.connect(receiver.ip, port=receiver.port, timeout=20)  # timeout is 15 seconds
-#         ftp.login(receiver.login, receiver.passw)
-#     except Exception as err:
-#         logger.error('···connect to {} FAILED with error: {}'.format(receiver.name, err))
-#         status = False
-#         e = err
-#     else:
-#         # если коннект и логин прошли удачно, выполняется эта секция
-#         connection_mode = 'passive' if receiver.passive_mode else 'active'
-#         logger.info('···connect passed [{} mode]'.format(connection_mode))
-#         localfile = open(pdf.abspath, "rb")
-#         try:
-#             ftp.cwd(receiver.todir)
-#             logger.info('···Start uploading {} to {} ...'.format(pdf.name, receiver.name))
-#             start = time.time()
-#             ftp.storbinary("STOR " + pdf.name, localfile, blocksize, handle)
-#             #print 'Size in kb ', totalSize/1024
-#             #print 'Time in s ', (time.time()-start)
-#             speed_kb = total_size / (time.time() - start) / 1024
-#             speed_mb = speed_kb * 8 / 1024
-#             logger.info('···Speed: {0:.1f} kB/s equivalent to {1:.2f} MBit/s'.format(speed_kb, speed_mb))
-#         except Exception as err:
-#             logger.error('···upload to {} FAILED with error: {}'.format(receiver.name, err))
-#             status = False
-#             e = err
-#         else:
-#             logger.info('···Upload finished OK')
-#         finally:
-#             localfile.close()
-#     finally:
-#         ftp.close()
-#
-#     return status, e
 
 
 def sendfile(filepath, receiver):

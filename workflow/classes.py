@@ -33,7 +33,7 @@ class PDF:
     starttime = None     # время начала обработки
     endtime = None       # время окончания обработки
     name = None          # имя pdf-файла
-    ordername = ''       # название работы
+    ordername = None     # название работы
     created = ''         # дата (или now(), или дата создания файла, зависит от IMPORT_MODE)
     order = ''           # номер заказа
     tmpdir = ''          # абс. путь к временной директории

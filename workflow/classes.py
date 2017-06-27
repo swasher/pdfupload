@@ -19,7 +19,6 @@ from .analyze import analyze_colorant
 from .analyze import analyze_papersize
 from .analyze import detect_ctpbureau
 from .analyze import analyze_order
-#from .analyze import analyze_date
 from .analyze import analyze_ordername
 from .signamarks import mark_extraction
 from .util import humansize

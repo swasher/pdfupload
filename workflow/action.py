@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -- coding: utf-8 --
-
 import os
 import tempfile
 import subprocess
@@ -166,7 +163,7 @@ def compress(pdf):
     else:
         size_after = os.path.getsize(pdf.compressed_file.name)
         percent = (size_after / size_before)
-        logger.info('····done [{:.1%} ratio]'.format(percent))
+        logger.info('····done [ratio {:.1%}]'.format(percent))
 
 
 def generating_jpeg(pdf):
@@ -554,7 +551,6 @@ def sendfile(filepath, receiver):
     sys.stdout = fsock
     print('\n')
     print('=======================================================')
-    print('\n')
     t = datetime.datetime.now().strftime("%B %d, %Y  %H:%M")
     print('Time: {}  File: {}  Outputter: {}'.format(t, filename, receiver.name))
     print('\n')

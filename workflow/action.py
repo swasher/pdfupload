@@ -147,6 +147,8 @@ def compress(pdf):
     #pdf.compressed_file = tempfile.NamedTemporaryFile(mode='w+b', dir=pdf.tmpdir, suffix='.pdf', delete=False)
     pdf.compressed_file = open(os.path.join(pdf.tmpdir, pdf.order+'_'+pdf.ordername+'_.pdf'), 'w+b')
 
+    size_before = os.path.getsize(pdf.cropped_file.name)
+
     gs_compress = "gs -sDEVICE=pdfwrite -dDownsampleColorImages=true " \
                   "-dColorImageResolution={resolution} -dCompatibilityLevel=1.4 -dAutoRotatePages=/None " \
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} | grep 'Page'" \
@@ -162,9 +164,9 @@ def compress(pdf):
     except OSError as e:
         logger.error('····Compressing FAILED:', e)
     else:
-        logger.info('····done')
-    import pydevd
-    pydevd.settrace('192.168.0.10', port=9111, stdoutToServer=True, stderrToServer=True)
+        size_after = os.path.getsize(pdf.compressed_file.name)
+        percent = (size_after / size_before)
+        logger.info('····done [{:.1%} ratio]'.format(percent))
 
 
 def generating_jpeg(pdf):
@@ -342,8 +344,7 @@ def send_telegram(pdf):
     message = """
 №{} {}
 Плит: {}, Машина: {}, Вывод: {}
-ФТП: {}, Статус: {}
-ФТП: {}, Статус: {}""".format(
+{}: {} | {}: {}""".format(
         pdf.order,
         pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name,
         pdf.ctpbureau.name, error_text(pdf.ctpbureau_status, pdf.ctpbureau_error),

@@ -148,7 +148,7 @@ def compress(pdf):
     pdf.compressed_file = open(os.path.join(pdf.tmpdir, pdf.order+'_'+pdf.ordername+'_.pdf'), 'w+b')
 
     gs_compress = "gs -sDEVICE=pdfwrite -dDownsampleColorImages=true " \
-                  "-dColorImageResolution={resolution} -dCompatibilityLevel=1.4 " \
+                  "-dColorImageResolution={resolution} -dCompatibilityLevel=1.4 -dAutoRotatePages=/None " \
                   "-dNOPAUSE -dBATCH -sOutputFile={output} {input} | grep 'Page'" \
                   .format(input=pdf.cropped_file.name, output=pdf.compressed_file.name, resolution=resolution)
 
@@ -163,6 +163,8 @@ def compress(pdf):
         logger.error('····Compressing FAILED:', e)
     else:
         logger.info('····done')
+    import pydevd
+    pydevd.settrace('192.168.0.10', port=9111, stdoutToServer=True, stderrToServer=True)
 
 
 def generating_jpeg(pdf):

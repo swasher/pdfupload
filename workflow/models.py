@@ -3,7 +3,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class Ftp(models.Model):
     name = models.CharField(max_length=50)
     ip = models.GenericIPAddressField()
@@ -23,7 +22,7 @@ class Ftp(models.Model):
 
 class PrintingPress(models.Model):
     name = models.CharField(max_length=150, verbose_name='Наименование', help_text='Название печатного пресса')
-    uploadtarget = models.ForeignKey('Ftp', blank=True, null=True)
+    uploadtarget = models.ForeignKey(Ftp, blank=True, null=True)
     plate_w = models.IntegerField(verbose_name='Ширина пластины, мм')
     plate_h = models.IntegerField(verbose_name='Высота пластины, мм')
     klapan = models.IntegerField(verbose_name='Клапан', help_text='Расстояние от нижнего края пластины до края бумаги')
@@ -39,10 +38,7 @@ class PrintingPress(models.Model):
 
 class Ctpbureau(models.Model):
     name = models.CharField(max_length=50)
-    ftp_account = models.ForeignKey('Ftp')
-    # deprecated;
-    # use `sms_notify` filed in employer model instead
-    # sms_receiver = models.ForeignKey('Phone', blank=True, null=True)
+    ftp_account = models.ForeignKey(Ftp)
 
     def __str__(self):
         return self.name
@@ -59,7 +55,7 @@ class Grid(models.Model):
     machine = models.ForeignKey(PrintingPress, null=True)
     total_pages = models.IntegerField()
     total_plates = models.IntegerField()
-    contractor = models.ForeignKey(Ctpbureau, null=True)   # подрядчик
+    contractor = models.ForeignKey('Ctpbureau', null=True)   # подрядчик
     contractor_error = models.CharField(max_length=300)    # код ошибки заливки файла на вывод
     preview_error = models.CharField(max_length=300)       # код ошибки заливки превьюхи на кинап
     colors = models.CharField(max_length=500, blank=True)  # мультилайн текст - инфа о колористике

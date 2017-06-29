@@ -50,7 +50,6 @@ $(document).ready(function() {
 
         // this is the id of the form
         $("#id_datetime").submit(function (e) {
-
             var url = "/grid/printing"; // the script where you handle the form input.
             var w = window.open();
             $.ajax({
@@ -59,15 +58,15 @@ $(document).ready(function() {
                 data: $("#id_datetime").serialize(), // serializes the form's elements
                 dataType: 'html',
                 success: function (data) {
-                    //alert(data); // show response from the php script.
-                    // TODO Сделать проверку, что что-то вернулось, типа `if data`
-
-                    w.document.write(data);
-                    w.document.close();
-                    w.focus();
-                    w.print();
-                    w.close();
-                    location.reload();
+                    if (data){
+                        console.log(data);
+                        w.document.write(data);
+                        w.document.close();
+                        w.focus();
+                        w.print();
+                        w.close();
+                        location.reload();
+                    }
                 }
                 ,error: function() {
                     alert('Ajax errror!')

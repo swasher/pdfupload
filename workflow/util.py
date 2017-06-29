@@ -232,7 +232,7 @@ def sending_telegram_messages(receivers, message):
     bot = telegram.Bot(token=settings.TELEGRAM_API_KEY)
     for each in receivers:
         m = bot.send_message(chat_id=each.telegram_id, text=message, parse_mode=telegram.ParseMode.HTML)
-        logger.debug('Notified user: {} {} {}'.format(m.chat.username, m.chat.first_name, m.chat.last_name))
+        logger.info('····notify: {} {}'.format(m.chat.first_name, m.chat.last_name))
 
 
 # def send_telegram_group_or_channel(pdf):

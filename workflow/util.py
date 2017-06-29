@@ -50,7 +50,7 @@ def dict_to_multiline(dic):
     """
     text = ''
     try:
-        for k, v in dic.iteritems():
+        for k, v in dic.items():
             text += str(k)+': '
             for i in v:
                 text += i + ' '

@@ -151,7 +151,7 @@ def compress(pdf):
                   .format(input=pdf.cropped_file.name, output=pdf.compressed_file.name, resolution=resolution)
 
     logger.info('')
-    logger.info('――> Starting PDF preview compression...')
+    logger.info('――> Starting PDF preview compression')
 
     try:
         retcode = call(gs_compress, shell=True, stdout=subprocess.PIPE)
@@ -329,11 +329,12 @@ def send_telegram(pdf):
     logger.info('')
     logger.info('――> Telegram:')
 
-    AHTUNG = "<b>AHTUNG!!! AHTUNG!!! ЗАЛИВКА НЕ ПРОШЛА!!!</b>"
+    AHTUNG = "<b>FTP: СЕТЕВАЯ ОШИБКА</b>\nЕсли в течении 15 минут не будет сообщения об удачной заливке, " \
+             "пожалуйста, сообщите системному администратору"
     ordername = ' '.join(pdf.ordername.split('_'))
 
     if pdf.ctpbureau.name == 'Admin' or import_mode:
-        logger.info('····only Superusers will notified')
+        logger.info('····only Superusers will be notified')
         receivers = Employee.objects.filter(user__is_superuser=True).filter(telegram_notify=True)
     else:
         receivers = Employee.objects.filter(telegram_notify=True)
@@ -509,7 +510,7 @@ def sendfile(filepath, receiver):
         localfile = open(filepath, "rb")
         try:
             ftp.cwd(receiver.todir)
-            logger.info('···Start uploading {} to {} ...'.format(filename, receiver.name))
+            logger.info('···Start uploading {} to {}'.format(filename, receiver.name))
             start = time.time()
             ftp.storbinary("STOR " + filename, localfile, blocksize, handle)
             #print 'Size in kb ', totalSize/1024

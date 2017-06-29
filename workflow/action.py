@@ -15,7 +15,7 @@ from ftplib import FTP
 
 
 from core.models import Employee
-from .models import Ctpbureau
+from core.models import Contractor
 from .models import Grid
 from .util import pt, mm
 from .util import reduce_image
@@ -44,7 +44,7 @@ def remove_ctpbureau_from_pdfname(pdf):
     name, ext = os.path.splitext(pdf.name)
     parts = name.split("_")
 
-    for bureau in Ctpbureau.objects.all():
+    for bureau in Contractor.objects.filter(produce__exact='ctp'):
         if bureau.name in parts:
             parts.remove(bureau.name)
 

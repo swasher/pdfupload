@@ -3,7 +3,8 @@ __author__ = 'swasher'
 
 from workflow.models import Grid
 from django import forms
-from workflow.models import Ctpbureau, PrintingPress
+from workflow.models import PrintingPress
+from core.models import Contractor
 from bootstrap3_datetime.widgets import DateTimePicker
 
 
@@ -32,7 +33,7 @@ class FilterForm(forms.ModelForm):
 
     contractor = forms.ModelChoiceField(
         #label="Подрядчик",
-        queryset=Ctpbureau.objects.all(),
+        queryset=Contractor.objects.all().filter(produce__exact='ctp'),
         required=False,
         empty_label='Подрядчик',
         widget=forms.Select(attrs={'class': 'selectpicker col-sm'})   # work with Bootstrap 3 and bootstrap-select

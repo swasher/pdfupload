@@ -36,16 +36,16 @@ class PrintingPress(models.Model):
         return self.name
 
 
-class Ctpbureau(models.Model):
-    name = models.CharField(max_length=50)
-    ftp_account = models.ForeignKey(Ftp)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'CTP бюро'
-        verbose_name_plural = 'CTP бюро'
+# class Ctpbureau(models.Model):
+#     name = models.CharField(max_length=50)
+#     ftp_account = models.ForeignKey(Ftp)
+#
+#     def __str__(self):
+#         return self.name
+#
+#     class Meta:
+#         verbose_name = 'CTP бюро'
+#         verbose_name_plural = 'CTP бюро'
 
 
 class Grid(models.Model):
@@ -55,7 +55,7 @@ class Grid(models.Model):
     machine = models.ForeignKey(PrintingPress, null=True)
     total_pages = models.IntegerField()
     total_plates = models.IntegerField()
-    contractor = models.ForeignKey('Ctpbureau', null=True)   # подрядчик
+    contractor = models.ForeignKey('core.Contractor', null=True)   # подрядчик
     contractor_error = models.CharField(max_length=300)    # код ошибки заливки файла на вывод
     preview_error = models.CharField(max_length=300)       # код ошибки заливки превьюхи на кинап
     colors = models.CharField(max_length=500, blank=True)  # мультилайн текст - инфа о колористике

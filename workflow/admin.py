@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from django.contrib import admin
-from workflow.models import Ftp, Ctpbureau, PrintingPress, Grid
+from workflow.models import Ftp, PrintingPress, Grid
 
 class GridAdmin(admin.ModelAdmin):
     list_display = ('order', 'datetime', 'pdfname', 'machine', 'total_pages', 'total_plates', 'contractor')
@@ -31,11 +31,6 @@ class PrintingPressAdmin(admin.ModelAdmin):
     list_display = ('name', 'plate_w', 'plate_h')
 
 
-
-
-
 admin.site.register(Ftp, FtpAdmin)
-admin.site.register(Ctpbureau, OutputterAdmin)
 admin.site.register(PrintingPress, PrintingPressAdmin)
 admin.site.register(Grid, GridAdmin)
-

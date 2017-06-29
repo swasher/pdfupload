@@ -9,7 +9,8 @@ from PyPDF2 import PdfFileReader
 
 from .util import mm
 from .signamarks import detect_mark
-from .models import PrintingPress, Ctpbureau
+from .models import PrintingPress
+from core.models import Contractor
 
 logger = logging.getLogger(__name__)
 
@@ -244,9 +245,9 @@ def detect_ctpbureau(pdf):
         # if not mark_content:
         #     raise TypeError
 
-        for bureau in Ctpbureau.objects.all():
-            if bureau.name.lower() == mark_content.lower():
-                outputter = bureau
+        for ctpbureau in Contractor.objects.filter(produce__exact='ctp'):
+            if ctpbureau.name.lower() == mark_content.lower():
+                outputter = ctpbureau
     except (TypeError, IndexError):
         #
         # try detect via filename
@@ -257,9 +258,9 @@ def detect_ctpbureau(pdf):
         # и будет лажа при сравнении типа str (fname) с типом unicode (Outputter.objects.all())
         parts = fname.decode('UTF-8').lower().split("_")
 
-        for bureau in Ctpbureau.objects.all():
-            if bureau.name.lower() in parts:
-                outputter = bureau
+        for ctpbureau in Contractor.objects.filter(produce__exact='ctp'):
+            if ctpbureau.name.lower() in parts:
+                outputter = ctpbureau
 
     if 'outputter' in locals():
         logger.info('····detected: {}'.format(outputter))
@@ -319,7 +320,7 @@ def analyze_ordername(pdf):
     name, ext = os.path.splitext(pdf.name)
     parts = name.split("_")
 
-    for bureau in Ctpbureau.objects.all():
+    for bureau in Contractor.objects.filter(produce__exact='ctp'):
         if bureau.name in parts:
             parts.remove(bureau.name)
 

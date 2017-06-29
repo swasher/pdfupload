@@ -330,7 +330,8 @@ def send_telegram(pdf):
     logger.info('')
     logger.info('――> Telegram:')
 
-    AHTUNG = "*AHTUNG!!! AHTUNG!!! ЗАЛИВКА НЕ ПРОШЛА!!!*"
+    AHTUNG = "<b>AHTUNG!!! AHTUNG!!! ЗАЛИВКА НЕ ПРОШЛА!!!</b>"
+    ordername = ' '.join(pdf.ordername.split('_'))
 
     if pdf.ctpbureau.name == 'Admin' or import_mode:
         logger.info('····only Superusers will notified')
@@ -339,11 +340,11 @@ def send_telegram(pdf):
         receivers = Employee.objects.filter(telegram_notify=True)
 
     message = """
-№{} {}
-Плит: {}, Машина: {}, Вывод: {}
-{}: {} | {}: {}""".format(
-        pdf.order,
-        pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name,
+<b>{} {}</b>
+{} - {} - {} пласт.
+<code>{}: {} | {}: {}</code>""".format(
+        pdf.order, ordername,
+        pdf.ctpbureau.name, pdf.machines[1].name, str(pdf.plates),
         pdf.ctpbureau.name, error_text(pdf.ctpbureau_status, pdf.ctpbureau_error),
         pdf.machines[1].uploadtarget, error_text(pdf.press_status, pdf.press_error)
     )

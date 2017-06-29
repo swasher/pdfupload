@@ -10,7 +10,7 @@ pillow
 django-nvd3
 reportlab
 -e git+https://github.com/goulu/pdfminer.git#egg=pdfminer.six
-twx.botapi
+python-telegram-bot
 python-decouple
 psycopg2
 django-debug-toolbar

@@ -5,7 +5,6 @@ import shutil
 import logging
 import time
 import math
-import twx
 
 from .smsc_api import SMSC
 from PyPDF2 import PdfFileWriter, PdfFileReader
@@ -353,69 +352,6 @@ def send_telegram(pdf):
         message = AHTUNG + message
 
     sending_telegram_messages(receivers, message)
-
-
-def send_telegram_group_or_channel(pdf):
-    """
-    CURRENTLY NOT USED
-    
-    Эта функция посылает сообщения от имени бота в группу или канал, таким образом нам не нужно знать ID пользователей.
-    Недостаток в том, что
-    1 - каждое сообщение подписано именем бота
-    2 - если я сделаю несколько групп (менеджеры, клиенты-какие-то, подрядчики), то я буду получать МНОГО (по кол-ву групп)
-        сообщение при каждом аплоаде
-        
-    Примечание: много ботов создавать не нужно, один бот может выборочно слать месаги в разные группы 
-    
-    Полезная инфа:
-    How to get an id to use on Telegram Messenger - https://github.com/GabrielRF/telegram-id#web-channel-id
-    
-    Процедура создание канала:
-    - создаем приватный канал (channel)
-    - добавляем в администраторы канала наш бот (right-click -> View channel info -> Administrators, далее в строке 
-      поиска нужно вручную вбить имя бота)
-    - идем в веб-интерфейс телеграма и находим там наш канал
-    - смотрим URL: https://web.telegram.org/#/im?p=s1041843721_16434430556517118330
-    - находим то, что после `s`: 1041843721.
-    - добавляем префикс -100: -1001041843721, получаем id канала.
-    - отправляем сообщение в приватный канал: bot.send_message(chat_id='-1001041843721', text=message).wait()
-    
-    :param pdf:
-    :return:
-    """
-    from twx.botapi import TelegramBot
-    import_mode = read_shelve()
-
-    logger.info('')
-    logger.info('――> Telegram:')
-
-    if import_mode:
-        logger.info('····skip due import mode')
-        return None
-
-    if pdf.ctpbureau_status:
-
-        bot = TelegramBot(settings.TELEGRAM_API_KEY)
-
-        message = """
-№{} {}
-Плит: {}, Машина: {}, Вывод: {}
-""".format(pdf.order, pdf.ordername, str(pdf.plates),pdf.machines[1].name, pdf.ctpbureau.name)
-
-        #responce = bot.send_message(chat_id='-1001136373510', text=message).wait()  # приватный канал pdf_upload_private
-        responce = bot.send_message(chat_id='-238392573', text=message).wait()       # открытая группа pdf_upload_dev
-
-        if isinstance(responce, twx.botapi.botapi.Message):
-            logger.info('··· Sent to channel: {}'.format(responce.chat.title))
-        elif isinstance(responce, twx.botapi.botapi.Error):
-            logger.error(responce)
-        else:
-            logger.error('Critical telegram twx bug:')
-            logger.error(responce)
-
-    else:
-        # если по какой-то причине у нас не софрмирован ctpbureau_status
-        logger.warning('····telegram NOT sent. Reason: failed upload')
 
 
 def save_bd_record(pdf):

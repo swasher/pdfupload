@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from workflow.models import Ftp
 
 
 class Employee(models.Model):
@@ -48,6 +49,7 @@ class Contractor(models.Model):
     produce = models.CharField(blank=True, null=True, max_length=3, choices=PRODUCE, verbose_name='Производство')
     phone = models.CharField(max_length=50, blank=True, verbose_name='Телефон')
     remarks = models.TextField(blank=True, verbose_name='Примечания')
+    ftp_account = models.ForeignKey(Ftp, blank=True, null=True)
 
     def __str__(self):
         return u'{}'.format(self.name)

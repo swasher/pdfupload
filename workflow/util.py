@@ -264,7 +264,7 @@ def sending_telegram_messages(receivers, message):
 #     :return:
 #     """
 #     from twx.botapi import TelegramBot
-#     import_mode = read_shelve()
+#     import_mode = pdf.import_mode
 #
 #     logger.info('')
 #     logger.info('――> Telegram:')

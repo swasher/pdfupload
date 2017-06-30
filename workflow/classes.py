@@ -66,6 +66,7 @@ class PDF:
         self.name = pdf_name.strip("'") # Remove quotes which added by incron. Through quotes whitespace-contained filenames are supported.
         self.move_to_temp()
         self.welcome()
+        self.import_mode = read_shelve()
         self.ordername = analyze_ordername(self)
         self.created = self.analyze_date()
         self.is_pdf, self.filetype = detect_is_pdf(self)
@@ -126,7 +127,7 @@ class PDF:
         :param pdf: объект pdf
         :return: объект datetime
         """
-        import_mode = read_shelve()
+        import_mode = self.import_mode
 
         if import_mode:
             modified = os.path.getmtime(self.abspath)
@@ -142,7 +143,7 @@ class PDF:
         # :param pdf:
         # :return: none. Result store in self.press_status, self.press_error
         """
-        import_mode = read_shelve()
+        import_mode = self.import_mode
 
         if import_mode:
             logger.info('····skip upload to [{}] due import mode'.format(self.machines[1].uploadtarget.name))
@@ -158,7 +159,7 @@ class PDF:
         :param pdf:
         :return: none. Result store in self.ctpbureau_status, self.ctpbureau_error
         """
-        import_mode = read_shelve()
+        import_mode = self.import_mode
 
         if import_mode:
             logger.info('····skip upload to [{}] due import mode'.format(self.machines[1].uploadtarget.name))

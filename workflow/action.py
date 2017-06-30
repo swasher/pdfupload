@@ -262,7 +262,7 @@ def send_sms(pdf):
     :param pdf:
     :return:
     """
-    import_mode = read_shelve()
+    import_mode = pdf.import_mode
 
     logger.info('')
     logger.info('――> SMS:')
@@ -324,13 +324,16 @@ def send_telegram(pdf):
     :param pdf:
     :return:
     """
-    import_mode = read_shelve()
+    import_mode = pdf.import_mode
 
     logger.info('')
     logger.info('――> Telegram:')
 
-    AHTUNG = "<b>FTP: СЕТЕВАЯ ОШИБКА</b>\nЕсли в течении 15 минут не будет сообщения об удачной заливке, " \
+    AHTUNG_USER = "<b>FTP: СЕТЕВАЯ ОШИБКА</b>\nЕсли в течении 15 минут не будет сообщения об удачной заливке, " \
              "пожалуйста, сообщите системному администратору"
+
+    AHTUNG_SUPERUSER = "ERROR"
+
     ordername = ' '.join(pdf.ordername.split('_'))
 
     if pdf.ctpbureau.name == 'Admin' or import_mode:
@@ -350,7 +353,7 @@ def send_telegram(pdf):
     )
 
     if not pdf.ctpbureau_status:
-        message = AHTUNG + message
+        message = AHTUNG_USER + message
 
     sending_telegram_messages(receivers, message)
 

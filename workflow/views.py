@@ -41,8 +41,6 @@ from .action import generating_jpeg
 from .action import custom_operations
 from .action import send_sms
 from .action import send_telegram
-from .action import save_bd_record
-from .action import cleaning_temps
 from .util import read_shelve
 from .util import write_shelve
 
@@ -227,7 +225,7 @@ def processing(pdfName):
     send_telegram(pdf)
 
     # Запись в БД
-    save_bd_record(pdf)
+    pdf.save_bd_record()
 
     # Удаление временных файлов
-    cleaning_temps(pdf)
+    pdf.cleaning_temps()

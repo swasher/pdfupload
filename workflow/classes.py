@@ -23,7 +23,11 @@ from .analyze import analyze_ordername
 from .signamarks import mark_extraction
 from .util import humansize
 from .util import read_shelve
+from .util import error_text
+from .util import inks_to_multiline
+from .util import dict_to_multiline
 from .action import sendfile
+from .models import Grid
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +37,8 @@ class PDF:
     endtime = None       # время окончания обработки
     name = None          # имя pdf-файла
     ordername = None     # название работы
-    created = ''         # дата (или now(), или дата создания файла, зависит от IMPORT_MODE)
-    order = ''           # номер заказа
+    created = None       # дата (или now(), или дата создания файла, зависит от IMPORT_MODE)
+    order = None         # номер заказа
     tmpdir = ''          # абс. путь к временной директории
     abspath = ''         # @property aбс. путь к pdf во временной директории
     is_pdf = ''          # True если файл - pdf
@@ -139,9 +143,9 @@ class PDF:
 
     def upload_to_press(self):
         """
-        # Отсылает обрезанный и сжатый файл на фтп печатной машины
-        # :param pdf:
-        # :return: none. Result store in self.press_status, self.press_error
+        Отсылает обрезанный и сжатый файл на фтп печатной машины
+        :param pdf:
+        :return: none. Result store in self.press_status, self.press_error
         """
         import_mode = self.import_mode
 
@@ -167,3 +171,77 @@ class PDF:
         else:
             self.ctpbureau_status, self.ctpbureau_error = \
                 sendfile(self.abspath, self.ctpbureau.ftp_account)
+
+
+    def save_bd_record(self):
+        """
+        Данные, собранные о pdf, сохраняются в базу данных
+        :param pdf:
+        :return:
+        """
+        contractor_error = error_text(self.ctpbureau_status, self.ctpbureau_error)
+        preview_error = error_text(self.press_status, self.press_error)
+        if not self.ctpbureau_status:
+            bg = 'danger'
+        elif not self.press_status:
+            bg = 'warning'
+        else:
+            bg = 'default'
+
+        logger.info('')
+        logger.info('――> Save into database:')
+
+        try:
+            row = Grid()
+            row.order = self.order
+            row.datetime = self.created
+            row.pdfname = self.ordername
+            row.machine = self.machines[1]
+            row.total_pages = self.complects
+            row.total_plates = self.plates
+            row.contractor = self.ctpbureau
+            row.contractor_error = contractor_error
+            row.preview_error = preview_error
+            row.colors = dict_to_multiline(self.colors)[:500]
+            row.inks = inks_to_multiline(self.inks)[:500]
+            row.bg = bg
+            row.proof = self.jpeg_proof
+            row.thumb = self.jpeg_thumb
+            # logger.info('row.order', row.order)
+            # logger.info('row.datetime', row.datetime)
+            # logger.info('row.pdfname', row.pdfname)
+            # logger.info('row.machine', row.machine)
+            # logger.info('row.total_pages', row.total_pages)
+            # logger.info('row.total_plates', row.total_plates)
+            # logger.info('row.contractor', row.contractor)
+            # logger.info('row.contractor_error', row.contractor_error)
+            # logger.info('row.preview_error', row.preview_error)
+            # logger.info('row.colors', row.colors)
+            # logger.info('row.inks', row.inks)
+            # logger.info('row.bg', row.bg)
+            # logger.info('row.proof', row.proof)
+            # logger.info('row.thumb', row.thumb)
+            row.save()
+            logger.info('····done')
+        except Exception as e:
+            logger.error('····FAILED: {}'.format(e))
+
+
+    def cleaning_temps(self):
+        """
+        Очистка временных файлов
+        :param pdf:
+        :return:
+        """
+        logger.info('')
+        logger.info('――> Cleaning up:')
+        end_time = timezone.now()
+        duration = end_time - self.starttime
+        try:
+            os.unlink(self.abspath)
+            os.unlink(self.cropped_file.name)
+            os.unlink(self.compressed_file.name)
+            shutil.rmtree(self.tmpdir)
+            logger.info('····done [in {}]'.format(str(duration).split('.')[0]))
+        except Exception as e:
+            logger.error('····FAILED: {}'.format(e))

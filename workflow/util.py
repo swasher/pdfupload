@@ -9,6 +9,7 @@ import telegram
 
 from datetime import datetime
 from django.conf import settings
+from core.models import Employee
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +223,7 @@ def write_shelve(mode):
     d.close()
 
 
-def sending_telegram_messages(receivers, message):
+def telegram_send_message(receivers, message):
     """
     Отсылает сообщение message каждому из получателей в списке receivers
     :param receivers: list of Employee objects
@@ -233,6 +234,19 @@ def sending_telegram_messages(receivers, message):
     for each in receivers:
         m = bot.send_message(chat_id=each.telegram_id, text=message, parse_mode=telegram.ParseMode.HTML)
         logger.info('····notify: {} {}'.format(m.chat.first_name, m.chat.last_name))
+
+
+def emergency_termination(pdf, e):
+    """
+    Отсылает уведомление о проишествии, выполняет очистку и экстренно останавливает программу
+    :return: 
+    """
+    message = e
+    receivers = Employee.objects.filter(user__is_superuser=True).filter(telegram_notify=True)
+    telegram_send_message(receivers, message)
+    logger.error('EMERGENCY TERMINATION: {}'.format(e))
+    pdf.cleaning_temps()
+    exit()
 
 
 # def send_telegram_group_or_channel(pdf):

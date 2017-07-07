@@ -9,24 +9,18 @@ import math
 from .smsc_api import SMSC
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from django.conf import settings
-from django.utils import timezone
 from subprocess import call
 from ftplib import FTP
 
-
 from core.models import Employee
 from core.models import Contractor
-from .models import Grid
 from .util import pt, mm
 from .util import reduce_image
 from .util import get_jpeg_path
 from .util import colorant_to_string
 from .util import error_text
-from .util import dict_to_multiline
-from .util import inks_to_multiline
 from .util import get_bbox
-from .util import read_shelve
-from .util import sending_telegram_messages
+from .util import telegram_send_message
 
 
 logger = logging.getLogger(__name__)
@@ -324,23 +318,15 @@ def send_telegram(pdf):
     :param pdf:
     :return:
     """
-    import_mode = pdf.import_mode
-
     logger.info('')
     logger.info('――> Telegram:')
+
+    ordername = ' '.join(pdf.ordername.split('_'))
 
     AHTUNG_USER = "<b>FTP: СЕТЕВАЯ ОШИБКА</b>\nЕсли в течении 15 минут не будет сообщения об удачной заливке, " \
              "пожалуйста, сообщите системному администратору"
 
     AHTUNG_SUPERUSER = "ERROR"
-
-    ordername = ' '.join(pdf.ordername.split('_'))
-
-    if pdf.ctpbureau.name == 'Admin' or import_mode:
-        logger.info('····only Superusers will be notified')
-        receivers = Employee.objects.filter(user__is_superuser=True).filter(telegram_notify=True)
-    else:
-        receivers = Employee.objects.filter(telegram_notify=True)
 
     message = """
 <b>{} {}</b>
@@ -352,85 +338,17 @@ def send_telegram(pdf):
         pdf.machines[1].uploadtarget, error_text(pdf.press_status, pdf.press_error)
     )
 
+
+    if pdf.ctpbureau.name == 'Admin' or pdf.import_mode:
+        logger.info('····only Superusers will be notified')
+        receivers = Employee.objects.filter(user__is_superuser=True).filter(telegram_notify=True)
+    else:
+        receivers = Employee.objects.filter(telegram_notify=True)
+
     if not pdf.ctpbureau_status:
         message = AHTUNG_USER + message
 
-    sending_telegram_messages(receivers, message)
-
-
-def save_bd_record(pdf):
-    """
-    Данные, собранные о pdf, сохраняются в базу данных
-    :param pdf:
-    :return:
-    """
-    contractor_error = error_text(pdf.ctpbureau_status, pdf.ctpbureau_error)
-    preview_error = error_text(pdf.press_status, pdf.press_error)
-    if not pdf.ctpbureau_status:
-        bg = 'danger'
-    elif not pdf.press_status:
-        bg = 'warning'
-    else:
-        bg = 'default'
-
-    logger.info('')
-    logger.info('――> Save into database:')
-
-    try:
-        row = Grid()
-        row.order = pdf.order
-        row.datetime = pdf.created
-        row.pdfname = pdf.ordername
-        row.machine = pdf.machines[1]
-        row.total_pages = pdf.complects
-        row.total_plates = pdf.plates
-        row.contractor = pdf.ctpbureau
-        row.contractor_error = contractor_error
-        row.preview_error = preview_error
-        row.colors = dict_to_multiline(pdf.colors)[:500]
-        row.inks = inks_to_multiline(pdf.inks)[:500]
-        row.bg = bg
-        row.proof = pdf.jpeg_proof
-        row.thumb = pdf.jpeg_thumb
-        # logger.info('row.order', row.order)
-        # logger.info('row.datetime', row.datetime)
-        # logger.info('row.pdfname', row.pdfname)
-        # logger.info('row.machine', row.machine)
-        # logger.info('row.total_pages', row.total_pages)
-        # logger.info('row.total_plates', row.total_plates)
-        # logger.info('row.contractor', row.contractor)
-        # logger.info('row.contractor_error', row.contractor_error)
-        # logger.info('row.preview_error', row.preview_error)
-        # logger.info('row.colors', row.colors)
-        # logger.info('row.inks', row.inks)
-        # logger.info('row.bg', row.bg)
-        # logger.info('row.proof', row.proof)
-        # logger.info('row.thumb', row.thumb)
-        row.save()
-        logger.info('····done')
-    except Exception as e:
-        logger.error('····FAILED: {}'.format(e))
-
-
-def cleaning_temps(pdf):
-    """
-    Очистка временных файлов
-    :param pdf:
-    :return:
-    """
-    logger.info('')
-    logger.info('――> Cleaning up:')
-    try:
-        os.unlink(pdf.abspath)
-        os.unlink(pdf.cropped_file.name)
-        os.unlink(pdf.compressed_file.name)
-        shutil.rmtree(pdf.tmpdir)
-
-        end_time = timezone.now()
-        duration = end_time - pdf.starttime
-        logger.info('····done [{}]'.format(str(duration).split('.')[0]))
-    except Exception as e:
-        logger.error('····FAILED: {}'.format(e))
+    telegram_send_message(receivers, message)
 
 
 def sendfile(filepath, receiver):

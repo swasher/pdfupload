@@ -3,7 +3,9 @@
 from pprint import pprint
 import logging
 
-# pdfmioner.six
+from .util import emergency_termination
+
+# pdfminer.six
 #
 # from pdfminer.pdfdocument import PDFDocument
 # from pdfminer.pdfinterp import PDFResourceManager
@@ -108,6 +110,7 @@ def mark_extraction(pdf):
     print m[page][signa-mark-name][(0|1|2)(mark_text|xobject|SubType)]
 
     """
+
     logger.info('')
     logger.info('――> Mark extraction')
     if pdf.is_signastation:
@@ -150,7 +153,13 @@ def mark_extraction(pdf):
             #  'pssMO4_1': u'Magenta Cyan Yellow ',}
 
             # read the page into a layout object
-            interpreter.process_page(page)
+            try:
+                # Бывают случаи, когда pdfminer глючит при анализе страниц
+                # TODO - не работает. При ошибке внутри майнера не вызывается эксепшн
+                interpreter.process_page(page)
+            except KeyError as e:
+                emergency_termination(pdf, e)
+
             layout = device.get_result()
 
             # Create a dict with (Signa) Mark Objects
